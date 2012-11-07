@@ -85,6 +85,8 @@
     <File Path="Project87"/>
     <File Path="Project87\Scenes"/>
     <File Path="Project87\Scenes\Project87.Scenes.TestScene.pas"/>
+    <File Path="Project87\Scenes\Project87.Scenes.IntroScene.pas"/>
+    <File Path="Project87\Scenes\Project87.Scenes.MainMenuScene.pas"/>
     <File Path="Project87\Project87.Game.pas"/>
     <File Path="QApplication"/>
     <File Path="QApplication\QApplication.Window.pas"/>

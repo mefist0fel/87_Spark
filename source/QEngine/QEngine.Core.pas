@@ -320,6 +320,8 @@ constructor TQuadEngine.Create;
 var
   ARender: IQuadRender;
 begin
+  Inc(FRefCount);
+
   FDefaultResolution := ADefaultResolution;
   FCurrentResolution := ACurrentResolution;
 
@@ -334,8 +336,6 @@ end;
 
 destructor TQuadEngine.Destroy;
 begin
-  FRefCount := -1;
-
   TheRender.Finalize;
 
   FreeAndNil(FQuadDevice);
