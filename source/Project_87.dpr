@@ -28,7 +28,9 @@ uses
   Project87.Scenes.TestScene in 'Project87\Scenes\Project87.Scenes.TestScene.pas',
   Project87.Scenes.Game in 'Project87\Scenes\Project87.Scenes.Game.pas',
   QApplication.Input in 'QApplication\QApplication.Input.pas',
-  Project87.GameObject in 'Project87\Project87.GameObject.pas';
+  Project87.GameObject in 'Project87\Project87.GameObject.pas',
+  Project87.Hero in 'Project87\Objects\Project87.Hero.pas',
+  Project87.Resources in 'Project87\Project87.Resources.pas';
 
 begin
   //ReportMemoryLeaksOnShutdown := True;

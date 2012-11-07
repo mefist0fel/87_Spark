@@ -82,14 +82,19 @@
     <Transaction>2012.11.07 14:19:13.161.pas,D:\Программирование\Проекты\Текущие проекты\Project_87\source\Unit1.pas=D:\Программирование\Проекты\Текущие проекты\Project_87\source\QApplication\QApplication.Input.pas</Transaction>
     <Transaction>2012.11.07 23:12:43.775.pas,C:\Projects\Delphi Projects\Igdc\87\87_Spark\source\Unit1.pas=C:\Projects\Delphi Projects\Igdc\87\87_Spark\source\Project87\Scenes\Project87.Scenes.Game.pas</Transaction>
     <Transaction>2012.11.07 23:26:30.009.pas,C:\Projects\Delphi Projects\Igdc\87\87_Spark\source\Unit1.pas=C:\Projects\Delphi Projects\Igdc\87\87_Spark\source\Project87\Project87.GameObject.pas</Transaction>
+    <Transaction>2012.11.08 00:36:23.352.pas,C:\Projects\Delphi Projects\Igdc\87\87_Spark\source\Unit1.pas=C:\Projects\Delphi Projects\Igdc\87\87_Spark\source\Project87\Objects\Project87.Hero.pas</Transaction>
+    <Transaction>2012.11.08 00:55:12.512.pas,C:\Projects\Delphi Projects\Igdc\87\87_Spark\source\Unit1.pas=C:\Projects\Delphi Projects\Igdc\87\87_Spark\source\Project87\Project87.Resources.pas</Transaction>
   </Transactions>
 	<ProjectSortOrder AutoSort="0" SortType="0">
     <File Path="Project87"/>
+    <File Path="Project87\Objects"/>
+    <File Path="Project87\Objects\Project87.Hero.pas"/>
     <File Path="Project87\Scenes"/>
     <File Path="Project87\Scenes\Project87.Scenes.TestScene.pas"/>
     <File Path="Project87\Scenes\Project87.Scenes.Game.pas"/>
     <File Path="Project87\Project87.Game.pas"/>
     <File Path="Project87\Project87.GameObject.pas"/>
+    <File Path="Project87\Project87.Resources.pas"/>
     <File Path="QApplication"/>
     <File Path="QApplication\QApplication.Window.pas"/>
     <File Path="QApplication\QApplication.Application.pas"/>
