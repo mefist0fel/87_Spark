@@ -21,7 +21,7 @@ type
 implementation
 
 uses
-  Project87.Scenes.TestScene;
+  Project87.Scenes.Game;
 
 {$REGION '  TProject87Game  '}
 constructor TProject87Game.Create;
@@ -43,8 +43,8 @@ end;
 procedure TProject87Game.OnInitialize(AParameter: TObject = nil);
 begin
   //Создавать сцены и загружать основные ресурсы тут
-  SceneManager.AddScene(TTestScene.Create('Test'));
-  SceneManager.MakeCurrent('Test');
+  SceneManager.AddScene(TGameScene.Create('Spark'));
+  SceneManager.MakeCurrent('Spark');
   SceneManager.OnInitialize;
 end;
 {$ENDREGION}

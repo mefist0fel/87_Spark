@@ -26,6 +26,7 @@ uses
   Project87.Game in 'Project87\Project87.Game.pas',
   QGame.Resources in 'QGame\QGame.Resources.pas',
   Project87.Scenes.TestScene in 'Project87\Scenes\Project87.Scenes.TestScene.pas',
+  Project87.Scenes.Game in 'Project87\Scenes\Project87.Scenes.Game.pas',
   QApplication.Input in 'QApplication\QApplication.Input.pas';
 
 begin
