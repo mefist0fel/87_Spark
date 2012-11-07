@@ -34,6 +34,8 @@ type
     private
       constructor Create(const ADefaultResolution, ACurrentResolution: TVector2I);
     public
+      destructor Destroy; override;
+
       function CreateCamera(): IQuadCamera;
       function CreateTexture(): TQuadTexture;
       function CreateFont(): TQuadFont;
@@ -59,6 +61,7 @@ procedure CreateEngine(const ADefaultResolution, ACurrentResolution: TVector2I);
 implementation
 
 uses
+  SysUtils,
   Math;
 
 type
@@ -329,6 +332,21 @@ begin
   TheRender := QuadRender;
 end;
 
+destructor TQuadEngine.Destroy;
+begin
+  FRefCount := -1;
+
+  TheRender.Finalize;
+
+  FreeAndNil(FQuadDevice);
+  FreeAndNil(FQuadRender);
+
+  TheDevice := nil;
+  TheRender := nil;
+
+  inherited;
+end;
+
 function TQuadEngine.GetDevice;
 begin
   Result := FQuadDevice;
@@ -370,6 +388,7 @@ var
 begin
   FQuadDevice.Device.CreateTexture(ATexture);
   Result := TQuadTexture.Create(Self, ATexture);
+  ATexture := nil;
 end;
 
 function TQuadEngine.CreateFont: TQuadFont;

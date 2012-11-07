@@ -2,3 +2,5 @@ __history
 *.~*
 source/dcu/*.*
 release/bin/log.txt
+/source/dcu
+/release/bin/Project_87.rsm

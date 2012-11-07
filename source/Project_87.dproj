@@ -78,6 +78,8 @@
 			<DCCReference Include="QGame\QGame.Resources.pas"/>
 			<DCCReference Include="Project87\Scenes\Project87.Scenes.TestScene.pas"/>
 			<DCCReference Include="QApplication\QApplication.Input.pas"/>
+			<DCCReference Include="Project87\Scenes\Project87.Scenes.IntroScene.pas"/>
+			<DCCReference Include="Project87\Scenes\Project87.Scenes.MainMenuScene.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

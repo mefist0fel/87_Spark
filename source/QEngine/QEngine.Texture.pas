@@ -19,6 +19,7 @@ type
       FSpriteSize: TVectorI;
       FFrameSize: TVectorI;
       FFrameUVSize: TVectorF;
+      FFramesCount: Word;
 
       function GetPatternIndex(Pattern: Word): TVectorI;
 
@@ -97,7 +98,7 @@ type
       property SpriteSize: TVectorI read FSpriteSize;
       property FrameSize: TVectorI read FFrameSize;
       property FrameUVSize: TVectorF read FFrameUVSize;
-      property FramesCount: Integer read GetPatternCount;
+      property FramesCount: Word read FFramesCount;
   end;
 
 implementation
@@ -126,6 +127,7 @@ function TQuadTexture.GetPatternIndex(Pattern: Word): TVectorI;
 var
   APatternsCount: TVector2I;
 begin
+  Pattern := Pattern mod FramesCount;
   APatternsCount.Create(
     FTexture.GetSpriteWidth div FTexture.GetPatternWidth,
     FTexture.GetSpriteHeight div FTexture.GetPatternHeight);
@@ -626,6 +628,7 @@ begin
   FFrameUVSize := TVectorF.Create(
     FTexture.GetPatternWidth / FTexture.GetTextureWidth,
     FTexture.GetPatternHeight / FTexture.GetTextureHeight);
+  FFramesCount := GetPatternCount;
 end;
 
 procedure TQuadTexture.LoadFromFile(const AFileName: string; ARegister: Byte;

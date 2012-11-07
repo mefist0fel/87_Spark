@@ -141,7 +141,7 @@ type
       ///<summary>Ёкземпл€р класса игры типа <see cref="QGame.Game|TQGame" />
       /// или производного от него.</summary>
       property Game: TQGame read FGame;
-      ///<summary></summary>
+      ///<summary>»нтерфейс, позвол€ющий провер€ть состо€ние клавиатуры и мыши.</summary>
       property ControlState: IControlState read FControlState;
       ///<summary>–абочее разрешение приложение и размер клиентской области окна.</summary>
       property Resolution: TVectorI read FResolution;
@@ -159,6 +159,7 @@ implementation
 
 uses
   Windows,
+  Messages,
   SysUtils,
   Generics.Collections,
   QEngine.Core;
@@ -314,14 +315,13 @@ end;
 
 constructor TQApplication.Create;
 begin
+  FIsRuning := False;
   FWindow := TWindow.Create(Self);
   FControlState := TControlState.Create;
-  FIsRuning := False;
-
   FCriticalSection := TCriticalSection.Create;
   FMessageQueue := TMessageQueue.Create;
 
-  TheControlState := FControlState;
+  TheControlState := ControlState;
   TheMouseState := TheControlState.Mouse;
   TheKeyboardState := TheControlState.Keyboard;
 end;
@@ -330,10 +330,15 @@ destructor TQApplication.Destroy;
 begin
   if Assigned(FWindow) then
     FreeAndNil(FWindow);
-  if Assigned(FGame) then
-    FreeAndNil(FGame);
-  FreeAndNil(FMessageQueue);
   FreeAndNil(FCriticalSection);
+  FreeAndNil(FMessageQueue);
+
+  FControlState := nil;
+  TheControlState := nil;
+  TheMouseState := nil;
+  TheKeyboardState := nil;
+
+  FMainTimer := nil;
 
   inherited;
 end;
@@ -357,14 +362,15 @@ end;
 procedure TQApplication.SetupTimer(ATimerDelta: Word);
 begin
   TheDevice.CreateTimer(FMainTimer);
+  FMainTimer.SetState(False);
   FMainTimer.SetCallBack(@MainTimerCallback);
   FMainTimer.SetInterval(ATimerDelta);
 end;
 
 procedure TQApplication.ProcessMessageQueue;
 var
-  AQueue: TList<TEventMessage>;
-  AMessage: TEventMessage;
+  AQueue: TList<QApplication.Input.TEventMessage>;
+  AMessage: QApplication.Input.TEventMessage;
   APosition: TVectorF;
   ADirection: Integer;
   AButton: TMouseButton;
@@ -378,7 +384,8 @@ begin
       emtActivate:
         begin
           AState := (AMessage as TActivateEventMessage).IsActive;
-          FGame.OnActivate(AState);
+          if Assigned(FGame) then
+            FGame.OnActivate(AState);
         end;
 
       emtMouseEvent:
@@ -437,6 +444,7 @@ begin
     end;
     AMessage.Free;
   end;
+  FreeAndNil(AQueue);
 end;
 
 procedure TQApplication.Loop;
@@ -487,12 +495,13 @@ begin
   SetupTimer(AOptions.TimerDelta);
   TheRender.Initialize(Window.Handle, Resolution.X, Resolution.Y, FIsFullscreen);
 
+  FreeAndNil(AOptions);
   FGame.OnInitialize;
 end;
 
 procedure TQApplication.OnActivate(AIsActivate: Boolean);
 begin
-  if Assigned(FGame) and Assigned(FMainTimer) then
+  if Assigned(FMainTimer) then
   begin
     FMainTimer.SetState(AIsActivate);
     FMessageQueue.AddToQueue(TActivateEventMessage.Create(AIsActivate));
@@ -518,10 +527,13 @@ end;
 procedure TQApplication.OnDestroy;
 begin
   FCriticalSection.Enter;
-    OnActivate(False);
+    FIsRuning := False;
+    FMainTimer.SetState(False);
+    FMainTimer := nil;
+
     if Assigned(FGame) then
       FGame.OnDestroy;
-    FIsRuning := False;
+    FreeAndNil(FGame);
   FCriticalSection.Leave;
 end;
 
@@ -534,55 +546,41 @@ end;
 function TQApplication.OnMouseButtonDown;
 begin
   Result := True;
-  FMessageQueue.AddToQueue(
-    TMouseButtonEventMessage.Create(
-      AButton, True, AMousePosition));
+  FMessageQueue.AddToQueue(TMouseButtonEventMessage.Create(AButton, True, AMousePosition));
 end;
 
 function TQApplication.OnMouseButtonUp;
 begin
   Result := True;
-  FMessageQueue.AddToQueue(
-    TMouseButtonEventMessage.Create(
-      AButton, False, AMousePosition));
+  FMessageQueue.AddToQueue(TMouseButtonEventMessage.Create(AButton, False, AMousePosition));
 end;
 
 function TQApplication.OnMouseWheel;
 begin
   Result := True;
-  FMessageQueue.AddToQueue(
-    TWheelEventMessage.Create(ADirection, AMousePosition));
+  FMessageQueue.AddToQueue(TWheelEventMessage.Create(ADirection, AMousePosition));
 end;
 
 function TQApplication.OnKeyDown;
 begin
   Result := True;
-  FMessageQueue.AddToQueue(
-    TKeyEventMessage.Create(AKey, True));
+  FMessageQueue.AddToQueue(TKeyEventMessage.Create(AKey, True));
 
   if AKey = KB_ALT then
     FIsAltPressed := True;
   if (AKey = KB_F4) and FIsAltPressed then
-    OnDestroy;
+    SendMessageA(FWindow.Handle, WM_CLOSE, 0, 0);
 end;
 
 function TQApplication.OnKeyUp;
 begin
   Result := True;
-  FMessageQueue.AddToQueue(
-    TKeyEventMessage.Create(AKey, False));
+  FMessageQueue.AddToQueue(TKeyEventMessage.Create(AKey, False));
 
   if AKey = KB_ALT then
     FIsAltPressed := False;
 end;
 {$ENDREGION}
-
-initialization
-  TheApplication := TQApplication.Create;
-
-finalization
-  if Assigned(TheApplication) then
-    FreeAndNil(TheApplication);
 
 end.
 

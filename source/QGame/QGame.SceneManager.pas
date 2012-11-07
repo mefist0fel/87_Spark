@@ -12,7 +12,7 @@ uses
 type
   TSceneManager = class sealed (TComponent)
     strict private
-      FSceneList: TList<TScene>;
+      FScenes: TDictionary<string, TScene>;
       FCurrentScene: TScene;
 
       function GetScene(const ASceneName: string): TScene;
@@ -109,7 +109,7 @@ uses
 {$REGION '  TSceneManager  '}
 constructor TSceneManager.Create;
 begin
-  FSceneList := TList<TScene>.Create;
+  FScenes := TDictionary<string, TScene>.Create;
   FCurrentScene := nil;
 end;
 
@@ -117,28 +117,20 @@ destructor TSceneManager.Destroy;
 var
   AScene: TScene;
 begin
-  for AScene in FSceneList do
+  for AScene in FScenes.Values do
+  begin
     AScene.OnDestroy;
-  AScene := nil;
-  FSceneList.Free;
+    AScene.Free;
+  end;
+  FScenes.Free;
 
   inherited;
 end;
 
 function TSceneManager.GetScene(const ASceneName: string): TScene;
-var
-  AScene: TScene;
-  AName: string;
 begin
   Result := nil;
-  AName := AnsiUpperCase(ASceneName);
-  for AScene in FSceneList do
-    if AnsiCompareStr(AName, AScene.Name) = 0 then
-    begin
-      Result := AScene;
-      Break;
-    end;
-  AScene := nil;
+  FScenes.TryGetValue(AnsiUpperCase(ASceneName), Result);
 end;
 
 procedure TSceneManager.AddScene(AScene: TScene);
@@ -150,8 +142,7 @@ begin
         '—цена с таким именем уже существует. ' +
         '{0CAED87C-8402-47EA-A245-4BAA77905A23}');
 
-    FSceneList.Add(AScene);
-    AScene := nil;
+    FScenes.Add(AScene.Name, AScene);
   end;
 end;
 
@@ -169,9 +160,9 @@ begin
   begin
     if FCurrentScene = AScene then
       FCurrentScene := nil;
-    FSceneList.Remove(AScene);
+    FScenes.Remove(AScene.Name);
     AScene.OnDestroy;
-    AScene := nil;
+    FreeAndNil(AScene);
   end;
 end;
 
