@@ -51,11 +51,11 @@ procedure TTestScene.OnInitialize(AParameter: TObject);
 begin
   FTestCamera := TheEngine.CreateCamera;
 
-  FImage := TheEngine.CreateTexture;
-  FImage.LoadFromFile('..\data\gfx\miku.png', 0, 128, 128);
-  TheResourceManager.AddResource(TTextureResource.Create('Texture', 'Sample', FImage));
-  FImage := nil;
-  FImage := (TheResourceManager.GetResource('Texture', 'Sample') as TTextureResource).Texture as TQuadTexture;
+  TheResourceManager.AddResource(
+    TTextureExResource.CreateAndLoad(
+      'Texture', 'Sample', '..\data\gfx\miku.png', 0, 128, 128));
+  FImage := (TheResourceManager.GetResource('Texture', 'Sample') as TTextureExResource).Texture;
+
   FDelta := 0;
   FFrame := 0;
 end;

@@ -59,6 +59,10 @@ type
   TVectorI = TVector2I;
   TVectorF = TVector2F;
 
+const
+  ZeroVectorI: TVectorI = (X: 0; Y: 0);
+  ZeroVectorF: TVectorF = (X: 0; Y: 0);
+
 {$REGION '  Clamp Functions  '}
 function Clamp(AValue, AMax, AMin: Integer): Integer; overload;
 function Clamp(AValue, AMax, AMin: Single): Single; overload;
@@ -71,6 +75,16 @@ function ClampToMax(AValue, AMax: Double): Double; overload;
 function ClampToMin(AValue, AMin: Integer): Integer; overload;
 function ClampToMin(AValue, AMin: Single): Single; overload;
 function ClampToMin(AValue, AMin: Double): Double; overload;
+{$ENDREGION}
+
+{$REGION '  Interpolate Functions  '}
+function LinearInterpolate(AFrom, ATo, AProgress: Single): Single;
+function Ermit01Interpolate(AFrom, ATo, AProgress: Single): Single;
+function Ermit10Interpoalte(AFrom, ATo, AProgress: Single): Single;
+function Parabolic01Interpolate(AFrom, ATo, AProgress: Single): Single;
+function Parabolic10Interpolate(AFrom, ATo, AProgress: Single): Single;
+function Square01Interpolate(AFrom, ATo, AProgress: Single): Single;
+function Square10Interpolate(AFrom, ATo, AProgress: Single): Single;
 {$ENDREGION}
 
 implementation
@@ -122,6 +136,43 @@ end;
 function ClampToMin(AValue, AMin: Double): Double;
 begin
   Exit(Max(AValue, AMin));
+end;
+{$ENDREGION}
+
+{$REGION '  Interpolate Functions  '}
+function LinearInterpolate(AFrom, ATo, AProgress: Single): Single;
+begin
+  Result := (ATo - AFrom) * Clamp(AProgress, 1, 0);
+end;
+
+function Ermit01Interpolate(AFrom, ATo, AProgress: Single): Single;
+begin
+
+end;
+
+function Ermit10Interpoalte(AFrom, ATo, AProgress: Single): Single;
+begin
+
+end;
+
+function Parabolic01Interpolate(AFrom, ATo, AProgress: Single): Single;
+begin
+
+end;
+
+function Parabolic10Interpolate(AFrom, ATo, AProgress: Single): Single;
+begin
+
+end;
+
+function Square01Interpolate(AFrom, ATo, AProgress: Single): Single;
+begin
+
+end;
+
+function Square10Interpolate(AFrom, ATo, AProgress: Single): Single;
+begin
+
 end;
 {$ENDREGION}
 
