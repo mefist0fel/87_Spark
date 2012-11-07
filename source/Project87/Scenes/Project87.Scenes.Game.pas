@@ -19,6 +19,7 @@ type
       destructor Destroy; override;
 
       procedure OnInitialize(AParameter: TObject = nil); override;
+      procedure OnUpdate(const ADelta: Double); override;
       procedure OnDraw(const ALayer: Integer); override;
   end;
 
@@ -44,6 +45,11 @@ begin
   FTestCamera := TheEngine.CreateCamera;
   FImage := TheEngine.CreateTexture;
   FImage.LoadFromFile('..\data\gfx\miku.png', 0, 128, 128);
+end;
+
+procedure TGameScene.OnUpdate(const ADelta: Double);
+begin
+
 end;
 
 procedure TGameScene.OnDraw(const ALayer: Integer);
