@@ -79,6 +79,7 @@
 			<DCCReference Include="Project87\Scenes\Project87.Scenes.TestScene.pas"/>
 			<DCCReference Include="Project87\Scenes\Project87.Scenes.Game.pas"/>
 			<DCCReference Include="QApplication\QApplication.Input.pas"/>
+			<DCCReference Include="Project87\Project87.GameObject.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>
