@@ -1,0 +1,52 @@
+unit Project87.Game;
+
+interface
+
+uses
+  QGame.Game,
+  QEngine.Core,
+  QEngine.Camera;
+
+type
+  TProject87Game = class sealed (TQGame)
+    strict private
+    strict protected
+      function GetGameVersion(): string; override;
+    public
+      constructor Create;
+
+      procedure OnInitialize(AParameter: TObject = nil); override;
+  end;
+
+implementation
+
+uses
+  Project87.Scenes.TestScene;
+
+{$REGION '  TProject87Game  '}
+constructor TProject87Game.Create;
+begin
+  inherited;
+
+  FGameName := 'Project 87';
+  FGameAutors := 'Mefistofel and Bloov';
+  FGameVersion := 0;
+  FGameVersionMajor := 1;
+  FGameVersionMinor := 1;
+end;
+
+function TProject87Game.GetGameVersion;
+begin
+  Result := 'Prototype';
+end;
+
+procedure TProject87Game.OnInitialize(AParameter: TObject = nil);
+begin
+  //Создавать сцены и загружать основные ресурсы тут
+  SceneManager.AddScene(TTestScene.Create('Test'));
+  SceneManager.MakeCurrent('Test');
+  SceneManager.OnInitialize;
+end;
+{$ENDREGION}
+
+end.

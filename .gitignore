@@ -1,0 +1,4 @@
+__history
+*.~*
+source/dcu/*.*
+release/bin/log.txt
