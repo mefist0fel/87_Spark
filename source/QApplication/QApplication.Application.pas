@@ -383,6 +383,9 @@ begin
     case AMessage.MessageType of
       emtActivate:
         begin
+          if not (AMessage is TActivateEventMessage) then
+            Continue;
+
           AState := (AMessage as TActivateEventMessage).IsActive;
           if Assigned(FGame) then
             FGame.OnActivate(AState);
@@ -390,6 +393,9 @@ begin
 
       emtMouseEvent:
         begin
+          if not (AMessage is TMouseEventMessage) then
+            Continue;
+
           APosition := (AMessage as TMouseEventMessage).Position;
           (FControlState as TControlState).SetMousePosition(APosition);
           if Assigned(FGame) then
@@ -398,6 +404,9 @@ begin
 
       emtMouseButtonEvent:
         begin
+          if not (AMessage is TMouseButtonEventMessage) then
+            Continue;
+
           AState := (AMessage as TMouseButtonEventMessage).IsPressed;
           AButton := (AMessage as TMouseButtonEventMessage).Button;
           APosition := (AMessage as TMouseButtonEventMessage).Position;
@@ -417,6 +426,9 @@ begin
 
       emtWheelEvent:
         begin
+          if not (AMessage is TWheelEventMessage) then
+            Continue;
+
           APosition := (AMessage as TWheelEventMessage).Position;
           ADirection := (AMessage as TWheelEventMessage).Direction;
           (FControlState as TControlState).SetWheelState(ADirection);
@@ -427,6 +439,9 @@ begin
 
       emtKeyEvent:
         begin
+          if not (AMessage is TKeyEventMessage) then
+            Continue;
+
           AState := (AMessage as TKeyEventMessage).IsPressed;
           AKey := (AMessage as TKeyEventMessage).Key;
           (FControlState as TControlState).SetKeyState(AKey, AState);

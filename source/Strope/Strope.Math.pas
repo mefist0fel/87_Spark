@@ -56,6 +56,15 @@ type
         2: (Arr: array [0..1] of Single);
   end;
 
+  TVector2IHelper = record helper for TVector2I
+    public
+      function ComponentwiseMultiply(const AVector: TVector2I): TVector2F;
+      function ComponentwiseDivide(const AVector: TVector2I): TVector2F;
+
+      function Normalized(): TVector2F;
+      function Angle(const AVector: TVector2F): Single;
+  end;
+
   TVectorI = TVector2I;
   TVectorF = TVector2F;
 
@@ -347,6 +356,34 @@ const
   Zero: TVector2F = (X: 0; Y: 0);
 begin
   if (Zero = AVector) or (Zero = Self) then
+    Exit(0);
+
+  Result := ArcCos(Self * AVector / (Self.Length * AVector.Length));
+end;
+{$ENDREGION}
+
+{$REGION '  TVector2IHelper  '}
+function TVector2IHelper.ComponentwiseMultiply(const AVector: TVector2I): TVector2F;
+begin
+  Result.Create(Self.X * AVector.X, Self.Y * AVector.Y);
+end;
+
+function TVector2IHelper.ComponentwiseDivide(const AVector: TVector2I): TVector2F;
+begin
+  Result.Create(Self.X / AVector.X, Self.Y / AVector.Y);
+end;
+
+function TVector2IHelper.Normalized(): TVector2F;
+var
+  ALength: Single;
+begin
+  ALength := Self.Length;
+  Result.Create(Self.X / ALength, Self.Y / ALength);
+end;
+
+function TVector2IHelper.Angle(const AVector: TVector2F): Single;
+begin
+  if (ZeroVectorF = AVector) or (ZeroVectorI = Self) then
     Exit(0);
 
   Result := ArcCos(Self * AVector / (Self.Length * AVector.Length));

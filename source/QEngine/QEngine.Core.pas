@@ -68,48 +68,66 @@ type
   TQuadCamera = class sealed (TBaseObject, IQuadCamera)
     strict private
       FCurrentResolution: TVectorF;
-      FIsUseCorrection: Boolean;
+      FDefaultResolution: TVectorF;
+      FHalfScreen: TVectorF;
+
+      FUseCorrection: Boolean;
       FCorrectionScale: TVectorF;
+
       FPosition: TVectorF;
       FScale: TVectorF;
 
-      function GetScreenPosition(const AWorldPosition: TVectorF): TVectorF;
-      function GetScreenX(AWorldX: Single): Single; inline;
-      function GetScreenY(AWordlY: Single): Single; inline;
+      function GetRealScale(): TVectorF;
 
-      function GetScreenSize(const AWorldSize: TVectorF): TVectorF;
-      function GetScreenWidth(AWorldWidth: Single): Single; inline;
-      function GetScreenHeight(AWorldHeight: Single): Single; inline;
+      function GetScreenPosition(const APosition: TVectorF): TVectorF;
+      function GetScreenX(X: Single): Single; inline;
+      function GetScreenY(Y: Single): Single; inline;
 
-      function GetWorldPosition(const AScreenPosition: TVectorF): TVectorF;
-      function GetWorldX(AScreenX: Single): Single; inline;
-      function GetWorldY(AScreenY: Single): Single; inline;
+      function GetScreenSize(const ASize: TVectorF): TVectorF;
+      function GetScreenWidth(AWidth: Single): Single; inline;
+      function GetScreenHeight(AHeight: Single): Single; inline;
 
-      function GetWorldSize(const AScreenSize: TVectorF): TVectorF;
-      function GetWorldWidth(AScreenWidth: Single): Single; inline;
-      function GetWorldHeight(AScreenHeight: Single): Single; inline;
+      function GetWorldPosition(const APosition: TVectorF): TVectorF;
+      function GetWorldX(X: Single): Single; inline;
+      function GetWorldY(Y: Single): Single; inline;
+
+      function GetWorldSize(const ASize: TVectorF): TVectorF;
+      function GetWorldWidth(AWidth: Single): Single; inline;
+      function GetWorldHeight(AHeight: Single): Single; inline;
 
       function GetPosition(): TVectorF; inline;
       procedure SetPosition(const APosition: TVectorF); inline;
 
-      function GetCenterPosition(): TVectorF;
-      procedure SetCenterPosition(const APosition: TVectorF);
+      function GetLeftTopPosition(): TVectorF;
+      procedure SetLeftTopPosition(const APosition: TVectorF);
 
       function GetScale(): TVectorF;  inline;
       procedure SetScale(const AScale: TVectorF); inline;
 
-      function GetResolutionCorrection(): TVectorF; inline;
+      function GetCorrection(): TVectorF; inline;
 
-      function GetIsUseCorrection(): Boolean; inline;
-      procedure SetIsUseCorrection(AIsUseCorrection: Boolean); inline;
+      function GetUseCorrection(): Boolean; inline;
+      procedure SetUseCorrection(AUseCorrection: Boolean); inline;
+
+      function GetResolution(): TVectorF;
+      function GetDefaultResolution(): TVectorF;
+
+      property RealScale: TVectorF read GetRealScale;
+      property HalfScreen: TVectorF read FHalfScreen;
     public
       constructor Create(const ADefaultResolution, ACurrentResolution: TVectorI);
 
       property Position: TVectorF read GetPosition write SetPosition;
-      property CenterPosition: TVectorF read GetCenterPosition write SetCenterPosition;
+      property LeftTopPosition: TVectorF read GetLeftTopPosition write SetLeftTopPosition;
+      property ScreenPosition[const APosition: TVectorF]: TVectorF read GetScreenPosition;
+      property ScreenSize[const ASize: TVectorF]: TVectorF read GetScreenSize;
+      property WorldPosition[const APosition: TVectorF]: TVectorF read GetWorldPosition;
+      property WorldSize[const ASize: TVectorF]: TVectorF read GetWorldSize;
       property Scale: TVectorF read GetScale write SetScale;
-      property ResolutionCorrection: TVectorF read GetResolutionCorrection;
-      property IsUseCorrection: Boolean read GetIsUseCorrection write SetIsUseCorrection;
+      property Correction: TVectorF read GetCorrection;
+      property UseCorrection: Boolean read GetUseCorrection write SetUseCorrection;
+      property Resolution: TVectorF read GetResolution;
+      property DefaultResolution: TVectorF read GetDefaultResolution;
   end;
 
 procedure CreateEngine(const ADefaultResolution, ACurrentResolution: TVector2I);
@@ -124,179 +142,116 @@ var
   AValue: Single;
 begin
   FCurrentResolution := ACurrentResolution;
+  FDefaultResolution := ADefaultResolution;
+  FHalfScreen := FCurrentResolution * 0.5;
+
   AValue := Min(
-    ACurrentResolution.X / ADefaultResolution.X,
-    ACurrentResolution.Y / ADefaultResolution.Y);
+    FCurrentResolution.X / FDefaultResolution.X,
+    FCurrentResolution.Y / FDefaultResolution.Y);
   FCorrectionScale.Create(AValue, AValue);
-  FIsUseCorrection := True;
-  FPosition.Create(0, 0);
+  FUseCorrection := True;
+
   FScale.Create(1, 1);
+  FPosition := ScreenPosition[HalfScreen];
 end;
 
-function TQuadCamera.GetScreenPosition(const AWorldPosition: TVectorF): TVectorF;
-var
-  ACorrection: TVectorF;
+function TQuadCamera.GetScreenPosition(const APosition: TVectorF): TVectorF;
 begin
-  if IsUseCorrection then
-    ACorrection := ResolutionCorrection
-  else
-    ACorrection.Create(1, 1);
-  Result := (AWorldPosition - Position).ComponentwiseMultiply(
-    Scale.ComponentwiseMultiply(ACorrection));
+  Result := HalfScreen + (APosition - FPosition).ComponentwiseMultiply(RealScale);
 end;
 
-function TQuadCamera.GetScreenX(AWorldX: Single): Single;
-var
-  ACorrection: Single;
+function TQuadCamera.GetScreenX(X: Single): Single;
 begin
-  if IsUseCorrection then
-    ACorrection := ResolutionCorrection.X
-  else
-    ACorrection := 1;
-  Result := (AWorldX - Position.X) * Scale.X * ACorrection;
+  Result := HalfScreen.X + (X - FPosition.X) * RealScale.X;
 end;
 
-function TQuadCamera.GetScreenY(AWordlY: Single): Single;
-var
-  ACorrection: Single;
+function TQuadCamera.GetScreenY(Y: Single): Single;
 begin
-  if IsUseCorrection then
-    ACorrection := ResolutionCorrection.Y
-  else
-    ACorrection := 1;
-  Result := (AWordlY - Position.Y) * Scale.Y * ACorrection;
+  Result := HalfScreen.Y + (Y - FPosition.Y) * RealScale.Y;
 end;
 
-function TQuadCamera.GetScreenSize(const AWorldSize: TVectorF): TVectorF;
-var
-  ACorrection: TVectorF;
+function TQuadCamera.GetScreenSize(const ASize: TVectorF): TVectorF;
 begin
-  if IsUseCorrection then
-    ACorrection := ResolutionCorrection
-  else
-    ACorrection.Create(1, 1);
-  Result := AWorldSize.ComponentwiseMultiply(
-    Scale.ComponentwiseMultiply(ACorrection));
+  Result := ASize.ComponentwiseMultiply(RealScale);
 end;
 
-function TQuadCamera.GetScreenWidth(AWorldWidth: Single): Single;
-var
-  ACorrection: Single;
+function TQuadCamera.GetScreenWidth(AWidth: Single): Single;
 begin
-  if IsUseCorrection then
-    ACorrection := ResolutionCorrection.X
-  else
-    ACorrection := 1;
-  Result := AWorldWidth * Scale.X * ACorrection;
+  Result := AWidth * RealScale.X;
 end;
 
-function TQuadCamera.GetScreenHeight(AWorldHeight: Single): Single;
-var
-  ACorrection: Single;
+function TQuadCamera.GetScreenHeight(AHeight: Single): Single;
 begin
-  if IsUseCorrection then
-    ACorrection := ResolutionCorrection.Y
-  else
-    ACorrection := 1;
-  Result := AWorldHeight * Scale.Y * ACorrection;
+  Result := AHeight * RealScale.Y;
 end;
 
-function TQuadCamera.GetWorldPosition(const AScreenPosition: TVectorF): TVectorF;
-var
-  ACorrection: TVectorF;
+function TQuadCamera.GetWorldPosition(const APosition: TVectorF): TVectorF;
 begin
-  if IsUseCorrection then
-    ACorrection := ResolutionCorrection
-  else
-    ACorrection.Create(1, 1);
-  Result := Position + AScreenPosition.ComponentwiseDivide(
-    Scale.ComponentwiseMultiply(ACorrection));
+  Result := (APosition - HalfScreen).ComponentwiseDivide(RealScale) + FPosition;
 end;
 
-function TQuadCamera.GetWorldX(AScreenX: Single): Single;
-var
-  ACorrection: Single;
+function TQuadCamera.GetWorldX(X: Single): Single;
 begin
-  if IsUseCorrection then
-    ACorrection := ResolutionCorrection.X
-  else
-    ACorrection := 1;
-  Result := Position.X + AScreenX / (Scale.X * ACorrection);
+  Result := (X - HalfScreen.X) / RealScale.X + FPosition.X;
 end;
 
-function TQuadCamera.GetWorldY(AScreenY: Single): Single;
-var
-  ACorrection: Single;
+function TQuadCamera.GetWorldY(Y: Single): Single;
 begin
-  if IsUseCorrection then
-    ACorrection := ResolutionCorrection.Y
-  else
-    ACorrection := 1;
-  Result := Position.Y + AScreenY / (Scale.Y * ACorrection);
+  Result := (Y - HalfScreen.Y) / RealScale.Y + FPosition.Y;
 end;
 
-function TQuadCamera.GetWorldSize(const AScreenSize: TVectorF): TVectorF;
-var
-  ACorrection: TVectorF;
+function TQuadCamera.GetWorldSize(const ASize: TVectorF): TVectorF;
 begin
-  if IsUseCorrection then
-    ACorrection := ResolutionCorrection
-  else
-    ACorrection.Create(1, 1);
-  Result := AScreenSize.ComponentwiseDivide(
-    Scale.ComponentwiseMultiply(ACorrection));
+  Result := ASize.ComponentwiseDivide(RealScale);
 end;
 
-function TQuadCamera.GetWorldWidth(AScreenWidth: Single): Single;
-var
-  ACorrection: Single;
+function TQuadCamera.GetWorldWidth(AWidth: Single): Single;
 begin
-  if IsUseCorrection then
-    ACorrection := ResolutionCorrection.X
-  else
-    ACorrection := 1;
-  Result := AScreenWidth / (Scale.X * ACorrection);
+  Result := AWidth / RealScale.X;
 end;
 
-function TQuadCamera.GetWorldHeight(AScreenHeight: Single): Single;
-var
-  ACorrection: Single;
+function TQuadCamera.GetWorldHeight(AHeight: Single): Single;
 begin
-  if IsUseCorrection then
-    ACorrection := ResolutionCorrection.Y
-  else
-    ACorrection := 1;
-  Result := AScreenHeight / (Scale.Y * ACorrection);
+  Result := AHeight / RealScale.Y;
 end;
 
-function TQuadCamera.GetCenterPosition: TVectorF;
-begin
-  Result := Position + GetWorldSize(FCurrentResolution) * 0.5;
-end;
-
-function TQuadCamera.GetIsUseCorrection: Boolean;
-begin
-  Result := FIsUseCorrection;
-end;
-
-function TQuadCamera.GetPosition;
-begin
-  Exit(FPosition);
-end;
-
-function TQuadCamera.GetResolutionCorrection: TVectorF;
+function TQuadCamera.GetCorrection: TVectorF;
 begin
   Result := FCorrectionScale;
 end;
 
-procedure TQuadCamera.SetCenterPosition(const APosition: TVectorF);
+function TQuadCamera.GetDefaultResolution: TVectorF;
 begin
-  FPosition := APosition - GetWorldSize(FCurrentResolution) * 0.5;
+  Result := FDefaultResolution;
 end;
 
-procedure TQuadCamera.SetIsUseCorrection(AIsUseCorrection: Boolean);
+function TQuadCamera.GetLeftTopPosition: TVectorF;
 begin
-  FIsUseCorrection := AIsUseCorrection;
+  Result := FPosition - WorldSize[HalfScreen];
+end;
+
+function TQuadCamera.GetPosition;
+begin
+  Result := FPosition;
+end;
+
+function TQuadCamera.GetRealScale: TVectorF;
+begin
+  if FUseCorrection then
+    Result := FCorrectionScale
+  else
+    Result.Create(1, 1);
+  Result := Result.ComponentwiseMultiply(FScale);
+end;
+
+function TQuadCamera.GetResolution: TVectorF;
+begin
+  Result := FCurrentResolution;
+end;
+
+procedure TQuadCamera.SetLeftTopPosition(const APosition: TVectorF);
+begin
+  FPosition := APosition + WorldSize[HalfScreen];
 end;
 
 procedure TQuadCamera.SetPosition(const APosition: TVectorF);
@@ -306,12 +261,22 @@ end;
 
 function TQuadCamera.GetScale;
 begin
-  Exit(FScale);
+  Result := FScale;
 end;
 
 procedure TQuadCamera.SetScale(const AScale: TVectorF);
 begin
   FScale.Create(Abs(AScale.X), Abs(AScale.Y));
+end;
+
+function TQuadCamera.GetUseCorrection: Boolean;
+begin
+  Result := FUseCorrection;
+end;
+
+procedure TQuadCamera.SetUseCorrection(AUseCorrection: Boolean);
+begin
+  FUseCorrection := AUseCorrection;
 end;
 {$ENDREGION}
 
