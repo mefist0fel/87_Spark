@@ -213,8 +213,8 @@ begin
 
     WM_CLOSE:
       begin
-        PostQuitMessage(0);
         FOwner.OnDestroy;
+        PostQuitMessage(0);
       end;
   end;
 end;

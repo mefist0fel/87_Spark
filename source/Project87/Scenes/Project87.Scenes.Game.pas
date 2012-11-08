@@ -10,6 +10,7 @@ uses
   Strope.Math,
   Project87.Types.GameObject,
   Project87.Hero,
+  Project87.Asteroid,
   Project87.Resources;
 
 type
@@ -32,7 +33,8 @@ implementation
 
 uses
   QuadEngine,
-  QEngine.Core;
+  QEngine.Core,
+  QApplication.Application;
 
 {$REGION '  TGameScene  '}
 constructor TGameScene.Create(const AName: string);
@@ -52,16 +54,25 @@ var i: Byte;
 begin
   FTestCamera := TheEngine.CreateCamera;
   TheEngine.Camera := FTestCamera;
+  FTestCamera.Position := TVector2F.Create(0, 0);
+
   FImage := TheEngine.CreateTexture;
   FImage.LoadFromFile('..\data\gfx\miku.png', 0, 128, 128);
   TheRender.SetBlendMode(qbmSrcAlpha);
 
-  for i := 0 to 10 do
-    THero.Create(TVector2F.Create( Random(500) - 250, Random(500) - 250));
+  Thero.Create(ZeroVectorF);
+
+  for i := 0 to 100 do
+    TAsteroid.Create(TVector2F.Create( Random(5000) - 2500, Random(5000) - 2500), Random(360), 50 + Random(200));
 end;
 
 procedure TGameScene.OnUpdate(const ADelta: Double);
 begin
+  if TheControlState.Keyboard.IsKeyPressed[KB_ESC] then
+  begin
+    TheApplication.Stop;
+    Exit;
+  end;
   FObjectManager.OnUpdate(ADelta);
 end;
 
@@ -69,8 +80,6 @@ procedure TGameScene.OnDraw(const ALayer: Integer);
 begin
   TheRender.Clear($FF000000);
   FObjectManager.OnDraw;
-  FImage.Draw(ZeroVectorF, 0, 0);
-  FImage.Draw(TVector2f.Create(100, 100), 0, 0);
 end;
 {$ENDREGION}
 

@@ -117,6 +117,15 @@ function SquareRoot01Interpolate(AFrom, ATo, AProgress: Single): Single;
 function SquareRoot10Interpolate(AFrom, ATo, AProgress: Single): Single;
 {$ENDREGION}
 
+{$REGION '  Angle work Functions  '}
+function RoundAngle(Angle: Single): Single;
+function AngleBetween(A, B: TVector2F): Single;
+{$ENDREGION}
+
+{$REGION '  TVector2F additional Functions  '}
+function Distance(A, B: TVector2F): Single;
+{$ENDREGION}
+
 implementation
 
 uses
@@ -220,6 +229,42 @@ end;
 function SquareRoot10Interpolate(AFrom, ATo, AProgress: Single): Single;
 begin
   Result := (ATo - AFrom) * Sqrt(1 - AProgress);
+end;
+{$ENDREGION}
+
+{$REGION '  Angle work Functions  '}
+function RoundAngle(Angle: Single): Single;
+begin
+  Repeat
+    If Angle < 0 then
+      Angle := Angle + 360;
+    If Angle >= 360 then
+      Angle := Angle - 360;
+  Until (Angle >= 0) and (Angle<360);
+  Result:= Angle;
+end;
+
+function AngleBetween(A, B: TVector2F): Single;
+var
+  S, C: Single;
+begin
+  C := (B.Y - A.Y) / Distance(A, B);
+  If C > 1 then
+    C := 1;
+  If C < -1 then
+    C := -1;
+  S := (arccos(C)) * 180 / PI;
+  If (A.X - B.X) > 0 then
+     S := RoundAngle(360 - S);
+  S := RoundAngle(180 - S);
+  Result:= S;
+end;
+{$ENDREGION}
+
+{$REGION '  TVector2F additional Functions  '}
+function Distance(A, B: TVector2F): Single;
+begin
+  Result:= Sqrt(Sqr(A.X - B.X) + Sqr(A.Y - B.Y));
 end;
 {$ENDREGION}
 

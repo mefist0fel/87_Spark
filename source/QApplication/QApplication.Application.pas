@@ -36,6 +36,7 @@ type
       FGame: TQGame;
       FControlState: IControlState;
       FIsRuning: Boolean;
+      FIsStoped: Boolean;
       FMainTimer: IQuadTimer;
 
       FCriticalSection: TCriticalSection;
@@ -134,6 +135,7 @@ type
 
       ///<summary>ћетод запускает обработку событий приложением.</summary>
       procedure Loop;
+      procedure Stop;
 
       ///<summary>Ёкземпл€р окна типа <see cref="QApplication.Window|TWindow" />
       /// принадлежащий приложению.</summary>
@@ -316,6 +318,7 @@ end;
 constructor TQApplication.Create;
 begin
   FIsRuning := False;
+  FIsStoped := True;
   FWindow := TWindow.Create(Self);
   FControlState := TControlState.Create;
   FCriticalSection := TCriticalSection.Create;
@@ -328,6 +331,12 @@ end;
 
 destructor TQApplication.Destroy;
 begin
+  FMainTimer := nil;
+
+  if Assigned(FGame) then
+    FGame.OnDestroy;
+  FreeAndNil(FGame);
+
   if Assigned(FWindow) then
     FreeAndNil(FWindow);
   FreeAndNil(FCriticalSection);
@@ -466,12 +475,18 @@ procedure TQApplication.Loop;
 var
   AMessage: TMsg;
 begin
+  FIsStoped := False;
   FIsRuning := True;
   while GetMessageA(AMessage, FWindow.Handle, 0, 0) and FIsRuning do
   begin
     TranslateMessage(AMessage);
     DispatchMessageA(AMessage);
   end;
+end;
+
+procedure TQApplication.Stop;
+begin
+  FIsStoped := True;
 end;
 
 procedure TQApplication.MainTimerUpdate(const ADeltaTime: Double);
@@ -483,6 +498,12 @@ begin
       OnUpdate(ADeltaTime);
       OnDraw(0);
       (FControlState as TControlState).ClearWheelState;
+    end;
+
+    if FIsStoped then
+    begin
+      FMainTimer.SetState(False);
+      FIsRuning := False;
     end;
   FCriticalSection.Leave;
 end;
@@ -542,13 +563,8 @@ end;
 procedure TQApplication.OnDestroy;
 begin
   FCriticalSection.Enter;
-    FIsRuning := False;
     FMainTimer.SetState(False);
-    FMainTimer := nil;
-
-    if Assigned(FGame) then
-      FGame.OnDestroy;
-    FreeAndNil(FGame);
+    FIsRuning := False;
   FCriticalSection.Leave;
 end;
 
@@ -584,7 +600,7 @@ begin
   if AKey = KB_ALT then
     FIsAltPressed := True;
   if (AKey = KB_F4) and FIsAltPressed then
-    SendMessageA(FWindow.Handle, WM_CLOSE, 0, 0);
+    Stop;
 end;
 
 function TQApplication.OnKeyUp;
