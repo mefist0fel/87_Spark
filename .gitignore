@@ -1,5 +1,12 @@
 __history
 *.~*
 source/dcu/*.*
+<<<<<<< HEAD
 *.rsm
 release/bin/log.txt
+=======
+release/bin/log.txt
+/source/dcu
+/release/bin/Project_87.rsm
+/release/bin/Project_87.exe
+>>>>>>> CleanupMemoryLeaks

@@ -3,6 +3,16 @@ unit Strope.Math;
 interface
 
 type
+  TInterpolationType = (
+    itLinear = 0,
+    itHermit01 = 1,
+    itHermit10 = 2,
+    itParabolic01 = 3,
+    itParabolic10 = 4,
+    itSquareRoot01 = 5,
+    itSquareRoot10 = 6
+  );
+
   TVector2I = packed record
     public
       constructor Create(X, Y: Integer);
@@ -32,6 +42,8 @@ type
       class operator Implicit(const AVector: TVector2I): TVector2F;
       class operator Explicit(const AVector: TVector2I): TVector2F;
       class operator Negative(const AVector: TVector2F): TVector2F;
+      class operator Trunc(const AVector: TVector2F): TVector2I;
+      class operator Round(const AVector: TVector2F): TVector2I;
       class operator Positive(const AVector: TVector2F): TVector2F;
       class operator Equal(const A, B: TVector2F): Boolean;
       class operator NotEqual(const A, B: TVector2F): Boolean;
@@ -46,9 +58,14 @@ type
 
       function Length(): Single;
       function LengthSqr(): Single;
+
       function Normalized(): TVector2F;
       function Normalize(): TVector2F;
+
       function Angle(const AVector: TVector2F): Single;
+
+      function InterpolateTo(const AVector: TVector2F; AProgress: Single;
+        AInterpolationType: TInterpolationType = itLinear): TVector2F;
 
       case Byte of
         0: (X, Y: Single);
@@ -56,8 +73,23 @@ type
         2: (Arr: array [0..1] of Single);
   end;
 
+  TVector2IHelper = record helper for TVector2I
+    public
+      function ComponentwiseMultiply(const AVector: TVector2I): TVector2F;
+      function ComponentwiseDivide(const AVector: TVector2I): TVector2F;
+
+      function Normalized(): TVector2F;
+      function Angle(const AVector: TVector2F): Single;
+      function InterpolateTo(const AVector: TVector2F; AProgress: Single;
+        AInterpolationType: TInterpolationType = itLinear): TVector2F;
+  end;
+
   TVectorI = TVector2I;
   TVectorF = TVector2F;
+
+const
+  ZeroVectorI: TVectorI = (X: 0; Y: 0);
+  ZeroVectorF: TVectorF = (X: 0; Y: 0);
 
 {$REGION '  Clamp Functions  '}
 function Clamp(AValue, AMax, AMin: Integer): Integer; overload;
@@ -71,6 +103,18 @@ function ClampToMax(AValue, AMax: Double): Double; overload;
 function ClampToMin(AValue, AMin: Integer): Integer; overload;
 function ClampToMin(AValue, AMin: Single): Single; overload;
 function ClampToMin(AValue, AMin: Double): Double; overload;
+{$ENDREGION}
+
+{$REGION '  Interpolate Functions  '}
+function InterpolateValue(AFrom, ATo, AProgress: Single;
+  AInterpolationType: TInterpolationType = itLinear): Single;
+function LinearInterpolate(AFrom, ATo, AProgress: Single): Single;
+function Ermit01Interpolate(AFrom, ATo, AProgress: Single): Single;
+function Ermit10Interpoalte(AFrom, ATo, AProgress: Single): Single;
+function Parabolic01Interpolate(AFrom, ATo, AProgress: Single): Single;
+function Parabolic10Interpolate(AFrom, ATo, AProgress: Single): Single;
+function SquareRoot01Interpolate(AFrom, ATo, AProgress: Single): Single;
+function SquareRoot10Interpolate(AFrom, ATo, AProgress: Single): Single;
 {$ENDREGION}
 
 implementation
@@ -122,6 +166,60 @@ end;
 function ClampToMin(AValue, AMin: Double): Double;
 begin
   Exit(Max(AValue, AMin));
+end;
+{$ENDREGION}
+
+{$REGION '  Interpolate Functions  '}
+function InterpolateValue(AFrom, ATo, AProgress: Single;
+  AInterpolationType: TInterpolationType = itLinear): Single;
+begin
+  Result := AFrom;
+  case AInterpolationType of
+    itLinear: Result := LinearInterpolate(AFrom, ATo, AProgress);
+    itHermit01: Result := Ermit01Interpolate(AFrom, ATo, AProgress);
+    itHermit10: Result := Ermit10Interpoalte(AFrom, ATo, AProgress);
+    itParabolic01: Result := Parabolic01Interpolate(AFrom, ATo, AProgress);
+    itParabolic10: Result := Parabolic10Interpolate(AFrom, ATo, AProgress);
+    itSquareRoot01: Result := SquareRoot01Interpolate(AFrom, ATo, AProgress);
+    itSquareRoot10: Result := SquareRoot10Interpolate(AFrom, ATo, AProgress);
+  end;
+end;
+
+function LinearInterpolate(AFrom, ATo, AProgress: Single): Single;
+begin
+  Result := (ATo - AFrom) * Clamp(AProgress, 1, 0);
+end;
+
+function Ermit01Interpolate(AFrom, ATo, AProgress: Single): Single;
+begin
+  AProgress := Clamp(AProgress, 1, 0);
+  Result := (ATo - AFrom) * (Sqr(AProgress) * (3 - 2 * AProgress));
+end;
+
+function Ermit10Interpoalte(AFrom, ATo, AProgress: Single): Single;
+begin
+  AProgress := Clamp(AProgress, 1, 0);
+  Result := (ATo - AFrom) * (Sqr(1 - AProgress) * (1 + 2 * AProgress));
+end;
+
+function Parabolic01Interpolate(AFrom, ATo, AProgress: Single): Single;
+begin
+  Result := (ATo - AFrom) * Sqr(AProgress);
+end;
+
+function Parabolic10Interpolate(AFrom, ATo, AProgress: Single): Single;
+begin
+  Result := (ATo - AFrom) * (1 - Sqr(AProgress));
+end;
+
+function SquareRoot01Interpolate(AFrom, ATo, AProgress: Single): Single;
+begin
+  Result := (ATo - AFrom) * Sqrt(AProgress);
+end;
+
+function SquareRoot10Interpolate(AFrom, ATo, AProgress: Single): Single;
+begin
+  Result := (ATo - AFrom) * Sqrt(1 - AProgress);
 end;
 {$ENDREGION}
 
@@ -214,6 +312,16 @@ begin
   Exit(Result);
 end;
 
+class operator TVector2F.Trunc(const AVector: TVector2F): TVector2I;
+begin
+  Result.Create(Trunc(AVector.X), Trunc(AVector.Y));
+end;
+
+class operator TVector2F.Round(const AVector: TVector2F): TVector2I;
+begin
+  Result.Create(Round(AVector.X), Round(AVector.Y));
+end;
+
 class operator TVector2F.Positive(const AVector: TVector2F): TVector2F;
 begin
   Exit(AVector);
@@ -299,6 +407,50 @@ begin
     Exit(0);
 
   Result := ArcCos(Self * AVector / (Self.Length * AVector.Length));
+end;
+
+function TVector2F.InterpolateTo(const AVector: TVector2F; AProgress: Single;
+  AInterpolationType: TInterpolationType = itLinear): TVector2F;
+begin
+  Result.Create(
+    InterpolateValue(Self.X, AVector.X, AProgress, AInterpolationType),
+    InterpolateValue(Self.Y, AVector.Y, AProgress, AInterpolationType));
+end;
+{$ENDREGION}
+
+{$REGION '  TVector2IHelper  '}
+function TVector2IHelper.ComponentwiseMultiply(const AVector: TVector2I): TVector2F;
+begin
+  Result.Create(Self.X * AVector.X, Self.Y * AVector.Y);
+end;
+
+function TVector2IHelper.ComponentwiseDivide(const AVector: TVector2I): TVector2F;
+begin
+  Result.Create(Self.X / AVector.X, Self.Y / AVector.Y);
+end;
+
+function TVector2IHelper.Normalized(): TVector2F;
+var
+  ALength: Single;
+begin
+  ALength := Self.Length;
+  Result.Create(Self.X / ALength, Self.Y / ALength);
+end;
+
+function TVector2IHelper.Angle(const AVector: TVector2F): Single;
+begin
+  if (ZeroVectorF = AVector) or (ZeroVectorI = Self) then
+    Exit(0);
+
+  Result := ArcCos(Self * AVector / (Self.Length * AVector.Length));
+end;
+
+function TVector2IHelper.InterpolateTo(const AVector: TVector2F; AProgress: Single;
+  AInterpolationType: TInterpolationType = itLinear): TVector2F;
+begin
+  Result.Create(
+    InterpolateValue(Self.X, AVector.X, AProgress, AInterpolationType),
+    InterpolateValue(Self.Y, AVector.Y, AProgress, AInterpolationType));
 end;
 {$ENDREGION}
 

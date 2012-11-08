@@ -1,5 +1,7 @@
 program Project_87;
 
+{$DEFINE AUTOREFCOUNT}
+
 uses
   SysUtils,
   uMain in 'uMain.pas',
@@ -26,9 +28,15 @@ uses
   Project87.Game in 'Project87\Project87.Game.pas',
   QGame.Resources in 'QGame\QGame.Resources.pas',
   Project87.Scenes.TestScene in 'Project87\Scenes\Project87.Scenes.TestScene.pas',
+<<<<<<< HEAD
   Project87.Scenes.Game in 'Project87\Scenes\Project87.Scenes.Game.pas',
   QApplication.Input in 'QApplication\QApplication.Input.pas',
   Project87.GameObject in 'Project87\Project87.GameObject.pas';
+=======
+  QApplication.Input in 'QApplication\QApplication.Input.pas',
+  Project87.Scenes.IntroScene in 'Project87\Scenes\Project87.Scenes.IntroScene.pas',
+  Project87.Scenes.MainMenuScene in 'Project87\Scenes\Project87.Scenes.MainMenuScene.pas';
+>>>>>>> CleanupMemoryLeaks
 
 begin
   //ReportMemoryLeaksOnShutdown := True;

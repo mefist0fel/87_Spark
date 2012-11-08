@@ -9,7 +9,7 @@ uses
 type
   TResourceManager = class sealed
     strict private
-      FList: TList<TResource>;
+      FResources: TDictionary<string, TDictionary<string, TResource>>;
     public
       constructor Create;
       destructor Destroy; override;
@@ -28,15 +28,13 @@ uses
 {$REGION '  TResourceManager  '}
 constructor TResourceManager.Create;
 begin
-  FList := TList<TResource>.Create;
+  FResources := TDictionary<string, TDictionary<string, TResource>>.Create;
 end;
 
 destructor TResourceManager.Destroy;
-var
-  AResource: TResource;
 begin
   DeleteAllResources;
-  FreeAndNil(FList);
+  FreeAndNil(FResources);
 
   inherited;
 end;
@@ -44,49 +42,56 @@ end;
 procedure TResourceManager.AddResource(AResource: TResource);
 begin
   if Assigned(AResource) then
-    FList.Add(AResource);
+  begin
+    if FResources.ContainsKey(AResource.TypeName) then
+      FResources[AResource.TypeName].Add(AResource.Name, AResource)
+    else
+    begin
+      FResources.Add(AResource.TypeName, TDictionary<string, TResource>.Create);
+      FResources[AResource.TypeName].Add(AResource.Name, AResource);
+    end;
+  end;
 end;
 
 function TResourceManager.GetResource(const ATypeName, AName: string): TResource;
 var
-  AResource: TResource;
-  Str1, Str2: string;
+  AResources: TDictionary<string, TResource>;
 begin
   Result := nil;
-  Str1 := AnsiUpperCase(ATypeName);
-  Str2 := AnsiUpperCase(AName);
-  for AResource in FList do
-    if (AnsiCompareStr(Str1, AResource.TypeName) = 0) and
-      (AnsiCompareStr(Str2, AResource.Name) = 0)
-    then
-      Exit(AResource);
+  AResources := nil;
+  FResources.TryGetValue(AnsiUpperCase(ATypeName), AResources);
+  if Assigned(AResources) then
+    AResources.TryGetValue(AnsiUpperCase(AName), Result);
 end;
 
 procedure TResourceManager.DeleteResource(const ATypeName, AName: string);
 var
+  AResources: TDictionary<string, TResource>;
   AResource: TResource;
-  Str1, Str2: string;
 begin
-  Str1 := AnsiUpperCase(ATypeName);
-  Str2 := AnsiUpperCase(AName);
-  for AResource in FList do
-    if (AnsiCompareStr(Str1, AResource.TypeName) = 0) and
-      (AnsiCompareStr(Str2, AResource.Name) = 0)
-    then
-    begin
-      FList.Remove(AResource);
+  AResources := nil;
+  AResource := nil;
+  FResources.TryGetValue(AnsiUpperCase(ATypeName), AResources);
+  if Assigned(AResources) then
+  begin
+    AResources.TryGetValue(AnsiUpperCase(AName), AResource);
+    if Assigned(AResource) then
       AResource.Free;
-      Exit;
-    end;
+  end;
 end;
 
 procedure TResourceManager.DeleteAllResources;
 var
+  AResources: TDictionary<string, TResource>;
   AResource: TResource;
 begin
-  for AResource in FList do
-    AResource.Free;
-  FList.Clear;
+  for AResources in FResources.Values do
+  begin
+    for AResource in AResources.Values do
+      AResource.Free;
+    AResources.Clear;
+  end;
+  FResources.Clear;
 end;
 {$ENDREGION}
 

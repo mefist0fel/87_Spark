@@ -87,7 +87,12 @@
     <File Path="Project87"/>
     <File Path="Project87\Scenes"/>
     <File Path="Project87\Scenes\Project87.Scenes.TestScene.pas"/>
+<<<<<<< HEAD
     <File Path="Project87\Scenes\Project87.Scenes.Game.pas"/>
+=======
+    <File Path="Project87\Scenes\Project87.Scenes.IntroScene.pas"/>
+    <File Path="Project87\Scenes\Project87.Scenes.MainMenuScene.pas"/>
+>>>>>>> CleanupMemoryLeaks
     <File Path="Project87\Project87.Game.pas"/>
     <File Path="Project87\Project87.GameObject.pas"/>
     <File Path="QApplication"/>

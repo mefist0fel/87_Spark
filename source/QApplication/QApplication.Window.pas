@@ -77,8 +77,10 @@ end;
 
 destructor TWindow.Destroy;
 begin
+  FOwner := nil;
   if FHandle > 0 then
     DestroyWindow(FHandle);
+
   inherited;
 end;
 
