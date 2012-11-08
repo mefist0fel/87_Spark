@@ -21,6 +21,7 @@ type
 implementation
 
 uses
+  Project87.Scenes.IntroScene,
   Project87.Scenes.Game,
   Project87.Scenes.TestScene;
 
@@ -44,9 +45,11 @@ end;
 procedure TProject87Game.OnInitialize(AParameter: TObject = nil);
 begin
   //Создавать сцены и загружать основные ресурсы тут
+  SceneManager.AddScene(TIntroScene.Create('Intro'));
   //SceneManager.AddScene(TGameScene.Create('Spark'));
-  SceneManager.AddScene(TTestScene.Create('Spark'));
-  SceneManager.MakeCurrent('Spark');
+  //SceneManager.AddScene(TTestScene.Create('Spark'));
+  //SceneManager.MakeCurrent('Spark');
+  SceneManager.MakeCurrent('Intro');
   SceneManager.OnInitialize;
 end;
 {$ENDREGION}
