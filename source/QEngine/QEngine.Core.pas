@@ -72,6 +72,7 @@ type
       FHalfScreen: TVectorF;
 
       FUseCorrection: Boolean;
+      FCorrectionShift: TVectorF;
       FCorrectionScale: TVectorF;
 
       FPosition: TVectorF;
@@ -145,10 +146,21 @@ begin
   FDefaultResolution := ADefaultResolution;
   FHalfScreen := FCurrentResolution * 0.5;
 
-  AValue := Min(
-    FCurrentResolution.X / FDefaultResolution.X,
-    FCurrentResolution.Y / FDefaultResolution.Y);
-  FCorrectionScale.Create(AValue, AValue);
+  FCorrectionScale := FCurrentResolution.ComponentwiseDivide(FDefaultResolution);
+  if FCorrectionScale.Y < FCorrectionScale.X then
+  begin
+    FCorrectionScale.Create(FCorrectionScale.Y, FCorrectionScale.Y);
+    AValue := 1 - FCorrectionScale.Y;
+    FCorrectionShift.Create(AValue * 0.5, 0);
+    FCorrectionShift := FCorrectionShift.ComponentwiseMultiply(FCurrentResolution);
+  end
+  else
+  begin
+    FCorrectionScale.Create(FCorrectionScale.X, FCorrectionScale.X);
+    AValue := 1 - FCorrectionScale.X;
+    FCorrectionShift.Create(0, AValue * 0.5);
+    FCorrectionShift := FCorrectionShift.ComponentwiseMultiply(FCurrentResolution);
+  end;
   FUseCorrection := True;
 
   FScale.Create(1, 1);
