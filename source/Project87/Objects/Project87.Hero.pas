@@ -7,7 +7,7 @@ uses
   QEngine.Texture,
   QGame.Scene,
   Strope.Math,
-  Project87.GameObject;
+  Project87.Types.GameObject;
 
 type
   THero = class (TGameObject)

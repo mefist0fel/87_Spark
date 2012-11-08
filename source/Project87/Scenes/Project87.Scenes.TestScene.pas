@@ -75,8 +75,8 @@ begin
   FTestCamera.LeftTopPosition := FTestCamera.WorldSize[FPosition - FTestCamera.Resolution * 0.5];
 
   FImage.Draw(ZeroVectorF, 0, FFrame, $FFFFFFFF);
-  FImage.Draw(TVectorF.Create(100, 100),
-    FTestCamera.WorldSize[FImage.FrameSize], ZeroVectorF, 90, FFrame, $FFFFFFFF);
+  FImage.Draw(TVectorF.Create(200, 100),
+    FTestCamera.WorldSize[FImage.FrameSize], ZeroVectorF, 0, FFrame, $FFFFFFFF);
 end;
 
 procedure TTestScene.OnUpdate(const ADelta: Double);

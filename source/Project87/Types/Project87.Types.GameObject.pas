@@ -1,4 +1,4 @@
-unit Project87.GameObject;
+unit Project87.Types.GameObject;
 
 interface
 

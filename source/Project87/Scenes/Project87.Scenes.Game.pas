@@ -8,7 +8,7 @@ uses
   QEngine.Texture,
   QGame.Scene,
   Strope.Math,
-  Project87.GameObject,
+  Project87.Types.GameObject,
   Project87.Hero,
   Project87.Resources;
 
@@ -34,7 +34,7 @@ uses
   QuadEngine,
   QEngine.Core;
 
-{$REGION '  TTestScene  '}
+{$REGION '  TGameScene  '}
 constructor TGameScene.Create(const AName: string);
 begin
   FObjectManager := TObjectManager.GetInstance;
@@ -51,11 +51,13 @@ procedure TGameScene.OnInitialize(AParameter: TObject);
 var i: Byte;
 begin
   FTestCamera := TheEngine.CreateCamera;
+  TheEngine.Camera := FTestCamera;
   FImage := TheEngine.CreateTexture;
   FImage.LoadFromFile('..\data\gfx\miku.png', 0, 128, 128);
+  TheRender.SetBlendMode(qbmSrcAlpha);
 
   for i := 0 to 10 do
-    THero.Create(TVector2F.Create( Random(500), Random(500)));
+    THero.Create(TVector2F.Create( Random(500) - 250, Random(500) - 250));
 end;
 
 procedure TGameScene.OnUpdate(const ADelta: Double);
@@ -65,11 +67,10 @@ end;
 
 procedure TGameScene.OnDraw(const ALayer: Integer);
 begin
-  FObjectManager.OnDraw;
   TheRender.Clear($FF000000);
-  TheRender.SetBlendMode(qbmSrcAlpha);
-  TheEngine.Camera := FTestCamera;
-  FImage.Draw(TVectorF.Create(0, 0), TVectorF.Create(200, 200), 0.0, 1, $FFFFFFFF);
+  FObjectManager.OnDraw;
+  FImage.Draw(ZeroVectorF, 0, 0);
+  FImage.Draw(TVector2f.Create(100, 100), 0, 0);
 end;
 {$ENDREGION}
 

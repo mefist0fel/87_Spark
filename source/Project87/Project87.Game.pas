@@ -21,7 +21,8 @@ type
 implementation
 
 uses
-  Project87.Scenes.Game;
+  Project87.Scenes.Game,
+  Project87.Scenes.TestScene;
 
 {$REGION '  TProject87Game  '}
 constructor TProject87Game.Create;
