@@ -213,8 +213,15 @@ begin
 
     WM_CLOSE:
       begin
-        PostQuitMessage(0);
+        DestroyWindow(Handle);
+        Exit(True);
+      end;
+
+    WM_DESTROY:
+      begin
         FOwner.OnDestroy;
+        PostQuitMessage(0);
+        Exit(True);
       end;
   end;
 end;

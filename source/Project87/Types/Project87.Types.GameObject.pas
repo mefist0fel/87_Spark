@@ -19,8 +19,10 @@ type
     public
       constructor Create; virtual;
       destructor Destroy; override;
+
       procedure OnDraw; virtual;
       procedure OnUpdate(const  ADelta: Double); virtual;
+
       property Manager: TObjectManager read FParent;
   end;
 
@@ -28,19 +30,22 @@ type
     private class var FInstance: TObjectManager;
     private
       FObject: TList<TGameObject>;
+
       constructor Create;
       destructor Destroy;
+
       procedure DestroyObject(AObject: TGameObject);
       procedure AddObject(AObject: TGameObject);
     public
       class function GetInstance: TObjectManager;
+
       procedure OnDraw;
       procedure OnUpdate(const ADelta: Double);
   end;
 
 implementation
 
-{$REGION '  TGameObject'}
+{$REGION '  TGameObject  '}
 constructor TGameObject.Create;
 begin
   FParent := TObjectManager.GetInstance;
@@ -65,7 +70,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION '  TObjectManager'}
+{$REGION '  TObjectManager  '}
 constructor TObjectManager.Create;
 begin
   FObject:= TList<TGameObject>.Create();
