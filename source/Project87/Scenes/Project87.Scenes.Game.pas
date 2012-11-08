@@ -57,7 +57,6 @@ begin
   TheRender.Clear($FF000000);
   TheRender.SetBlendMode(qbmSrcAlpha);
   TheEngine.Camera := FTestCamera;
-  FTestCamera.CenterPosition := TVectorF.Create(0, 0);
   FImage.Draw(TVectorF.Create(0, 0), 0.0, $FFFFFFFF);
 end;
 {$ENDREGION}
