@@ -37,7 +37,7 @@ uses
   Project87.Scenes.MainMenuScene in 'Project87\Scenes\Project87.Scenes.MainMenuScene.pas';
 
 begin
-  //ReportMemoryLeaksOnShutdown := True;
+  ReportMemoryLeaksOnShutdown := True;
   try
     try
       InitializeApplication;

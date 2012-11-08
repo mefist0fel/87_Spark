@@ -492,6 +492,9 @@ begin
     if FIsStoped then
       DestroyWindow(FWindow.Handle);
   end;
+
+  FCriticalSection.Enter;
+  FCriticalSection.Leave;
 end;
 
 procedure TQApplication.Stop;
