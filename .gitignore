@@ -10,3 +10,6 @@ release/bin/log.txt
 /release/bin/Project_87.rsm
 /release/bin/Project_87.exe
 >>>>>>> CleanupMemoryLeaks
+
+/source/Project_87.dproj.local
+/source/Project_87.identcache
