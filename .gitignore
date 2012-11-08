@@ -1,5 +1,10 @@
 __history
 *.~*
 source/dcu/*.*
-*.rsm
 release/bin/log.txt
+/source/dcu
+/release/bin/Project_87.rsm
+/release/bin/Project_87.exe
+/source/Project_87.dpr.bak
+/source/Project_87.dproj.local
+/source/Project_87.identcache

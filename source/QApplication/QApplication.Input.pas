@@ -10,11 +10,12 @@ uses
 
 type
   TEventMessageType = (
-    emtActivate = 0,
-    emtMouseEvent = 1,
-    emtMouseButtonEvent = 2,
-    emtWheelEvent = 3,
-    emtKeyEvent = 4
+    emtNone = 0,
+    emtActivate = 1,
+    emtMouseEvent = 2,
+    emtMouseButtonEvent = 3,
+    emtWheelEvent = 4,
+    emtKeyEvent = 5
   );
 
   TEventMessage = class abstract

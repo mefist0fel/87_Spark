@@ -82,6 +82,8 @@
 			<DCCReference Include="Project87\Project87.GameObject.pas"/>
 			<DCCReference Include="Project87\Objects\Project87.Hero.pas"/>
 			<DCCReference Include="Project87\Project87.Resources.pas"/>
+			<DCCReference Include="Project87\Scenes\Project87.Scenes.IntroScene.pas"/>
+			<DCCReference Include="Project87\Scenes\Project87.Scenes.MainMenuScene.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

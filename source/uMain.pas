@@ -4,7 +4,6 @@ interface
 
 procedure InitializeApplication;
 procedure StartApplication;
-procedure StopApplication;
 procedure DestroyApplication;
 
 implementation
@@ -13,6 +12,7 @@ uses
   SysUtils,
   QEngine.Core,
   QApplication.Application,
+  QGame.Game,
   Project87.Game,
   Strope.Math;
 
@@ -22,6 +22,7 @@ var
 begin
   CreateEngine(TVectorI.Create(1024, 768), TVectorI.Create(1024, 600));
 
+  TheApplication := TQApplication.Create;
   AParameters := TQApplicationParameters.Create(
     TProject87Game.Create, TheEngine.CurrentResolution, False, 10);
   TheApplication.OnInitialize(AParameters);
@@ -33,14 +34,10 @@ begin
   TheApplication.Loop;
 end;
 
-procedure StopApplication;
-begin
-  TheApplication.OnDestroy;
-end;
-
 procedure DestroyApplication;
 begin
-  TheEngine := nil;
+  TheApplication.Free;
+  TheEngine.Free;
 end;
 
 end.

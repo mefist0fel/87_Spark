@@ -139,7 +139,12 @@ end;
 
 destructor TQGame.Destroy;
 begin
+  FreeAndNil(FSceneManager);
   FreeAndNil(FResourceManager);
+
+  TheGame := nil;
+  TheSceneManager := nil;
+  TheResourceManager := nil;
 
   inherited;
 end;

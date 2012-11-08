@@ -28,16 +28,16 @@ constructor TProject87Game.Create;
 begin
   inherited;
 
-  FGameName := 'Project 87';
+  FGameName := 'Spark';
   FGameAutors := 'Mefistofel and Bloov';
   FGameVersion := 0;
   FGameVersionMajor := 1;
-  FGameVersionMinor := 1;
+  FGameVersionMinor := 10;
 end;
 
 function TProject87Game.GetGameVersion;
 begin
-  Result := 'Prototype';
+  Result := 'Prototype Alpha';
 end;
 
 procedure TProject87Game.OnInitialize(AParameter: TObject = nil);

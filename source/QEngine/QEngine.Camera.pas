@@ -13,73 +13,92 @@ type
     function GetPosition(): TVectorF;
     procedure SetPosition(const APosition: TVectorF);
 
-    function GetCenterPosition(): TVectorF;
-    procedure SetCenterPosition(const APosition: TVectorF);
+    function GetLeftTopPosition(): TVectorF;
+    procedure SetLeftTopPosition(const APosition: TVectorF);
 
     function GetScale(): TVectorF;
     procedure SetScale(const AScale: TVectorF);
 
-    function GetResolutionCorrection(): TVectorF;
+    function GetCorrection(): TVectorF;
 
-    function GetIsUseCorrection(): Boolean;
-    procedure SetIsUseCorrection(AIsUseCorrection: Boolean);
+    function GetUseCorrection(): Boolean;
+    procedure SetUseCorrection(AUseCorrection: Boolean);
+
+    function GetResolution(): TVectorF;
+    function GetDefaultResolution(): TVectorF;
 
     ///<summary>Преобразует глобальные координаты в экранные.</summary>
-    ///<param name="AWorldPosition">Глобальные координаты некоторой точки</param>
+    ///<param name="APosition">Глобальные координаты некоторой точки</param>
     ///<returns>Экранные координаты учитывающие положение и масштаб камеры.</returns>
-    function GetScreenPosition(const AWorldPosition: TVectorF): TVectorF;
+    function GetScreenPosition(const APosition: TVectorF): TVectorF;
     ///<summary>Преобразует глобальную координату по оси X в экранную.</summary>
-    ///<param name="AWorldX">Глобальная координата некоторой точки по оси X</param>
+    ///<param name="X">Глобальная координата некоторой точки по оси X</param>
     ///<returns>Экранная координата по оси X учитывающие положение и масштаб камеры.</returns>
-    function GetScreenX(AWorldX: Single): Single;
+    function GetScreenX(X: Single): Single;
     ///<summary>Преобразует глобальную координату по оси Y в экранную.</summary>
-    ///<param name="AWorldY">Глобальная координата некоторой точки по оси Y</param>
+    ///<param name="Y">Глобальная координата некоторой точки по оси Y</param>
     ///<returns>Экранная координата по оси Y учитывающие положение и масштаб камеры.</returns>
-    function GetScreenY(AWordlY: Single): Single;
+    function GetScreenY(Y: Single): Single;
 
     ///<summary>Преобразует глобальный размер в экранный.</summary>
-    ///<param name="AWorldSize">Глобальные размер некоторой области.</param>
+    ///<param name="ASize">Глобальные размер некоторой области.</param>
     ///<returns>Экранный размер учитывающие масштаб камеры.</returns>
-    function GetScreenSize(const AWorldSize: TVectorF): TVectorF;
+    function GetScreenSize(const ASize: TVectorF): TVectorF;
     ///<summary>Преобразует глобальную ширину в экранную.</summary>
-    ///<param name="AWorldWidth">Глобальная ширина некоторой области.</param>
+    ///<param name="AWidth">Глобальная ширина некоторой области.</param>
     ///<returns>Экранная ширина учитывающая масштаб камеры.</returns>
-    function GetScreenWidth(AWorldWidth: Single): Single;
+    function GetScreenWidth(AWidth: Single): Single;
     ///<summary>Преобразует глобальную высоту в экранную.</summary>
-    ///<param name="AWorldHeight">Глобальная высота некоторой области.</param>
+    ///<param name="AHeight">Глобальная высота некоторой области.</param>
     ///<returns>Экранная высота учитывающая масштаб камеры.</returns>
-    function GetScreenHeight(AWorldHeight: Single): Single;
+    function GetScreenHeight(AHeight: Single): Single;
 
     ///<summary>Преобразует экранные координаты в глобальные.</summary>
-    ///<param name="ASreenPosition">Экранные координаты некоторой точки</param>
+    ///<param name="APosition">Экранные координаты некоторой точки</param>
     ///<returns>Глобальные координаты учитывающие положение и масштаб камеры.</returns>
-    function GetWorldPosition(const AScreenPosition: TVectorF): TVectorF;
+    function GetWorldPosition(const APosition: TVectorF): TVectorF;
     ///<summary>Преобразует экранную координату по оси X в глобальную.</summary>
-    ///<param name="AScreenX">Экранная координата некоторой точки по оси X</param>
+    ///<param name="X">Экранная координата некоторой точки по оси X</param>
     ///<returns>Глобальная координата по оси X учитывающие положение и масштаб камеры.</returns>
-    function GetWorldX(ASreenX: Single): Single;
+    function GetWorldX(X: Single): Single;
     ///<summary>Преобразует экранную координату по оси Y в глобальную.</summary>
-    ///<param name="AScreenY">Экранная координата некоторой точки по оси Y</param>
+    ///<param name="Y">Экранная координата некоторой точки по оси Y</param>
     ///<returns>Глобальная координата по оси Y учитывающие положение и масштаб камеры.</returns>
-    function GetWorldY(AScrenY: Single): Single;
+    function GetWorldY(Y: Single): Single;
 
     ///<summary>Преобразует экранный размер в глобальный.</summary>
-    ///<param name="AScreenSize">Экранный размер некоторой области.</param>
-    ///<returns>Глобальный размер учитывающие масштаб камеры.</returns>
-    function GetWorldSize(const AScreenSize: TVectorF): TVectorF;
+    ///<param name="ASize">Экранный размер некоторой области.</param>
+    ///<returns>Глобальный размер учитывающий масштаб камеры.</returns>
+    function GetWorldSize(const ASize: TVectorF): TVectorF;
     ///<summary>Преобразует экранную ширину в глобальную.</summary>
-    ///<param name="AWorldWidth">Экранная ширина некоторой области.</param>
+    ///<param name="AWidth">Экранная ширина некоторой области.</param>
     ///<returns>Глобальная ширина учитывающая масштаб камеры.</returns>
-    function GetWorldWidth(AScreenWidth: Single): Single;
+    function GetWorldWidth(AWidth: Single): Single;
     ///<summary>Преобразует экранную высоту в глобальную.</summary>
-    ///<param name="AWorldHeight">Экранная высоа некоторой области.</param>
+    ///<param name="AHeight">Экранная высоа некоторой области.</param>
     ///<returns>Глобальная высота учитывающая масштаб камеры.</returns>
-    function GetWorldHeight(AScreenHeight: Single): Single;
+    function GetWorldHeight(AHeight: Single): Single;
 
-    ///<summary>Позиция камеры.</summary>
-    ///<remarks>Позиция камеры соответствует левому верхнему краю экрана.</remarks>
+    ///<summary>Позиция камеры, соответствующая центру экрана.</remarks>
     property Position: TVectorF read GetPosition write SetPosition;
-    property CenterPosition: TVectorF read GetCenterPosition write SetCenterPosition;
+    ///<summary>Позиция камеры, соответствующая левому верхнему краю экрана.</remarks>
+    property LeftTopPosition: TVectorF read GetLeftTopPosition write SetLeftTopPosition;
+    ///<summary>Преобразует глобальные координаты в экранные.</summary>
+    ///<param name="APosition">Глобальные координаты некоторой точки</param>
+    ///<returns>Экранные координаты учитывающие положение и масштаб камеры.</returns>
+    property ScreenPosition[const APosition: TVectorF]: TVectorF read GetScreenPosition;
+    ///<summary>Преобразует глобальный размер в экранный.</summary>
+    ///<param name="ASize">Глобальные размер некоторой области.</param>
+    ///<returns>Экранный размер учитывающие масштаб камеры.</returns>
+    property ScreenSize[const ASize: TVectorF]: TVectorF read GetScreenSize;
+    ///<summary>Преобразует экранные координаты в глобальные.</summary>
+    ///<param name="APosition">Экранные координаты некоторой точки</param>
+    ///<returns>Глобальные координаты учитывающие положение и масштаб камеры.</returns>
+    property WorldPosition[const APosition: TVectorF]: TVectorF read GetWorldPosition;
+    ///<summary>Преобразует экранный размер в глобальный.</summary>
+    ///<param name="ASize">Экранный размер некоторой области.</param>
+    ///<returns>Глобальный размер учитывающий масштаб камеры.</returns>
+    property WorldSize[const ASize: TVectorF]: TVectorF read GetWorldSize;
     ///<summary>Масштабный коэффициент камеры по осям.</summary>
     ///<remarks>При задании отрицательных значений масштаба они берутся по модулю.</remarks>
     property Scale: TVectorF read GetScale write SetScale;
@@ -94,11 +113,15 @@ type
     /// других строго ориентированных относительно экрана элементов,
     /// которые вместе с тем должны иметь одинаковые относительные размеры относительно
     /// различных разрешений экрана.</remarks>
-    property ResolutionCorrection: TVectorF read GetResolutionCorrection;
+    property Correction: TVectorF read GetCorrection;
     ///<summary>Флаг, устанавливающий, учитывается ли коррекция разрешения
     /// при отрисовке.</summary>
     ///<seealso cref="QEngine.Camera|IQuadCamera.ResolutionCorrectin" />
-    property IsUseCorrection: Boolean read GetIsUseCorrection write SetIsUseCorrection;
+    property UseCorrection: Boolean read GetUseCorrection write SetUseCorrection;
+    ///<summary>Текущее разрешение экрана, с которым работает камера.</summary>
+    property Resolution: TVectorF read GetResolution;
+    ///<summary>Разрешение по-умолчанию, экран которого вписывается в текущий при коррекции.</summary>
+    property DefaultResolution: TVectorF read GetDefaultResolution;
   end;
 
 implementation

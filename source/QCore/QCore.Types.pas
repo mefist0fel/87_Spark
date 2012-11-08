@@ -13,7 +13,17 @@ type
 
   ///<summary>Базовый класс для всех игровых классов,
   /// реализующих какие-либо интерфейсы.</summary>
-  TBaseObject = class abstract (TInterfacedObject)
+  TBaseObject = class abstract (TObject, IInterface)
+    strict protected
+      FRefCount: Integer;
+
+      function QueryInterface(const IID: TGUID; out Obj): HResult; stdcall;
+      function _AddRef: Integer; stdcall;
+      function _Release: Integer; stdcall;
+    public
+      destructor Destroy; override;
+
+      property RefCount: Integer read FRefCount;
   end;
 
   ///<summary>Базовый интерфейс для объектов,
@@ -179,6 +189,39 @@ type
   end;
 
 implementation
+
+uses
+  Windows;
+
+{$REGION '  TBaseObject  '}
+destructor TBaseObject.Destroy;
+begin
+  FRefCount := -1;
+  inherited;
+end;
+
+function TBaseObject.QueryInterface(const IID: TGUID; out Obj): HResult;
+begin
+  if GetInterface(IID, Obj) then
+    Result := 0
+  else
+    Result := E_NOINTERFACE;
+end;
+
+function TBaseObject._AddRef: Integer;
+begin
+  Result := InterlockedIncrement(FRefCount);
+  //FRefCount := 1;
+end;
+
+function TBaseObject._Release: Integer;
+begin
+  Result := InterlockedDecrement(FRefCount);
+  if Result = 0 then
+    Destroy;
+  //FRefCount := 1;
+end;
+{$ENDREGION}
 
 end.
 
