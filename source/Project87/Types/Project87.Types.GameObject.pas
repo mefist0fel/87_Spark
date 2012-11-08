@@ -18,7 +18,7 @@ type
       FVelocity: TVector2F;
     public
       constructor Create; virtual;
-      destructor Destroy; virtual;
+      destructor Destroy; override;
       procedure OnDraw; virtual;
       procedure OnUpdate(const  ADelta: Double); virtual;
       property Manager: TObjectManager read FParent;
