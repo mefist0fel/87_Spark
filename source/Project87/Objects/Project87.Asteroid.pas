@@ -15,6 +15,7 @@ type
       FRadius: Single;
     public
       constructor Create(const APosition: TVector2F; AAngle, ARadius: Single);
+
       procedure OnDraw; override;
       procedure OnUpdate(const  ADelta: Double); override;
   end;
@@ -35,14 +36,13 @@ end;
 
 procedure TAsteroid.OnDraw;
 begin
-  TheResources.AsteroidTexture.Draw(FPosition, TVector2F.Create(FRadius, FRadius), FAngle, $ffffffff);
+  TheResources.AsteroidTexture.Draw(FPosition, TVector2F.Create(FRadius, FRadius), FAngle, $FFFFFFFF);
 end;
 
 procedure TAsteroid.OnUpdate(const  ADelta: Double);
 begin
 
 end;
-
 {$ENDREGION}
 
 end.

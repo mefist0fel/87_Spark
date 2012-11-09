@@ -16,6 +16,7 @@ type
       FNeedCameraPosition: TVector2F;
     public
       constructor Create( APosition: TVector2F);
+
       procedure OnDraw; override;
       procedure OnUpdate(const  ADelta: Double); override;
   end;
@@ -37,8 +38,8 @@ end;
 
 procedure THero.OnDraw;
 begin
-  TheResources.HeroTexture.Draw(FPosition, TVector2F.Create(50, 50), FAngle, $ffffffff);
-  TheResources.HeroTexture.Draw(FPosition, TVector2F.Create(50, 50), FTowerAngle, $ffffffff);
+  TheResources.HeroTexture.Draw(FPosition, TVector2F.Create(50, 50), FAngle, $FFFFFFFF);
+  TheResources.HeroTexture.Draw(FPosition, TVector2F.Create(50, 50), FTowerAngle, $FFFFFFFF);
 end;
 
 procedure THero.OnUpdate(const  ADelta: Double);
