@@ -15,19 +15,19 @@ type
 
   TGameObject = class
   private
-    FFriction: Single;
-    procedure Move(const ADelta: Double);
-  protected
-    FCorrection: TVector2F;
-    FParent: TObjectManager;
-    FMass: Single;
-    FRadius: Single;
-    FAngle: Single;
-    FPosition: TVector2F;
-    FVelocity: TVector2F;
-  public
-    constructor Create; virtual;
-    destructor Destroy; override;
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     procedure OnDraw; virtual;
     procedure OnUpdate(const ADelta: Double); virtual;

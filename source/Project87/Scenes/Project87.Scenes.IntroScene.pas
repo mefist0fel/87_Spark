@@ -11,11 +11,20 @@ uses
   Strope.Math;
 
 type
+  TIntroSceneState = (
+    issNone = 0,
+    issFirstWait = 1,
+    issShowUp = 2,
+    issWait = 3,
+    issShowDown = 4,
+    issChange = 5
+  );
+
   TIntroScene = class sealed (TScene)
     strict private
       FCamera: IQuadCamera;
       FBalancer: TQuadTexture;
-      FGearImages: array [0..4] of TQuadTexture;
+      FGearImages: array [0..2] of TQuadTexture;
       FQuadLogo: TQuadTexture;
       FIgdcLogo: TQuadTexture;
 
@@ -25,12 +34,16 @@ type
       FRotationAngle: Single;
       FRotationSpeed: Single;
 
+      FState: TIntroSceneState;
+      FLogo: Integer;
+      FAlpha: Single;
+      FTime: Single;
+
+      procedure LoadImages;
       procedure DrawQuadLogo;
       procedure DrawIgdcLogo;
 
       property Camera: IQuadCamera read FCamera;
-  private
-    procedure LoadImages;
     public
       constructor Create(const AName: string);
       destructor Destroy; override;
@@ -49,16 +62,25 @@ uses
   Math,
   SysUtils,
   QuadEngine,
+  direct3d9,
   QApplication.Application,
-  QEngine.Core;
+  QEngine.Core,
+  QGame.Game;
 
 {$REGION '  TIntroScene  '}
 const
   BALANCER_FRAME_DELTA = 0.02;
+  TIME_FIRST_WAIT = 1.2;
+  TIME_SHOWUP = 1.3;
+  TIME_WAIT = 3.5;
+  TIME_SHOWDOWN = 1.3;
+  TIME_CHANGE = 0.25;
 
 constructor TIntroScene.Create(const AName: string);
 begin
   inherited Create(AName);
+
+  FAlpha := 1;
 end;
 
 destructor TIntroScene.Destroy;
@@ -68,52 +90,56 @@ end;
 
 procedure TIntroScene.DrawQuadLogo;
 var
-  ACenter: TVectorF;
   ALogoSize: TVectorF;
   ABalancerSize: TVectorF;
   ASize: Single;
 begin
   TheEngine.Camera := nil;
-    TheRender.RectangleEx(0, 0, Camera.Resolution.X, Camera.Resolution.Y,
-      $FF000000, $FF000080, $FF000000, $FF000000);
+  TheRender.RectangleEx(0, 0, Camera.Resolution.X, Camera.Resolution.Y,
+    $FF000000, $FF000060, $FF000000, $FF000000);
 
   TheEngine.Camera := Camera;
-    ASize := Camera.DefaultResolution.Y * 0.853;
-    ALogoSize.Create(ASize, ASize);
+  ASize := Camera.DefaultResolution.Y * 0.853;
+  ALogoSize.Create(ASize, ASize);
 
-    ASize := Camera.DefaultResolution.Y * 0.213;
-    ABalancerSize.Create(ASize, ASize);
+  ASize := Camera.DefaultResolution.Y * 0.213;
+  ABalancerSize.Create(ASize, ASize);
 
-    //RotationAngle:= RotationAngle + RotationSpeed;
-    //GiantAngle:= RotationAngle / 213.9 - Trunc((RotationAngle / 213.9) / (20.2)) * (20.2);
-    //Задние темные шестерни
-    {BigGear.DrawRot(CenterX + 181, CenterY - 83 , -RotationAngle / 24  -  4, 0.5, $ff202020);
-    MedGear.DrawRot(CenterX + 181, CenterY - 167,  RotationAngle / 14   + 8, 0.5, $ff202020);
-    BigGear.DrawRot(CenterX + 221, CenterY - 241, -RotationAngle / 24  -  4, 0.5, $ff202020);
-    Gear.DrawRot   (CenterX + 106, CenterY - 83 ,  RotationAngle / 8   + 10, 0.5, $ff202020);
-    BigGear.DrawRot(CenterX + 42 , CenterY - 44 , -RotationAngle / 24  -  0, 0.5, $ff202020);
-    //Основные шестерни
-    Gear.DrawRot   (CenterX - 246, CenterY -  83,  RotationAngle / 8  -  4 , 1  , $ff888888);
-    MedGear.DrawRot(CenterX - 192, CenterY      , -RotationAngle / 14 + 15 , 1  , $ff767676);
-    MedGear.DrawRot(CenterX - 125, CenterY + 157,  RotationAngle / 24      , 1.2, $ff323232);
-    BigGear.DrawRot(CenterX +   5, CenterY - 02,  -RotationAngle /(288/7)+2, 1.2, $ff2a2a2a);
-    BigGear.DrawRot(CenterX - 125, CenterY + 157,  RotationAngle / 24      , 1  , $ff444444);
-    //Большая шестерня справа
-    GiantGear.DrawRot(CenterX - 1300, CenterY, -GiantAngle + 10.6, 1, $ff555555);
-    //Ось балансира
-    Quad.Rectangle(CenterX - 129, CenterY - 240, CenterX - 121, CenterY - 32, $ff222233);
-    //Логотип
-    Logo.Draw(CenterX - Logo.GetSpriteWidth / 2, CenterY - Logo.GetSpriteHeight / 2);
-    //Балансир
-    Balance.DrawFrame(CenterX - 189, CenterY - 160, Trunc(RotationAngle / RotationSpeed / 2) mod 16, $ff555555);}
-    FBalancer.Draw(TVectorF.Create(-160, -126), ABalancerSize,
-      0, FBalancerFrame, $FF555555);
-    FQuadLogo.Draw(ZeroVectorF, ALogoSize, 0, $FFFFFFFF);
+  FGearImages[2].Draw(Vec2F(181, -83) * 1.28, Vec2F(256, 256) * 1.28 * 0.5,
+    -FRotationAngle / 24 - 4, $FF202020);
+  FGearImages[1].Draw(Vec2F(181, -167) * 1.28, Vec2F(128, 128) * 1.28 * 0.5,
+    FRotationAngle / 14 + 8, $FF202020);
+  FGearImages[2].Draw(Vec2F(221, -241) * 1.28, Vec2F(256, 256) * 1.28 * 0.5,
+    -FRotationAngle / 24 - 4, $FF202020);
+  FGearImages[0].Draw(Vec2F(106, -83) * 1.28, Vec2F(128, 128) * 1.28 * 0.5,
+    FRotationAngle / 8 + 10, $FF202020);
+  FGearImages[2].Draw(Vec2F(42, -44) * 1.28, Vec2F(256, 256) * 1.28 * 0.5,
+    -FRotationAngle / 24, $FF202020);
+
+  FGearImages[0].Draw(Vec2F(-314.88, 106.24), Vec2F(163.84, 163.84),
+    FRotationAngle / 8 - 4, $FF888888);
+  FGearImages[1].Draw(Vec2F(-245.76, 0), Vec2F(163.84, 163.84),
+    -FRotationAngle / 14 + 15, $FF767676);
+  FGearImages[1].Draw(Vec2F(-160, 201), Vec2F(163.84, 163.84) * 1.2,
+    FRotationAngle / 24, $FF323232);
+  FGearImages[2].Draw(Vec2F(6.4, -1), Vec2F(328, 328) * 1.2,
+    -FRotationAngle / (288/7) + 2.8, $FF2A2A2A);
+  FGearImages[2].Draw(Vec2F(-160, 201), Vec2F(328, 328),
+    FRotationAngle / 24, $FF444444);
+
+  TheRender.Rectangle(-164, -307, -156, -40, $FF222233);
+  FBalancer.Draw(Vec2F(-160, -126), ABalancerSize, 0, $FF555555, FBalancerFrame);
+
+  FQuadLogo.Draw(ZeroVectorF, ALogoSize, 0, $FFFFFFFF);
 end;
 
 procedure TIntroScene.DrawIgdcLogo;
 begin
+  TheEngine.Camera := nil;
+  TheRender.Rectangle(0, 0, Camera.Resolution.X, Camera.Resolution.Y, $FF000000);
 
+  TheEngine.Camera := Camera;
+  FIgdcLogo.Draw(ZeroVectorF, Vec2F(720, 720), 0, $FFFFFFFF);
 end;
 
 {$REGION '  Base Actions  '}
@@ -128,13 +154,25 @@ begin
   FBalancerTime := 0;
 
   FRotationAngle := 0;
-  FRotationSpeed := 0;
+  FRotationSpeed := 360;
+
+  FAlpha := 1;
+  FState := issFirstWait;
+  FTime := 0;
 end;
 
 procedure TIntroScene.OnDraw(const ALayer: Integer);
 begin
   TheRender.SetBlendMode(qbmSrcAlpha);
-  DrawQuadLogo;
+
+  case FLogo of
+    0: DrawQuadLogo;
+    1: DrawIgdcLogo;
+  end;
+
+  TheEngine.Camera := nil;
+  TheRender.Rectangle(0, 0, Camera.Resolution.X, Camera.Resolution.Y,
+    D3DCOLOR_COLORVALUE(0, 0, 0, FAlpha));
 end;
 
 procedure TIntroScene.OnUpdate(const ADelta: Double);
@@ -147,8 +185,57 @@ begin
   end;
 
   FRotationAngle := FRotationAngle + FRotationSpeed * ADelta;
-  if FRotationAngle > 360 then
-    FRotationAngle := FRotationAngle - 360;
+
+  FTime := FTime + ADelta;
+  case FState of
+    issFirstWait:
+      if FTime > TIME_FIRST_WAIT then
+      begin
+        FState := issShowUp;
+        FTime := 0;
+      end;
+
+    issShowUp:
+      begin
+        FAlpha := InterpolateValue(1, 0, FTime / TIME_SHOWUP, itHermit01);
+        if FTime > TIME_SHOWUP then
+        begin
+          FState := issWait;
+          FTime := 0;
+          FAlpha := 0;
+        end;
+      end;
+
+    issWait:
+      if FTime > TIME_WAIT then
+      begin
+        FState := issShowDown;
+        FTime := 0;
+      end;
+
+    issShowDown:
+      begin
+        FAlpha := InterpolateValue(0, 1, FTime / TIME_SHOWDOWN, itHermit01);
+        if FTime > TIME_SHOWDOWN then
+        begin
+          FState := issChange;
+          FTime := 0;
+          FAlpha := 1;
+        end;
+      end;
+
+    issChange:
+      if FTime > TIME_CHANGE then
+      begin
+        FState := issShowUp;
+        Inc(FLogo);
+        if FLogo = 2 then
+        begin
+          TheGame.SceneManager.MakeCurrent('Spark');
+          TheGame.SceneManager.OnInitialize;
+        end;
+      end;
+  end;
 end;
 
 procedure TIntroScene.OnDestroy;
@@ -160,16 +247,15 @@ begin
   FreeAndNil(FGearImages[0]);
   FreeAndNil(FGearImages[1]);
   FreeAndNil(FGearImages[2]);
-  FreeAndNil(FGearImages[3]);
 end;
 {$ENDREGION}
 
 function TIntroScene.OnKeyDown(AKey: Word): Boolean;
 begin
   Result := True;
-  if AKey = KB_SPACE then
+  if AKey in [KB_SPACE, KB_ENTER] then
   begin
-    TheApplication.Stop;
+    //
   end;
 end;
 
@@ -185,12 +271,10 @@ begin
   FGearImages[1].LoadFromFile(AGfxDir + 'gear_med.png', 0);
   FGearImages[2] := TheEngine.CreateTexture;
   FGearImages[2].LoadFromFile(AGfxDir + 'gear_big.png', 0);
-  FGearImages[3] := TheEngine.CreateTexture;
-  FGearImages[3].LoadFromFile(AGfxDir + 'gear_giant.png', 0);
   FQuadLogo := TheEngine.CreateTexture;
   FQuadLogo.LoadFromFile(AGfxDir + 'quad_logo.png', 0);
   FIgdcLogo := TheEngine.CreateTexture;
-  FIgdcLogo.LoadFromFile(AGfxDir + 'igdc.png', 0);
+  FIgdcLogo.LoadFromFile(AGfxDir + 'igdc.jpg', 0);
 end;
 {$ENDREGION}
 

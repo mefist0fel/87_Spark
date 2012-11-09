@@ -12,9 +12,7 @@ type
     public
       HeroTexture: TQuadTexture;
       AsteroidTexture: TQuadTexture;
-      Font: TQuadFont;
-      constructor Create;
-      destructor Destroy;
+      constructor Create;      destructor Destroy; override;
   end;
 
 var

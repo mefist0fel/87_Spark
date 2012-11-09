@@ -91,6 +91,9 @@ const
   ZeroVectorI: TVectorI = (X: 0; Y: 0);
   ZeroVectorF: TVectorF = (X: 0; Y: 0);
 
+function Vec2I(X, Y: Integer): TVector2I; inline;
+function Vec2F(X, Y: Single): TVector2F; inline;
+
 {$REGION '  Clamp Functions  '}
 function Clamp(AValue, AMax, AMin: Integer): Integer; overload;
 function Clamp(AValue, AMax, AMin: Single): Single; overload;
@@ -319,6 +322,11 @@ end;
 {$ENDREGION}
 
 {$REGION '  TVector2I  '}
+function Vec2I(X, Y: Integer): TVector2I;
+begin
+  Result.Create(X, Y);
+end;
+
 constructor TVector2I.Create(X, Y: Integer);
 begin
   Self.X := X;
@@ -390,6 +398,11 @@ end;
 {$ENDREGION}
 
 {$REGION '  TVector2F  '}
+function Vec2F(X, Y: Single): TVector2F;
+begin
+  Result.Create(X, Y);
+end;
+
 constructor TVector2F.Create(X, Y: Single);
 begin
   Self.X := X;
