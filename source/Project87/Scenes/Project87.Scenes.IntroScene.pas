@@ -38,6 +38,7 @@ type
       FLogo: Integer;
       FAlpha: Single;
       FTime: Single;
+      FIsToMenu: Boolean;
 
       procedure LoadImages;
       procedure DrawQuadLogo;
@@ -46,8 +47,7 @@ type
       property Camera: IQuadCamera read FCamera;
     public
       constructor Create(const AName: string);
-      destructor Destroy; override;
-
+      
       procedure OnInitialize(AParameter: TObject = nil); override;
       procedure OnDraw(const ALayer: Integer); override;
       procedure OnUpdate(const ADelta: Double); override;
@@ -59,11 +59,9 @@ type
 implementation
 
 uses
-  Math,
   SysUtils,
   QuadEngine,
   direct3d9,
-  QApplication.Application,
   QEngine.Core,
   QGame.Game;
 
@@ -81,11 +79,6 @@ begin
   inherited Create(AName);
 
   FAlpha := 1;
-end;
-
-destructor TIntroScene.Destroy;
-begin
-  inherited;
 end;
 
 procedure TIntroScene.DrawQuadLogo;
@@ -225,14 +218,23 @@ begin
       end;
 
     issChange:
-      if FTime > TIME_CHANGE then
       begin
-        FState := issShowUp;
-        Inc(FLogo);
-        if FLogo = 2 then
+        if FIsToMenu then
         begin
           TheGame.SceneManager.MakeCurrent('Spark');
           TheGame.SceneManager.OnInitialize;
+          Exit;
+        end;
+
+        if FTime > TIME_CHANGE then
+        begin
+          FState := issShowUp;
+          Inc(FLogo);
+          if FLogo = 2 then
+          begin
+            TheGame.SceneManager.MakeCurrent('Spark');
+            TheGame.SceneManager.OnInitialize;
+          end;
         end;
       end;
   end;
@@ -255,7 +257,28 @@ begin
   Result := True;
   if AKey in [KB_SPACE, KB_ENTER] then
   begin
-    //
+    case FState of
+      issFirstWait:
+        begin
+          FState := issChange;
+          FTime := 0;
+        end;
+
+      issShowUp:
+        begin
+          FState := issShowDown;
+          FTime := (1 - FTime / TIME_SHOWUP) * TIME_SHOWDOWN;
+        end;
+
+      issWait:
+        begin
+          FState := issShowDown;
+          FTime := 0;
+        end;
+
+      issChange: FTime := 0;
+    end;
+    FIsToMenu := True;
   end;
 end;
 
