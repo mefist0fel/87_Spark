@@ -78,10 +78,10 @@ begin
       $FF000000, $FF000080, $FF000000, $FF000000);
 
   TheEngine.Camera := Camera;
-    ASize := Min(Camera.Resolution.X, Camera.Resolution.Y) * 0.853;
+    ASize := Camera.DefaultResolution.Y * 0.853;
     ALogoSize.Create(ASize, ASize);
 
-    ASize := Min(Camera.Resolution.X, Camera.Resolution.Y) * 0.213;
+    ASize := Camera.DefaultResolution.Y * 0.213;
     ABalancerSize.Create(ASize, ASize);
 
     //RotationAngle:= RotationAngle + RotationSpeed;
@@ -106,10 +106,9 @@ begin
     Logo.Draw(CenterX - Logo.GetSpriteWidth / 2, CenterY - Logo.GetSpriteHeight / 2);
     //Балансир
     Balance.DrawFrame(CenterX - 189, CenterY - 160, Trunc(RotationAngle / RotationSpeed / 2) mod 16, $ff555555);}
-    FBalancer.Draw(
-      Camera.WorldSize[TVectorF.Create(-189, -160)], Camera.WorldSize[ABalancerSize],
+    FBalancer.Draw(TVectorF.Create(-160, -126), ABalancerSize,
       0, FBalancerFrame, $FF555555);
-    FQuadLogo.Draw(ZeroVectorF, Camera.WorldSize[ALogoSize], 0, $FFFFFFFF);
+    FQuadLogo.Draw(ZeroVectorF, ALogoSize, 0, $FFFFFFFF);
 end;
 
 procedure TIntroScene.DrawIgdcLogo;

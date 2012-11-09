@@ -72,11 +72,11 @@ begin
   TheRender.SetBlendMode(qbmSrcAlpha);
 
   FTestCamera.Scale := FScale;
-  FTestCamera.LeftTopPosition := FTestCamera.WorldSize[FPosition - FTestCamera.Resolution * 0.5];
+  FTestCamera.Position := FTestCamera.GetWorldSize(FPosition);
 
   FImage.Draw(ZeroVectorF, 0, FFrame, $FFFFFFFF);
   FImage.Draw(TVectorF.Create(200, 100),
-    FTestCamera.WorldSize[FImage.FrameSize], ZeroVectorF, 0, FFrame, $FFFFFFFF);
+    FTestCamera.GetWorldSize(FImage.FrameSize), ZeroVectorF, 0, FFrame, $FFFFFFFF);
 end;
 
 procedure TTestScene.OnUpdate(const ADelta: Double);

@@ -196,7 +196,7 @@ begin
   AScreenSize.Create(FTexture.GetSpriteWidth, FTexture.GetSpriteHeight);
   if Assigned(FEngine.Camera) then
   begin
-    AScreenPosition := FEngine.Camera.GetScreenPosition(AScreenPosition);
+    AScreenPosition := FEngine.Camera.GetScreenPos(AScreenPosition);
     AScreenSize := FEngine.Camera.GetScreenSize(AScreenSize);
   end;
   FTexture.DrawMap(
@@ -223,7 +223,7 @@ begin
 
   if Assigned(FEngine.Camera) then
   begin
-    AScreenPosition := FEngine.Camera.GetScreenPosition(AScreenPosition);
+    AScreenPosition := FEngine.Camera.GetScreenPos(AScreenPosition);
     AScreenSize := FEngine.Camera.GetScreenSize(AScreenSize);
   end;
   FTexture.DrawMap(
@@ -441,10 +441,10 @@ begin
   AScreenPosition4.Create(x4, y4);
   if Assigned(FEngine.Camera) then
   begin
-    AScreenPosition1 := FEngine.Camera.GetScreenPosition(AScreenPosition1);
-    AScreenPosition2 := FEngine.Camera.GetScreenPosition(AScreenPosition2);
-    AScreenPosition3 := FEngine.Camera.GetScreenPosition(AScreenPosition3);
-    AScreenPosition4 := FEngine.Camera.GetScreenPosition(AScreenPosition4);
+    AScreenPosition1 := FEngine.Camera.GetScreenPos(AScreenPosition1);
+    AScreenPosition2 := FEngine.Camera.GetScreenPos(AScreenPosition2);
+    AScreenPosition3 := FEngine.Camera.GetScreenPos(AScreenPosition3);
+    AScreenPosition4 := FEngine.Camera.GetScreenPos(AScreenPosition4);
   end;
   FTexture.DrawDistort(
     AScreenPosition1.X, AScreenPosition1.Y,
@@ -464,8 +464,8 @@ begin
   AScreenPosition2.Create(x2, y2);
   if Assigned(FEngine.Camera) then
   begin
-    AScreenPosition1 := FEngine.Camera.GetScreenPosition(AScreenPosition1);
-    AScreenPosition2 := FEngine.Camera.GetScreenPosition(AScreenPosition2);
+    AScreenPosition1 := FEngine.Camera.GetScreenPos(AScreenPosition1);
+    AScreenPosition2 := FEngine.Camera.GetScreenPos(AScreenPosition2);
   end;
   FTexture.DrawMap(
     AScreenPosition1.X, AScreenPosition1.Y,
@@ -484,9 +484,9 @@ begin
   ACenter.Create(xA, yA);
   if Assigned(FEngine.Camera) then
   begin
-    AScreenPosition1 := FEngine.Camera.GetScreenPosition(AScreenPosition1);
-    AScreenPosition2 := FEngine.Camera.GetScreenPosition(AScreenPosition2);
-    ACenter := FEngine.Camera.GetScreenPosition(ACenter);
+    AScreenPosition1 := FEngine.Camera.GetScreenPos(AScreenPosition1);
+    AScreenPosition2 := FEngine.Camera.GetScreenPos(AScreenPosition2);
+    ACenter := FEngine.Camera.GetScreenPos(ACenter);
   end;
   FTexture.DrawMapRotAxis(
     AScreenPosition1.X, AScreenPosition1.Y,
@@ -507,7 +507,7 @@ begin
   AScreenSize := SpriteSize;
   if Assigned(FEngine.Camera) then
   begin
-    ACenterPosition := FEngine.Camera.GetScreenPosition(ACenterPosition);
+    ACenterPosition := FEngine.Camera.GetScreenPos(ACenterPosition);
     AScreenSize := FEngine.Camera.GetScreenSize(AScreenSize);
   end;
   AScreenPosition := ACenterPosition - AScreenSize * 0.5;
@@ -539,7 +539,7 @@ begin
 
   if Assigned(FEngine.Camera) then
   begin
-    AScreenPosition := FEngine.Camera.GetScreenPosition(AScreenPosition);
+    AScreenPosition := FEngine.Camera.GetScreenPos(AScreenPosition);
     AScreenSize := FEngine.Camera.GetScreenSize(AScreenSize);
   end;
   AOffset := AScreenPosition;
@@ -565,9 +565,9 @@ begin
   AOffset.Create(xA, yA);
   if Assigned(FEngine.Camera) then
   begin
-    AScreenPosition := FEngine.Camera.GetScreenPosition(AScreenPosition);
+    AScreenPosition := FEngine.Camera.GetScreenPos(AScreenPosition);
     AScreenSize := FEngine.Camera.GetScreenSize(AScreenSize);
-    AOffset := FEngine.Camera.GetScreenPosition(AOffset);
+    AOffset := FEngine.Camera.GetScreenPos(AOffset);
   end;
   AScreenPosition := AScreenPosition - AScreenSize * 0.5;
 
@@ -599,9 +599,9 @@ begin
 
   if Assigned(FEngine.Camera) then
   begin
-    AScreenPosition := FEngine.Camera.GetScreenPosition(AScreenPosition);
+    AScreenPosition := FEngine.Camera.GetScreenPos(AScreenPosition);
     AScreenSize := FEngine.Camera.GetScreenSize(AScreenSize);
-    AOffset := FEngine.Camera.GetScreenPosition(AOffset);
+    AOffset := FEngine.Camera.GetScreenPos(AOffset);
   end;
   AScreenPosition := AScreenPosition - AScreenSize * 0.5;
 
