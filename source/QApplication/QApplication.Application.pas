@@ -317,8 +317,11 @@ end;
 
 constructor TQApplication.Create;
 begin
-  FIsRuning := False;
+  Inc(FRefCount);
+
+  //FIsRuning := False;
   FIsStoped := True;
+
   FWindow := TWindow.Create(Self);
   FControlState := TControlState.Create;
   FCriticalSection := TCriticalSection.Create;
@@ -474,14 +477,24 @@ end;
 procedure TQApplication.Loop;
 var
   AMessage: TMsg;
+  Result: Boolean;
 begin
   FIsStoped := False;
-  FIsRuning := True;
-  while GetMessageA(AMessage, FWindow.Handle, 0, 0) and FIsRuning do
+  //FIsRuning := True;
+  while GetMessageA(AMessage, FWindow.Handle, 0, 0) do// and FIsRuning do
   begin
+    if AMessage.message = 0 then
+      Break;
+
     TranslateMessage(AMessage);
     DispatchMessageA(AMessage);
+
+    if FIsStoped then
+      DestroyWindow(FWindow.Handle);
   end;
+
+  FCriticalSection.Enter;
+  FCriticalSection.Leave;
 end;
 
 procedure TQApplication.Stop;
@@ -492,19 +505,16 @@ end;
 procedure TQApplication.MainTimerUpdate(const ADeltaTime: Double);
 begin
   FCriticalSection.Enter;
-    if FIsRuning then
-    begin
-      ProcessMessageQueue;
-      OnUpdate(ADeltaTime);
-      OnDraw(0);
-      (FControlState as TControlState).ClearWheelState;
-    end;
+    //if FIsRuning then
+    //begin
+    ProcessMessageQueue;
+    OnUpdate(ADeltaTime);
+    OnDraw(0);
+    (FControlState as TControlState).ClearWheelState;
+    //end;
 
     if FIsStoped then
-    begin
       FMainTimer.SetState(False);
-      FIsRuning := False;
-    end;
   FCriticalSection.Leave;
 end;
 
@@ -562,10 +572,7 @@ end;
 
 procedure TQApplication.OnDestroy;
 begin
-  FCriticalSection.Enter;
-    FMainTimer.SetState(False);
-    FIsRuning := False;
-  FCriticalSection.Leave;
+  FMainTimer.SetState(False);
 end;
 
 function TQApplication.OnMouseMove;
