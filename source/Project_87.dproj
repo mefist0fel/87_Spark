@@ -53,9 +53,7 @@
 			<DelphiCompile Include="Project_87.dpr">
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
-			<DCCReference Include="uMain.pas"/>
 			<DCCReference Include="Strope\Strope.Math.pas"/>
-			<DCCReference Include="Strope\Strope.Utils.pas"/>
 			<DCCReference Include="QGame\QGame.Game.pas"/>
 			<DCCReference Include="QGame\QGame.ResourceManager.pas"/>
 			<DCCReference Include="QGame\QGame.SceneManager.pas"/>
@@ -86,6 +84,8 @@
 			<DCCReference Include="Project87\Scenes\Project87.Scenes.IntroScene.pas"/>
 			<DCCReference Include="Project87\Scenes\Project87.Scenes.MainMenuScene.pas"/>
 			<DCCReference Include="Project87\Objects\Project87.Asteroid.pas"/>
+			<DCCReference Include="uMain.pas"/>
+			<DCCReference Include="Strope\Strope.Utils.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

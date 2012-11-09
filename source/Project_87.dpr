@@ -4,9 +4,7 @@ program Project_87;
 
 uses
   SysUtils,
-  uMain in 'uMain.pas',
   Strope.Math in 'Strope\Strope.Math.pas',
-  Strope.Utils in 'Strope\Strope.Utils.pas',
   QGame.Game in 'QGame\QGame.Game.pas',
   QGame.ResourceManager in 'QGame\QGame.ResourceManager.pas',
   QGame.SceneManager in 'QGame\QGame.SceneManager.pas',
@@ -36,7 +34,9 @@ uses
   Project87.Resources in 'Project87\Project87.Resources.pas',
   Project87.Scenes.IntroScene in 'Project87\Scenes\Project87.Scenes.IntroScene.pas',
   Project87.Scenes.MainMenuScene in 'Project87\Scenes\Project87.Scenes.MainMenuScene.pas',
-  Project87.Asteroid in 'Project87\Objects\Project87.Asteroid.pas';
+  Project87.Asteroid in 'Project87\Objects\Project87.Asteroid.pas',
+  uMain in 'uMain.pas',
+  Strope.Utils in 'Strope\Strope.Utils.pas';
 
 begin
   ReportMemoryLeaksOnShutdown := True;
