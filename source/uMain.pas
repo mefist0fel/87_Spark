@@ -21,7 +21,7 @@ procedure InitializeApplication;
 var
   AParameters: TQApplicationParameters;
 begin
-  CreateEngine(TVectorI.Create(1024, 768), TVectorI.Create(1280, 720));
+  CreateEngine(TVectorI.Create(1024, 768), TVectorI.Create(1024, 600));
   //CreateEngine(TVectorI.Create(1024, 768), GetDesktopResolution);
 
   TheApplication := TQApplication.Create;

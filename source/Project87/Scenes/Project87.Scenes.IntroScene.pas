@@ -89,7 +89,7 @@ var
 begin
   TheEngine.Camera := nil;
   TheRender.RectangleEx(0, 0, Camera.Resolution.X, Camera.Resolution.Y,
-    $FF000000, $FF000060, $FF000000, $FF000000);
+    $FF000080, $FF000080, $FF000000, $FF000000);
 
   TheEngine.Camera := Camera;
   ASize := Camera.DefaultResolution.Y * 0.853;
@@ -99,15 +99,15 @@ begin
   ABalancerSize.Create(ASize, ASize);
 
   FGearImages[2].Draw(Vec2F(181, -83) * 1.28, Vec2F(256, 256) * 1.28 * 0.5,
-    -FRotationAngle / 24 - 4, $FF202020);
+    -FRotationAngle / 24 - 4, $FF404040);
   FGearImages[1].Draw(Vec2F(181, -167) * 1.28, Vec2F(128, 128) * 1.28 * 0.5,
-    FRotationAngle / 14 + 8, $FF202020);
+    FRotationAngle / 14 + 8, $FF404040);
   FGearImages[2].Draw(Vec2F(221, -241) * 1.28, Vec2F(256, 256) * 1.28 * 0.5,
-    -FRotationAngle / 24 - 4, $FF202020);
+    -FRotationAngle / 24 - 4, $FF404040);
   FGearImages[0].Draw(Vec2F(106, -83) * 1.28, Vec2F(128, 128) * 1.28 * 0.5,
-    FRotationAngle / 8 + 10, $FF202020);
+    FRotationAngle / 8 + 10, $FF404040);
   FGearImages[2].Draw(Vec2F(42, -44) * 1.28, Vec2F(256, 256) * 1.28 * 0.5,
-    -FRotationAngle / 24, $FF202020);
+    -FRotationAngle / 24, $FF404040);
 
   FGearImages[0].Draw(Vec2F(-314.88, 106.24), Vec2F(163.84, 163.84),
     FRotationAngle / 8 - 4, $FF888888);
@@ -221,7 +221,7 @@ begin
       begin
         if FIsToMenu then
         begin
-          TheGame.SceneManager.MakeCurrent('Spark');
+          TheGame.SceneManager.MakeCurrent('MainMenu');
           TheGame.SceneManager.OnInitialize;
           Exit;
         end;
@@ -232,7 +232,7 @@ begin
           Inc(FLogo);
           if FLogo = 2 then
           begin
-            TheGame.SceneManager.MakeCurrent('Spark');
+            TheGame.SceneManager.MakeCurrent('MainMenu');
             TheGame.SceneManager.OnInitialize;
             TheGame.SceneManager.DeleteScene(Name);
             Exit;
