@@ -39,7 +39,7 @@ uses
   Project87.Asteroid in 'Project87\Objects\Project87.Asteroid.pas';
 
 begin
-  //ReportMemoryLeaksOnShutdown := True;
+  ReportMemoryLeaksOnShutdown := True;
   try
     try
       InitializeApplication;

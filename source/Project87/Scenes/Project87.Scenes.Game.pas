@@ -50,7 +50,8 @@ begin
 end;
 
 procedure TGameScene.OnInitialize(AParameter: TObject);
-var i: Byte;
+var
+  I: Byte;
 begin
   FTestCamera := TheEngine.CreateCamera;
   TheEngine.Camera := FTestCamera;
@@ -60,10 +61,10 @@ begin
   FImage.LoadFromFile('..\data\gfx\miku.png', 0, 128, 128);
   TheRender.SetBlendMode(qbmSrcAlpha);
 
-  THero.Create(ZeroVectorF);
+  THero.CreateHero(ZeroVectorF);
 
   for i := 0 to 100 do
-    TAsteroid.Create(TVector2F.Create( Random(5000) - 2500, Random(5000) - 2500), Random(360), 50 + Random(200));
+    TAsteroid.Create(TVector2F.Create( Random(5000) - 2500, Random(5000) - 2500), Random(360), 20 + Random(100));
 end;
 
 procedure TGameScene.OnUpdate(const ADelta: Double);

@@ -319,7 +319,6 @@ constructor TQApplication.Create;
 begin
   Inc(FRefCount);
 
-  //FIsRuning := False;
   FIsStoped := True;
 
   FWindow := TWindow.Create(Self);
@@ -512,6 +511,9 @@ begin
     OnDraw(0);
     (FControlState as TControlState).ClearWheelState;
     //end;
+
+    if FIsStoped then
+      FMainTimer.SetState(False);
 
     if FIsStoped then
       FMainTimer.SetState(False);

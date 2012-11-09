@@ -225,8 +225,8 @@ begin
   AScreenPosition2.Create(x2, y2);
   if Assigned(FEngine.Camera) then
   begin
-    AScreenPosition1 := FEngine.Camera.GetScreenPosition(AScreenPosition1);
-    AScreenPosition2 := FEngine.Camera.GetScreenPosition(AScreenPosition2);
+    AScreenPosition1 := FEngine.Camera.GetScreenPos(AScreenPosition1);
+    AScreenPosition2 := FEngine.Camera.GetScreenPos(AScreenPosition2);
   end;
   FRender.DrawLine(
     AScreenPosition1.X, AScreenPosition1.Y,
@@ -240,7 +240,7 @@ var
 begin
   AScreenPosition.Create(x, y);
   if Assigned(FEngine.Camera) then
-    AScreenPosition := FEngine.Camera.GetScreenPosition(AScreenPosition);
+    AScreenPosition := FEngine.Camera.GetScreenPos(AScreenPosition);
   FRender.DrawPoint(AScreenPosition.X, AScreenPosition.Y, Color);
 end;
 
@@ -284,10 +284,10 @@ begin
   AScreenPosition4.Create(x4, y4);
   if Assigned(FEngine.Camera) then
   begin
-    AScreenPosition1 := FEngine.Camera.GetScreenPosition(AScreenPosition1);
-    AScreenPosition2 := FEngine.Camera.GetScreenPosition(AScreenPosition2);
-    AScreenPosition3 := FEngine.Camera.GetScreenPosition(AScreenPosition3);
-    AScreenPosition4 := FEngine.Camera.GetScreenPosition(AScreenPosition4);
+    AScreenPosition1 := FEngine.Camera.GetScreenPos(AScreenPosition1);
+    AScreenPosition2 := FEngine.Camera.GetScreenPos(AScreenPosition2);
+    AScreenPosition3 := FEngine.Camera.GetScreenPos(AScreenPosition3);
+    AScreenPosition4 := FEngine.Camera.GetScreenPos(AScreenPosition4);
   end;
   FRender.Polygon(
     AScreenPosition1.X, AScreenPosition1.Y,
@@ -306,8 +306,8 @@ begin
   AScreenPosition2.Create(x2, y2);
   if Assigned(FEngine.Camera) then
   begin
-    AScreenPosition1 := FEngine.Camera.GetScreenPosition(AScreenPosition1);
-    AScreenPosition2 := FEngine.Camera.GetScreenPosition(AScreenPosition2);
+    AScreenPosition1 := FEngine.Camera.GetScreenPos(AScreenPosition1);
+    AScreenPosition2 := FEngine.Camera.GetScreenPos(AScreenPosition2);
   end;
   FRender.Rectangle(
     AScreenPosition1.X, AScreenPosition1.Y,
@@ -325,8 +325,8 @@ begin
   AScreenPosition2.Create(x2, y2);
   if Assigned(FEngine.Camera) then
   begin
-    AScreenPosition1 := FEngine.Camera.GetScreenPosition(AScreenPosition1);
-    AScreenPosition2 := FEngine.Camera.GetScreenPosition(AScreenPosition2);
+    AScreenPosition1 := FEngine.Camera.GetScreenPos(AScreenPosition1);
+    AScreenPosition2 := FEngine.Camera.GetScreenPos(AScreenPosition2);
   end;
   FRender.RectangleEx(
     AScreenPosition1.X, AScreenPosition1.Y,

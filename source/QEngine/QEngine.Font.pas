@@ -130,7 +130,7 @@ begin
   AScale := 1;
   if Assigned(FEngine.Camera) then
   begin
-    AScreenPosition := FEngine.Camera.GetScreenPosition(AScreenPosition);
+    AScreenPosition := FEngine.Camera.GetScreenPos(AScreenPosition);
     AScale := Min(FEngine.Camera.Scale.X, FEngine.Camera.Scale.Y);
   end;
   FFont.TextOut(AScreenPosition.X, AScreenPosition.Y,  AScale * scale,
@@ -147,7 +147,7 @@ begin
   AScale := 1;
   if Assigned(FEngine.Camera) then
   begin
-    AScreenPosition := FEngine.Camera.GetScreenPosition(AScreenPosition);
+    AScreenPosition := FEngine.Camera.GetScreenPos(AScreenPosition);
     AScale := Min(FEngine.Camera.Scale.X, FEngine.Camera.Scale.Y);
   end;
   FFont.TextOutAligned(AScreenPosition.X, AScreenPosition.Y,  AScale * scale,
@@ -164,7 +164,7 @@ begin
   AScale := 1;
   if Assigned(FEngine.Camera) then
   begin
-    AScreenPosition := FEngine.Camera.GetScreenPosition(AScreenPosition);
+    AScreenPosition := FEngine.Camera.GetScreenPos(AScreenPosition);
     AScale := Min(FEngine.Camera.Scale.X, FEngine.Camera.Scale.Y);
   end;
   FFont.TextOutCentered(AScreenPosition.X, AScreenPosition.Y,  AScale * scale,

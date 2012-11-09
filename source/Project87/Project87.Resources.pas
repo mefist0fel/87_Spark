@@ -18,7 +18,7 @@ type
   end;
 
 var
-  TheResources: TResources;
+  TheResources: TResources = nil;
 
 implementation
 
@@ -26,6 +26,7 @@ implementation
 constructor TResources.Create;
 begin
   TheResources := Self;
+
   HeroTexture := TheEngine.CreateTexture;
   HeroTexture.LoadFromFile('..\data\gfx\quad.png', 0);
   AsteroidTexture := TheEngine.CreateTexture;

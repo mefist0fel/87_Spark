@@ -119,11 +119,20 @@ function SquareRoot10Interpolate(AFrom, ATo, AProgress: Single): Single;
 
 {$REGION '  Angle work Functions  '}
 function RoundAngle(Angle: Single): Single;
-function AngleBetween(A, B: TVector2F): Single;
+function GetAngle(A, B: TVector2F): Single; overload;
+function GetAngle(A: TVector2F): Single; overload;
+function RotateToAngle(SourceAngle, DestionationAngle, Speed: Single): Single;
+{$ENDREGION}
+
+{$REGION '  TVector2I additional Functions  '}
+function Vector2I(X, Y: Integer): TVector2I;
 {$ENDREGION}
 
 {$REGION '  TVector2F additional Functions  '}
+function Vector2F(X, Y: Single): TVector2F;
 function Distance(A, B: TVector2F): Single;
+function ClipAndRotate(Angle, Length: Single): TVector2F;
+function Dot(A, B: TVector2F): Single;
 {$ENDREGION}
 
 implementation
@@ -196,39 +205,39 @@ end;
 
 function LinearInterpolate(AFrom, ATo, AProgress: Single): Single;
 begin
-  Result := (ATo - AFrom) * Clamp(AProgress, 1, 0);
+  Result := AFrom + (ATo - AFrom) * Clamp(AProgress, 1, 0);
 end;
 
 function Ermit01Interpolate(AFrom, ATo, AProgress: Single): Single;
 begin
   AProgress := Clamp(AProgress, 1, 0);
-  Result := (ATo - AFrom) * (Sqr(AProgress) * (3 - 2 * AProgress));
+  Result := AFrom + (ATo - AFrom) * (Sqr(AProgress) * (3 - 2 * AProgress));
 end;
 
 function Ermit10Interpoalte(AFrom, ATo, AProgress: Single): Single;
 begin
   AProgress := Clamp(AProgress, 1, 0);
-  Result := (ATo - AFrom) * (Sqr(1 - AProgress) * (1 + 2 * AProgress));
+  Result := AFrom + (ATo - AFrom) * (Sqr(1 - AProgress) * (1 + 2 * AProgress));
 end;
 
 function Parabolic01Interpolate(AFrom, ATo, AProgress: Single): Single;
 begin
-  Result := (ATo - AFrom) * Sqr(AProgress);
+  Result := AFrom + (ATo - AFrom) * Sqr(AProgress);
 end;
 
 function Parabolic10Interpolate(AFrom, ATo, AProgress: Single): Single;
 begin
-  Result := (ATo - AFrom) * (1 - Sqr(AProgress));
+  Result := AFrom + (ATo - AFrom) * (1 - Sqr(AProgress));
 end;
 
 function SquareRoot01Interpolate(AFrom, ATo, AProgress: Single): Single;
 begin
-  Result := (ATo - AFrom) * Sqrt(AProgress);
+  Result := AFrom + (ATo - AFrom) * Sqrt(AProgress);
 end;
 
 function SquareRoot10Interpolate(AFrom, ATo, AProgress: Single): Single;
 begin
-  Result := (ATo - AFrom) * Sqrt(1 - AProgress);
+  Result := AFrom + (ATo - AFrom) * Sqrt(1 - AProgress);
 end;
 {$ENDREGION}
 
@@ -244,7 +253,7 @@ begin
   Result:= Angle;
 end;
 
-function AngleBetween(A, B: TVector2F): Single;
+function GetAngle(A, B: TVector2F): Single;
 var
   S, C: Single;
 begin
@@ -259,12 +268,53 @@ begin
   S := RoundAngle(180 - S);
   Result:= S;
 end;
-{$ENDREGION}
 
-{$REGION '  TVector2F additional Functions  '}
-function Distance(A, B: TVector2F): Single;
+function GetAngle(A: TVector2F): Single;
+var
+  S, C: Single;
 begin
-  Result:= Sqrt(Sqr(A.X - B.X) + Sqr(A.Y - B.Y));
+  C := (- A.Y) / A.Length;
+  If C > 1 then
+    C := 1;
+  If C < -1 then
+    C := -1;
+  S := (arccos(C)) * 180 / PI;
+  If A.X > 0 then
+     S := RoundAngle(360 - S);
+  S := RoundAngle(180 - S);
+  Result:= S;
+end;
+
+function RotateToAngle(SourceAngle, DestionationAngle, Speed: Single): Single;
+var
+  Angle,
+  Source: Single;
+begin
+  Source := SourceAngle;
+  if ((SourceAngle < 10) or (DestionationAngle<10)) then
+    begin
+      SourceAngle := RoundAngle(SourceAngle + 90);
+      DestionationAngle := RoundAngle(DestionationAngle + 90);
+    end;
+  if ((SourceAngle > 350) or (DestionationAngle > 350)) then
+    begin
+      SourceAngle := RoundAngle(SourceAngle - 90);
+      DestionationAngle := RoundAngle(DestionationAngle - 90);
+    end;
+  Angle := Speed;
+  If (Abs(DestionationAngle - SourceAngle) < Speed) then
+    Angle:= Abs(DestionationAngle - SourceAngle);
+  If (SourceAngle < DestionationAngle) then
+  begin
+    If (DestionationAngle-SourceAngle > 180) then
+      Angle := -1 * Angle;
+  end
+  else
+  begin
+    If (SourceAngle - DestionationAngle < 180) then
+      Angle := -1 * Angle;
+  end;
+  Result:= RoundAngle(Angle + Source);
 end;
 {$ENDREGION}
 
@@ -273,6 +323,12 @@ constructor TVector2I.Create(X, Y: Integer);
 begin
   Self.X := X;
   Self.Y := Y;
+end;
+
+function Vector2I(X, Y: Integer): TVector2I;
+begin
+  Result.X := X;
+  Result.Y := Y;
 end;
 
 class operator TVector2I.Negative(const AVector: TVector2I): TVector2I;
@@ -338,6 +394,12 @@ constructor TVector2F.Create(X, Y: Single);
 begin
   Self.X := X;
   Self.Y := Y;
+end;
+
+function Vector2F(X, Y: Single): TVector2F;
+begin
+  Result.X := X;
+  Result.Y := Y;
 end;
 
 class operator TVector2F.Implicit(const AVector: TVector2I): TVector2F;
@@ -460,6 +522,22 @@ begin
   Result.Create(
     InterpolateValue(Self.X, AVector.X, AProgress, AInterpolationType),
     InterpolateValue(Self.Y, AVector.Y, AProgress, AInterpolationType));
+end;
+
+function Distance(A, B: TVector2F): Single;
+begin
+  Result:= Sqrt(Sqr(A.X - B.X) + Sqr(A.Y - B.Y));
+end;
+
+function ClipAndRotate(Angle, Length: Single): TVector2F;
+begin
+  Result.X:=  sin(Angle / 180 * PI) * Length;
+  Result.Y:= -cos(Angle / 180 * PI) * Length;
+end;
+
+function Dot(A, B: TVector2F): Single;
+begin
+  Result:= A.X * B.X + A.Y * B.Y;
 end;
 {$ENDREGION}
 

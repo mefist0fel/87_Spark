@@ -21,6 +21,7 @@ type
 implementation
 
 uses
+  Project87.Scenes.IntroScene,
   Project87.Scenes.Game,
   Project87.Scenes.TestScene;
 
