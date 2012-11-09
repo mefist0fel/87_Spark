@@ -234,6 +234,8 @@ begin
           begin
             TheGame.SceneManager.MakeCurrent('Spark');
             TheGame.SceneManager.OnInitialize;
+            TheGame.SceneManager.DeleteScene(Name);
+            Exit;
           end;
         end;
       end;
