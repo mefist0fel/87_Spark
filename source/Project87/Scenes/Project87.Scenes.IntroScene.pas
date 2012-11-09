@@ -68,7 +68,6 @@ end;
 
 procedure TIntroScene.DrawQuadLogo;
 var
-  ACenter: TVectorF;
   ALogoSize: TVectorF;
   ABalancerSize: TVectorF;
   ASize: Single;
@@ -107,7 +106,7 @@ begin
     //Балансир
     Balance.DrawFrame(CenterX - 189, CenterY - 160, Trunc(RotationAngle / RotationSpeed / 2) mod 16, $ff555555);}
     FBalancer.Draw(TVectorF.Create(-160, -126), ABalancerSize,
-      0, FBalancerFrame, $FF555555);
+      0, $FF555555, FBalancerFrame);
     FQuadLogo.Draw(ZeroVectorF, ALogoSize, 0, $FFFFFFFF);
 end;
 

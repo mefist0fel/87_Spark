@@ -74,9 +74,9 @@ begin
   FTestCamera.Scale := FScale;
   FTestCamera.Position := FTestCamera.GetWorldSize(FPosition);
 
-  FImage.Draw(ZeroVectorF, 0, FFrame, $FFFFFFFF);
-  FImage.Draw(TVectorF.Create(200, 100),
-    FTestCamera.GetWorldSize(FImage.FrameSize), ZeroVectorF, 0, FFrame, $FFFFFFFF);
+  FImage.Draw(ZeroVectorF, 0, $FFFFFFFF, FFrame);
+  FImage.Draw(TVectorF.Create(200, 100), FTestCamera.GetWorldSize(FImage.FrameSize),
+    ZeroVectorF, 0, $FFFFFFFF, FFrame);
 end;
 
 procedure TTestScene.OnUpdate(const ADelta: Double);

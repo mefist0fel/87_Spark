@@ -478,7 +478,6 @@ end;
 procedure TQApplication.Loop;
 var
   AMessage: TMsg;
-  Result: Boolean;
 begin
   FIsStoped := False;
   //FIsRuning := True;

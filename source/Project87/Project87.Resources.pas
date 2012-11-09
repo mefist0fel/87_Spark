@@ -11,8 +11,9 @@ type
     public
       HeroTexture: TQuadTexture;
       AsteroidTexture: TQuadTexture;
+
       constructor Create;
-      destructor Destroy;
+      destructor Destroy; override;
   end;
 
 var
@@ -37,6 +38,7 @@ destructor TResources.Destroy;
 begin
   HeroTexture.Destroy;
   AsteroidTexture.Destroy;
+
   inherited;
 end;
 {$ENDREGION}

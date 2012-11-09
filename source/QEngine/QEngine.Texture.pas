@@ -68,30 +68,18 @@ type
         AWidth, AHeight: Integer); stdcall;
 
       procedure Draw(const APosition: TVectorF;
-        AAngle: Single = 0; AColor: Cardinal = $FFFFFFFF); overload;
+        AAngle: Single = 0; AColor: Cardinal = $FFFFFFFF; AFrame: Word = 0); overload;
       procedure Draw(const APosition, ASize: TVectorF;
-        AAngle: Single = 0; AColor: Cardinal = $FFFFFFFF); overload;
+        AAngle: Single = 0; AColor: Cardinal = $FFFFFFFF; AFrame: Word = 0); overload;
       procedure Draw(const APosition, ASize, ARotationCenter: TVectorF;
-        AAngle: Single = 0; AColor: Cardinal = $FFFFFFFF); overload;
-      procedure Draw(const APosition: TVectorF;
-        AAngle: Single = 0; AFrame: Word = 0; AColor: Cardinal = $FFFFFFFF); overload;
-      procedure Draw(const APosition, ASize: TVectorF;
-        AAngle: Single = 0; AFrame: Word = 0;AColor: Cardinal = $FFFFFFFF); overload;
-      procedure Draw(const APosition, ASize, ARotationCenter: TVectorF;
-        AAngle: Single = 0; AFrame: Word = 0; AColor: Cardinal = $FFFFFFFF); overload;
+        AAngle: Single = 0; AColor: Cardinal = $FFFFFFFF; AFrame: Word = 0); overload;
 
       procedure DrawByLeftTop(const APosition: TVectorF;
-        AAngle: Single = 0; AColor: Cardinal = $FFFFFFFF); overload;
+        AAngle: Single = 0; AColor: Cardinal = $FFFFFFFF; AFrame: Word = 0); overload;
       procedure DrawByLeftTop(const APosition, ASize: TVectorF;
-        AAngle: Single = 0; AColor: Cardinal = $FFFFFFFF); overload;
+        AAngle: Single = 0; AColor: Cardinal = $FFFFFFFF; AFrame: Word = 0); overload;
       procedure DrawByLeftTop(const APosition, ASize, ARotationCenter: TVectorF;
-        AAngle: Single = 0; AColor: Cardinal = $FFFFFFFF); overload;
-      procedure DrawByLeftTop(const APosition: TVectorF;
-        AAngle: Single = 0; AFrame: Word = 0; AColor: Cardinal = $FFFFFFFF); overload;
-      procedure DrawByLeftTop(const APosition, ASize: TVectorF;
-        AAngle: Single = 0; AFrame: Word = 0; AColor: Cardinal = $FFFFFFFF); overload;
-      procedure DrawByLeftTop(const APosition, ASize, ARotationCenter: TVectorF;
-        AAngle: Single = 0; AFrame: Word = 0; AColor: Cardinal = $FFFFFFFF); overload;
+        AAngle: Single = 0; AColor: Cardinal = $FFFFFFFF; AFrame: Word = 0); overload;
 
       property IsLoaded: Boolean read GetIsLoaded;
       property TextureSize: TVectorI read FTextureSize;
@@ -127,6 +115,9 @@ function TQuadTexture.GetPatternIndex(Pattern: Word): TVectorI;
 var
   APatternsCount: TVector2I;
 begin
+  if FramesCount = 1 then
+    Exit(ZeroVectorI);
+
   Pattern := Pattern mod FramesCount;
   APatternsCount.Create(
     FTexture.GetSpriteWidth div FTexture.GetPatternWidth,
@@ -234,52 +225,7 @@ begin
 end;
 
 procedure TQuadTexture.Draw(const APosition, ASize, ARotationCenter: TVectorF;
-  AAngle: Single; AColor: Cardinal);
-var
-  ALTPosition, ARBPosition: TVectorF;
-begin
-  ALTPosition := APosition - ASize * 0.5;
-  ARBPosition := ALTPosition + ASize;
-  DrawMapRotAxis(
-    ALTPosition.X, ALTPosition.Y,
-    ARBPosition.X, ARBPosition.Y,
-    0, 0, 1, 1,
-    ARotationCenter.X, ARotationCenter.Y,
-    AAngle, 1, AColor);
-end;
-
-procedure TQuadTexture.Draw(const APosition, ASize: TVectorF; AAngle: Single;
-  AColor: Cardinal);
-var
-  ALTPosition, ARBPosition: TVectorF;
-begin
-  ALTPosition := APosition - ASize * 0.5;
-  ARBPosition := ALTPosition + ASize;
-  DrawMapRotAxis(
-    ALTPosition.X, ALTPosition.Y,
-    ARBPosition.X, ARBPosition.Y,
-    0, 0, 1, 1,
-    APosition.X, APosition.Y,
-    AAngle, 1, AColor);
-end;
-
-procedure TQuadTexture.Draw(const APosition: TVectorF; AAngle: Single;
-  AColor: Cardinal);
-var
-  ALTPosition, ARBPosition: TVectorF;
-begin
-  ALTPosition := APosition - TVectorF(SpriteSize) * 0.5;
-  ARBPosition := ALTPosition + SpriteSize;
-  DrawMapRotAxis(
-    ALTPosition.X, ALTPosition.Y,
-    ARBPosition.X, ARBPosition.Y,
-    0, 0, 1, 1,
-    APosition.X, APosition.Y,
-    AAngle, 1, AColor);
-end;
-
-procedure TQuadTexture.Draw(const APosition, ASize, ARotationCenter: TVectorF;
-  AAngle: Single; AFrame: Word; AColor: Cardinal);
+  AAngle: Single; AColor: Cardinal; AFrame: Word);
 var
   ALTPosition, ARBPosition: TVectorF;
   AFrameUV: TVectorF;
@@ -296,7 +242,7 @@ begin
 end;
 
 procedure TQuadTexture.Draw(const APosition, ASize: TVectorF; AAngle: Single;
-  AFrame: Word; AColor: Cardinal);
+  AColor: Cardinal; AFrame: Word);
 var
   ALTPosition, ARBPosition: TVectorF;
   AFrameUV: TVectorF;
@@ -313,7 +259,7 @@ begin
 end;
 
 procedure TQuadTexture.Draw(const APosition: TVectorF; AAngle: Single;
-  AFrame: Word; AColor: Cardinal);
+  AColor: Cardinal; AFrame: Word);
 var
   ALTPosition, ARBPosition: TVectorF;
   AFrameUV: TVectorF;
@@ -330,53 +276,7 @@ begin
 end;
 
 procedure TQuadTexture.DrawByLeftTop(const APosition, ASize, ARotationCenter: TVectorF;
-  AAngle: Single; AColor: Cardinal);
-var
-  ARBPosition: TVectorF;
-begin
-  ARBPosition := APosition + ASize;
-  DrawMapRotAxis(
-    APosition.X, APosition.Y,
-    ARBPosition.X, ARBPosition.Y,
-    0, 0, 1, 1,
-    ARotationCenter.X, ARotationCenter.Y,
-    AAngle, 1, AColor);
-end;
-
-procedure TQuadTexture.DrawByLeftTop(const APosition, ASize: TVectorF;
-  AAngle: Single; AColor: Cardinal);
-var
-  ARBPosition: TVectorF;
-  ACenter: TVectorF;
-begin
-  ARBPosition := APosition + ASize;
-  ACenter := APosition + ASize * 0.5;
-  DrawMapRotAxis(
-    APosition.X, APosition.Y,
-    ARBPosition.X, ARBPosition.Y,
-    0, 0, 1, 1,
-    ACenter.X, ACenter.Y,
-    AAngle, 1, AColor);
-end;
-
-procedure TQuadTexture.DrawByLeftTop(const APosition: TVectorF; AAngle: Single;
-  AColor: Cardinal);
-var
-  ARBPosition: TVectorF;
-  ACenter: TVectorF;
-begin
-  ARBPosition := APosition + SpriteSize;
-  ACenter := APosition + TVectorF(SpriteSize) * 0.5;
-  DrawMapRotAxis(
-    APosition.X, APosition.Y,
-    ARBPosition.X, ARBPosition.Y,
-    0, 0, 1, 1,
-    ACenter.X, ACenter.Y,
-    AAngle, 1, AColor);
-end;
-
-procedure TQuadTexture.DrawByLeftTop(const APosition, ASize, ARotationCenter: TVectorF;
-  AAngle: Single; AFrame: Word; AColor: Cardinal);
+  AAngle: Single; AColor: Cardinal; AFrame: Word);
 var
   ARBPosition: TVectorF;
   AFrameUV: TVectorF;
@@ -392,7 +292,7 @@ begin
 end;
 
 procedure TQuadTexture.DrawByLeftTop(const APosition, ASize: TVectorF;
-  AAngle: Single; AFrame: Word; AColor: Cardinal);
+  AAngle: Single; AColor: Cardinal; AFrame: Word);
 var
   ARBPosition: TVectorF;
   ACenter: TVectorF;
@@ -410,7 +310,7 @@ begin
 end;
 
 procedure TQuadTexture.DrawByLeftTop(const APosition: TVectorF; AAngle: Single;
-  AFrame: Word; AColor: Cardinal);
+  AColor: Cardinal; AFrame: Word);
 var
   ARBPosition: TVectorF;
   ACenter: TVectorF;

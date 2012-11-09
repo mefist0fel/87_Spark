@@ -17,7 +17,7 @@ type
       FPosition: TVector2F;
       FVelocity: TVector2F;
     public
-      constructor Create; virtual;
+      constructor Create;
       destructor Destroy; override;
 
       procedure OnDraw; virtual;
@@ -27,16 +27,18 @@ type
   end;
 
   TObjectManager = class
-    private class var FInstance: TObjectManager;
+    private
+      class var FInstance: TObjectManager;
     private
       FObject: TList<TGameObject>;
 
       constructor Create;
-      destructor Destroy;
 
       procedure DestroyObject(AObject: TGameObject);
       procedure AddObject(AObject: TGameObject);
     public
+      destructor Destroy; override;
+
       class function GetInstance: TObjectManager;
 
       procedure OnDraw;
