@@ -199,39 +199,39 @@ end;
 
 function LinearInterpolate(AFrom, ATo, AProgress: Single): Single;
 begin
-  Result := (ATo - AFrom) * Clamp(AProgress, 1, 0);
+  Result := AFrom + (ATo - AFrom) * Clamp(AProgress, 1, 0);
 end;
 
 function Ermit01Interpolate(AFrom, ATo, AProgress: Single): Single;
 begin
   AProgress := Clamp(AProgress, 1, 0);
-  Result := (ATo - AFrom) * (Sqr(AProgress) * (3 - 2 * AProgress));
+  Result := AFrom + (ATo - AFrom) * (Sqr(AProgress) * (3 - 2 * AProgress));
 end;
 
 function Ermit10Interpoalte(AFrom, ATo, AProgress: Single): Single;
 begin
   AProgress := Clamp(AProgress, 1, 0);
-  Result := (ATo - AFrom) * (Sqr(1 - AProgress) * (1 + 2 * AProgress));
+  Result := AFrom + (ATo - AFrom) * (Sqr(1 - AProgress) * (1 + 2 * AProgress));
 end;
 
 function Parabolic01Interpolate(AFrom, ATo, AProgress: Single): Single;
 begin
-  Result := (ATo - AFrom) * Sqr(AProgress);
+  Result := AFrom + (ATo - AFrom) * Sqr(AProgress);
 end;
 
 function Parabolic10Interpolate(AFrom, ATo, AProgress: Single): Single;
 begin
-  Result := (ATo - AFrom) * (1 - Sqr(AProgress));
+  Result := AFrom + (ATo - AFrom) * (1 - Sqr(AProgress));
 end;
 
 function SquareRoot01Interpolate(AFrom, ATo, AProgress: Single): Single;
 begin
-  Result := (ATo - AFrom) * Sqrt(AProgress);
+  Result := AFrom + (ATo - AFrom) * Sqrt(AProgress);
 end;
 
 function SquareRoot10Interpolate(AFrom, ATo, AProgress: Single): Single;
 begin
-  Result := (ATo - AFrom) * Sqrt(1 - AProgress);
+  Result := AFrom + (ATo - AFrom) * Sqrt(1 - AProgress);
 end;
 {$ENDREGION}
 
