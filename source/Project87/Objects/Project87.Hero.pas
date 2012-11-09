@@ -12,7 +12,8 @@ uses
 type
   THero = class (TGameObject)
     private
-
+      FTowerAngle: Single;
+      FNeedCameraPosition: TVector2F;
     public
       constructor Create( APosition: TVector2F);
       procedure OnDraw; override;
@@ -22,9 +23,12 @@ type
 implementation
 
 uses
+  QuadEngine,
+  QEngine.Core,
+  QApplication.Application,
   Project87.Resources;
 
-{$REGION '  THero'}
+{$REGION '  THero  '}
 constructor THero.Create( APosition: TVector2F);
 begin
   FPosition := APosition;
@@ -33,14 +37,19 @@ end;
 
 procedure THero.OnDraw;
 begin
-  TheResources.HeroTexture.Draw(FPosition, 0, 0);
+  TheResources.HeroTexture.Draw(FPosition, TVector2F.Create(50, 50), FAngle, $ffffffff);
+  TheResources.HeroTexture.Draw(FPosition, TVector2F.Create(50, 50), FTowerAngle, $ffffffff);
 end;
 
 procedure THero.OnUpdate(const  ADelta: Double);
+var
+  MousePosition: TVector2F;
 begin
-
+  MousePosition := TheEngine.Camera.GetWorldPosition(TheControlState.Mouse.Position);
+  FTowerAngle := AngleBetween(FPosition, MousePosition);
+  FNeedCameraPosition := MousePosition * 0.5;
+  TheEngine.Camera.Position := TheEngine.Camera.Position * (0.9 - ADelta) + FNeedCameraPosition * (0.1 + ADelta);
 end;
-
 {$ENDREGION}
 
 end.
