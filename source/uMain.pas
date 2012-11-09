@@ -22,7 +22,7 @@ var
   AParameters: TQApplicationParameters;
 begin
   //CreateEngine(TVectorI.Create(1024, 768), TVectorI.Create(1024, 600));
- CreateEngine(TVectorI.Create(1024, 768), GetDesktopResolution);
+  CreateEngine(TVectorI.Create(1024, 768), GetDesktopResolution);
 
   TheApplication := TQApplication.Create;
   AParameters := TQApplicationParameters.Create(

@@ -45,7 +45,7 @@ procedure THero.OnUpdate(const  ADelta: Double);
 var
   MousePosition: TVector2F;
 begin
-  MousePosition := TheEngine.Camera.GetWorldPosition(TheControlState.Mouse.Position);
+  MousePosition := TheEngine.Camera.GetWorldPos(TheControlState.Mouse.Position);
   FTowerAngle := AngleBetween(FPosition, MousePosition);
   FNeedCameraPosition := MousePosition * 0.5;
   TheEngine.Camera.Position := TheEngine.Camera.Position * (0.9 - ADelta) + FNeedCameraPosition * (0.1 + ADelta);
