@@ -10,7 +10,7 @@ uses
   Project87.Types.GameObject;
 
 type
-  TAsteroid = class (TGameObject)
+  TAsteroid = class (TPhysicalObject)
     private
     public
       constructor CreateAsteroid(const APosition: TVector2F; AAngle, ARadius: Single);

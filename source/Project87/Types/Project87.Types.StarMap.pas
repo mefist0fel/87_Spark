@@ -419,7 +419,8 @@ begin
   begin
     ASPosition := FCamera.GetScreenPos(ASystem.Position);
     if (ASPosition.X > -2 * SYSTEM_SIZE) and (ASPosition.Y > -2 * SYSTEM_SIZE) and
-      () ()
+      (ASPosition.X < FCamera.Resolution.X + 2 * SYSTEM_SIZE) and
+      (ASPosition.Y < FCamera.Resolution.Y + 2 * SYSTEM_SIZE)
     then
     begin
 

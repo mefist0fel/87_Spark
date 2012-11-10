@@ -3,9 +3,6 @@ unit Project87.Fluid;
 interface
 
 uses
-  QEngine.Camera,
-  QEngine.Texture,
-  QGame.Scene,
   Strope.Math,
   Project87.Types.GameObject;
 
@@ -17,23 +14,20 @@ type
 
       procedure OnDraw; override;
       procedure OnUpdate(const  ADelta: Double); override;
-      procedure OnCollide(OtherObject: TGameObject); override;
   end;
 
 implementation
 
 uses
+  QEngine.Texture,
   Project87.Hero,
   Project87.Resources;
 
-{$REGION '  TAsteroid  '}
+{$REGION '  TFluid  '}
 constructor TFluid.CreateFluid(const APosition: TVector2F);
 begin
   inherited Create;
-
   FPosition := APosition;
-  FRadius := 100;
-  FUseCollistion := False;
 end;
 
 procedure TFluid.OnDraw;
@@ -43,15 +37,14 @@ end;
 
 procedure TFluid.OnUpdate(const  ADelta: Double);
 begin
-  if Random(100) = 0 then
-    FVelocity := Vec2F(Random(100) - 50, Random(100) - 50);
-end;
 
-procedure TFluid.OnCollide(OtherObject: TGameObject);
+end;
+{
+procedure TFluid.OnCollide(OtherObject: TPhysicalObject);
 begin
   if (OtherObject is THero) then
     FVelocity := (OtherObject.Position - FPosition) * 5;
-end;
+end;      }
 {$ENDREGION}
 
 end.
