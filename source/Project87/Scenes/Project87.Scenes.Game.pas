@@ -25,6 +25,8 @@ type
       procedure OnInitialize(AParameter: TObject = nil); override;
       procedure OnUpdate(const ADelta: Double); override;
       procedure OnDraw(const ALayer: Integer); override;
+
+      function OnKeyUp(AKey: TKeyButton): Boolean; override;
   end;
 
 implementation
@@ -33,6 +35,7 @@ uses
   SysUtils,
   QuadEngine,
   QEngine.Core,
+  QGame.Game,
   Project87.Hero,
   Project87.Asteroid,
   Project87.Fluid,
@@ -109,6 +112,16 @@ begin
   TheEngine.Camera := FMainCamera;
   TheRender.SetBlendMode(qbmSrcAlpha);
   FObjectManager.OnDraw;
+end;
+
+function TGameScene.OnKeyUp(AKey: Word): Boolean;
+begin
+  Result := False;
+  if AKey = KB_BACKSPACE then
+  begin
+    TheSceneManager.MakeCurrent('StarMap');
+    TheSceneManager.OnInitialize;
+  end;
 end;
 {$ENDREGION}
 

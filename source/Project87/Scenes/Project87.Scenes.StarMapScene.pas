@@ -52,11 +52,15 @@ end;
 
 procedure TStarMapScene.OnInitialize(APameter: TObject);
 begin
-  //
+  FMap.BackToMap;
 end;
 
 procedure TStarMapScene.OnDraw(const ALayer: Integer);
 begin
+  TheEngine.Camera := nil;
+  TheRender.Rectangle(0, 0,
+    TheEngine.CurrentResolution.X, TheEngine.CurrentResolution.Y, $FF000000);
+
   FMap.OnDraw(0);
 end;
 
@@ -83,7 +87,7 @@ end;
 
 function TStarMapScene.OnKeyUp(AKey: TKeyButton): Boolean;
 begin
-
+  FMap.OnKeyUp(AKey);
 end;
 {$ENDREGION}
 

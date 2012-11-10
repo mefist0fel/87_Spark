@@ -7,6 +7,7 @@ uses
 
 const
   KEYBOARD_KEYS = 255;
+  KB_BACKSPACE = 8;
   KB_TAB = 9;
   KB_ENTER = 13;
   KB_SHIFT = 16;

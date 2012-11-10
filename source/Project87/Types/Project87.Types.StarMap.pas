@@ -93,6 +93,7 @@ type
       destructor Destroy; override;
 
       procedure FillFirst;
+      procedure BackToMap;
       procedure LoadFromFile(const AFile: string);
       procedure SaveToFile(const AFile: string);
 
@@ -378,6 +379,13 @@ begin
   GenerateSystems(Vec2I(-1, -1));
 end;
 
+procedure TStarMap.BackToMap;
+begin
+  if Assigned(FSelectedSystem) then
+    FSelectedSystem.FIsSelected := False;
+  FSelectedSystem := nil;
+end;
+
 procedure TStarMap.LoadFromFile(const AFile: string);
 var
   AStream: TFileStream;
@@ -539,7 +547,11 @@ end;
 
 function TStarMap.OnKeyUp(AKey: TKeyButton): Boolean;
 begin
-
+  if AKey = KB_ENTER then
+  begin
+    TheSceneManager.MakeCurrent('Spark');
+    TheSceneManager.OnInitialize(FCurrentSystem);
+  end;
 end;
 {$ENDREGION}
 
