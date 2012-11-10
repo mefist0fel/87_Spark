@@ -245,34 +245,34 @@ end;
 
 function TComponent.OnKeyDown(AKey: TKeyButton): Boolean;
 begin
-
+  Result := False;
 end;
 
 function TComponent.OnKeyUp(AKey: TKeyButton): Boolean;
 begin
-
+  Result := False;
 end;
 
 function TComponent.OnMouseButtonDown(AButton: TMouseButton;
   const AMousePosition: TVectorF): Boolean;
 begin
-
+  Result := False;
 end;
 
 function TComponent.OnMouseButtonUp(AButton: TMouseButton;
   const AMousePosition: TVectorF): Boolean;
 begin
-
+  Result := False;
 end;
 
 function TComponent.OnMouseMove(const AMousePosition: TVectorF): Boolean;
 begin
-
+  Result := False;
 end;
 
 function TComponent.OnMouseWheel(ADirection: Integer): Boolean;
 begin
-
+  Result := False;
 end;
 
 procedure TComponent.OnUpdate(const ADelta: Double);
