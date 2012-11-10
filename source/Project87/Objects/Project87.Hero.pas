@@ -18,12 +18,14 @@ type
       FHeroMaxSpeed: Single;
       FNeedSpeed: Single;
       FSpeed: Single;
+      FMessage: String;
       procedure Control(const  ADelta: Double);
       procedure CheckKeys;
     public
       constructor CreateHero( APosition: TVector2F);
       procedure OnDraw; override;
       procedure OnUpdate(const  ADelta: Double); override;
+      procedure OnCollide(OtherObject: TGameObject); override;
   end;
 
 implementation
@@ -34,6 +36,8 @@ uses
   QEngine.Core,
   QCore.Input,
   QApplication.Application,
+  Project87.Asteroid,
+  Project87.Fluid,
   Project87.Resources;
 
 {$REGION '  THero  '}
@@ -41,16 +45,38 @@ constructor THero.CreateHero( APosition: TVector2F);
 begin
   inherited Create;
   FPosition := APosition;
+  FRadius := 35;
   FHeroMaxSpeed := 80;
-  FMass := 1 / 2.5;
+  FUseCollistion := True;
+  FMass := 1;
+  FMessage := '';
 end;
 
 procedure THero.OnDraw;
 begin
-  TheResources.HeroTexture.Draw(FPosition, TVector2F.Create(40, 60), FAngle, $ffffffff);
-  TheResources.HeroTexture.Draw(FPosition, TVector2F.Create(20, 30), FTowerAngle, $ffffffff);
+  TheResources.HeroTexture.Draw(FPosition, TVector2F.Create(30, 50), FAngle, $ffffffff);
+  TheResources.HeroTexture.Draw(FPosition, TVector2F.Create(10, 20), FTowerAngle, $ffffffff);
   TheResources.AsteroidTexture.Draw(FPosition, TVector2F.Create(70, 70), FTowerAngle, $22ffffff);
-  TheResources.Font.TextOut(FloatToStr(FMoveDirection.X), TVector2F.Create(10, 10), 2);
+  TheResources.Font.TextOut(FMessage, FPosition, 2);
+end;
+
+procedure THero.OnUpdate(const  ADelta: Double);
+begin
+  CheckKeys;
+  FAngle := RotateToAngle(FAngle, FNeedAngle, 220 * ADelta);
+  FSpeed := FSpeed * (1 - ADelta * 50) + FNeedSpeed * (ADelta * 50);
+  FVelocity := FVelocity + ClipAndRotate(FAngle, FSpeed);
+  if FVelocity.Length > 1400 then
+    FVelocity := FVelocity * (1400 / FVelocity.Length);
+  Control(ADelta);
+end;
+
+procedure THero.OnCollide(OtherObject: TGameObject);
+begin
+  if (OtherObject is TAsteroid) then
+    FMessage := 'Asteroid';
+//  if (OtherObject is TFluid) then
+//    FMessage := 'Fluid';
 end;
 
 procedure THero.Control(const  ADelta: Double);
@@ -107,18 +133,6 @@ begin
   if TheControlState.Keyboard.IsKeyPressed[KB_W] or
      TheControlState.Keyboard.IsKeyPressed[KB_UP] then
     FNeedSpeed := FHeroMaxSpeed;
-end;
-
-procedure THero.OnUpdate(const  ADelta: Double);
-begin
-  CheckKeys;
-  FAngle := RotateToAngle(FAngle, FNeedAngle, 220 * ADelta);
-  FSpeed := FSpeed * (1 - ADelta * 50) + FNeedSpeed * (ADelta * 50);
-  FVelocity := FVelocity + ClipAndRotate(FAngle, FSpeed);
-  if FVelocity.Length > 1400 then
-    FVelocity := FVelocity * (1400 / FVelocity.Length);
-
-  Control(ADelta);
 end;
 {$ENDREGION}
 

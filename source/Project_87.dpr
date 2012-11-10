@@ -36,7 +36,8 @@ uses
   Project87.Scenes.MainMenuScene in 'Project87\Scenes\Project87.Scenes.MainMenuScene.pas',
   Project87.Asteroid in 'Project87\Objects\Project87.Asteroid.pas',
   uMain in 'uMain.pas',
-  Strope.Utils in 'Strope\Strope.Utils.pas';
+  Strope.Utils in 'Strope\Strope.Utils.pas',
+  Project87.Fluid in 'Project87\Objects\Project87.Fluid.pas';
 
 begin
   ReportMemoryLeaksOnShutdown := True;

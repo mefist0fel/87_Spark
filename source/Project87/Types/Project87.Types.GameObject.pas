@@ -15,34 +15,33 @@ type
 
   TGameObject = class
   private
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    FFriction: Single;
+    FCorrection: TVector2F;
+    FParent: TObjectManager;
+    procedure Move(const ADelta: Double);
+  protected
+    FUseCollistion: Boolean;
+    FMass: Single;
+    FRadius: Single;
+    FAngle: Single;
+    FPosition: TVector2F;
+    FVelocity: TVector2F;
+  public
+    constructor Create; virtual;
+    destructor Destroy; override;
     procedure OnDraw; virtual;
     procedure OnUpdate(const ADelta: Double); virtual;
-
+    procedure OnCollide(OtherObject: TGameObject); virtual;
     property Manager: TObjectManager read FParent;
+    property Position: TVector2F read FPosition;
   end;
 
   TObjectManager = class
   private
     class var FInstance: TObjectManager;
     FObject: TList<TGameObject>;
-
     constructor Create;
     destructor Destroy;
-
     procedure DestroyObject(AObject: TGameObject);
     procedure AddObject(AObject: TGameObject);
     procedure CheckCollisions;
@@ -58,10 +57,12 @@ implementation
 {$REGION '  TGameObject  '}
 constructor TGameObject.Create;
 begin
+  FUseCollistion := False;
   FParent := TObjectManager.GetInstance;
   FParent.AddObject(Self);
   FMass := 1;
   FFriction := 2.5;
+  FRadius := 20;
   inherited;
 end;
 
@@ -81,11 +82,17 @@ begin
 
 end;
 
+procedure TGameObject.OnCollide(OtherObject: TGameObject);
+begin
+
+end;
+
 procedure TGameObject.Move(const ADelta: Double);
 begin
   if FVelocity.Length > MAX_PHYSICAL_VELOCITY then
     FVelocity := FVelocity * (MAX_PHYSICAL_VELOCITY / FVelocity.Length);
-  FPosition := FPosition + FVelocity * ADelta;
+  FPosition := FPosition + FVelocity * ADelta + FCorrection;
+  FCorrection := ZeroVectorF;
   FVelocity := FVelocity * (1 - ADelta * FFriction);
 end;
 {$ENDREGION}
@@ -129,15 +136,24 @@ var
   GameObject,
   OtherObject: TGameObject;
   Connection: TVector2F;
+  ProjectionLength: Single;
 begin
   for GameObject in FObject do
     for OtherObject in FObject do
       if (GameObject <> OtherObject) then
         if (Distance(GameObject.FPosition, OtherObject.FPosition) < GameObject.FRadius + OtherObject.FRadius) then
         begin
-          Connection := GameObject.FPosition - OtherObject.FPosition;
-          GameObject.FCorrection := Connection;
-
+          GameObject.OnCollide(OtherObject);
+          if GameObject.FUseCollistion and OtherObject.FUseCollistion then
+          begin
+            Connection := OtherObject.FPosition - GameObject.FPosition;
+            ProjectionLength := Dot(OtherObject.FVelocity, Connection) / Connection.Length;
+            GameObject.FVelocity := GameObject.FVelocity - ClipAndRotate(GetAngle(Connection), ProjectionLength / GameObject.FMass * OtherObject.FMass);
+            OtherObject.FVelocity := OtherObject.FVelocity + ClipAndRotate(GetAngle(Connection), ProjectionLength);
+            GameObject.FCorrection :=
+              (GameObject.FPosition - OtherObject.FPosition).Normalize *
+              (((GameObject.FRadius + OtherObject.FRadius) - Distance(GameObject.FPosition, OtherObject.FPosition)) * 0.5);
+          end;
         end;
 end;
 
@@ -147,9 +163,9 @@ var
 begin
   for GameObject in FObject do
     GameObject.OnUpdate(ADelta);
+  CheckCollisions();
   for GameObject in FObject do
     GameObject.Move(ADelta);
-  CheckCollisions();
 end;
 
 procedure TObjectManager.OnDraw;

@@ -46,8 +46,9 @@ procedure TProject87Game.OnInitialize(AParameter: TObject = nil);
 begin
   //Создавать сцены и загружать основные ресурсы тут
   SceneManager.AddScene(TGameScene.Create('Spark'));
-  SceneManager.AddScene(TIntroScene.Create('Intro'));
-  SceneManager.MakeCurrent('Intro');
+//  SceneManager.AddScene(TIntroScene.Create('Intro'));
+//  SceneManager.MakeCurrent('Intro');
+  SceneManager.MakeCurrent('Spark');
   SceneManager.OnInitialize;
 end;
 {$ENDREGION}
