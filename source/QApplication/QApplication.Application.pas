@@ -319,10 +319,8 @@ constructor TQApplication.Create;
 begin
   Inc(FRefCount);
 
-  //FIsRuning := False;
   FIsStoped := True;
 
-  FIsStoped := True;
   FWindow := TWindow.Create(Self);
   FControlState := TControlState.Create;
   FCriticalSection := TCriticalSection.Create;
@@ -517,10 +515,7 @@ begin
       FMainTimer.SetState(False);
 
     if FIsStoped then
-    begin
       FMainTimer.SetState(False);
-      FIsRuning := False;
-    end;
   FCriticalSection.Leave;
 end;
 

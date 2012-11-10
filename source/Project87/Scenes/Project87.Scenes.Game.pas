@@ -9,8 +9,6 @@ uses
   QGame.Scene,
   Strope.Math,
   Project87.Types.GameObject,
-  Project87.Hero,
-  Project87.Asteroid,
   Project87.Resources;
 
 type
@@ -34,6 +32,9 @@ implementation
 uses
   QuadEngine,
   QEngine.Core,
+  Project87.Hero,
+  Project87.Asteroid,
+  Project87.Fluid,
   QApplication.Application;
 
 {$REGION '  TGameScene  '}
@@ -51,20 +52,22 @@ end;
 
 procedure TGameScene.OnInitialize(AParameter: TObject);
 var
-  I: Byte;
+  I: Word;
 begin
   FTestCamera := TheEngine.CreateCamera;
   TheEngine.Camera := FTestCamera;
-  FTestCamera.Position := TVector2F.Create(0, 0);
+  FTestCamera.Position := TVector2F.Create(300, 140);
 
   FImage := TheEngine.CreateTexture;
   FImage.LoadFromFile('..\data\gfx\miku.png', 0, 128, 128);
   TheRender.SetBlendMode(qbmSrcAlpha);
 
-  Thero.Create(ZeroVectorF);
+  THero.CreateHero(ZeroVectorF);
 
   for i := 0 to 100 do
-    TAsteroid.Create(TVector2F.Create( Random(5000) - 2500, Random(5000) - 2500), Random(360), 50 + Random(200));
+    TAsteroid.CreateAsteroid(TVector2F.Create( Random(5000) - 2500, Random(5000) - 2500), Random(360), 20 + Random(100));
+  for i := 0 to 100 do
+    TFluid.CreateFluid(TVector2F.Create( Random(5000) - 2500, Random(5000) - 2500));
 end;
 
 procedure TGameScene.OnUpdate(const ADelta: Double);
