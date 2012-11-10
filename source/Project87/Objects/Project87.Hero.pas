@@ -18,7 +18,8 @@ type
       FHeroMaxSpeed: Single;
       FNeedSpeed: Single;
       FSpeed: Single;
-      FMessage: String;
+      FMessage: string;
+
       procedure Control(const  ADelta: Double);
       procedure CheckKeys;
     public

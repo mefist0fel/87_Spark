@@ -41,11 +41,13 @@ type
     class var FInstance: TObjectManager;
     FObject: TList<TGameObject>;
     constructor Create;
-    destructor Destroy;
+
     procedure DestroyObject(AObject: TGameObject);
     procedure AddObject(AObject: TGameObject);
     procedure CheckCollisions;
   public
+    destructor Destroy; override;
+
     class function GetInstance: TObjectManager;
 
     procedure OnDraw;
