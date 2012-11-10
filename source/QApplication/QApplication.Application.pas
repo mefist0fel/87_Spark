@@ -3,6 +3,7 @@ unit QApplication.Application;
 interface
 
 uses
+  Generics.Collections,
   SyncObjs,
   QuadEngine,
   QCore.Input,
@@ -35,12 +36,11 @@ type
       FWindow: TWindow;
       FGame: TQGame;
       FControlState: IControlState;
-      FIsRuning: Boolean;
       FIsStoped: Boolean;
       FMainTimer: IQuadTimer;
 
       FCriticalSection: TCriticalSection;
-      FMessageQueue: TMessageQueue;
+      FMessages: TList<TEventMessage>;
 
       FResolution: TVectorI;
       FIsFullscreen: Boolean;
@@ -50,7 +50,7 @@ type
       procedure SetupWindow;
       procedure SetupTimer(ATimerDelta: Word);
 
-      procedure ProcessMessageQueue;
+      procedure ProcessMessages;
 
       function GetFPS(): Single;
     private
@@ -163,7 +163,6 @@ uses
   Windows,
   Messages,
   SysUtils,
-  Generics.Collections,
   QEngine.Core;
 
 type
@@ -319,14 +318,12 @@ constructor TQApplication.Create;
 begin
   Inc(FRefCount);
 
-  //FIsRuning := False;
   FIsStoped := True;
 
-  FIsStoped := True;
   FWindow := TWindow.Create(Self);
   FControlState := TControlState.Create;
   FCriticalSection := TCriticalSection.Create;
-  FMessageQueue := TMessageQueue.Create;
+  FMessages := TList<TEventMessage>.Create;
 
   TheControlState := ControlState;
   TheMouseState := TheControlState.Mouse;
@@ -344,7 +341,7 @@ begin
   if Assigned(FWindow) then
     FreeAndNil(FWindow);
   FreeAndNil(FCriticalSection);
-  FreeAndNil(FMessageQueue);
+  FreeAndNil(FMessages);
 
   FControlState := nil;
   TheControlState := nil;
@@ -380,99 +377,49 @@ begin
   FMainTimer.SetInterval(ATimerDelta);
 end;
 
-procedure TQApplication.ProcessMessageQueue;
+procedure TQApplication.ProcessMessages;
 var
-  AQueue: TList<QApplication.Input.TEventMessage>;
-  AMessage: QApplication.Input.TEventMessage;
-  APosition: TVectorF;
-  ADirection: Integer;
-  AButton: TMouseButton;
-  AKey: TKeyButton;
-  AState: Boolean;
+  AMessage: TEventMessage;
 begin
-  AQueue := FMessageQueue.GetQueue;
-  for AMessage in AQueue do
+  for AMessage in FMessages do
   begin
     case AMessage.MessageType of
-      emtActivate:
-        begin
-          if not (AMessage is TActivateEventMessage) then
-            Continue;
-
-          AState := (AMessage as TActivateEventMessage).IsActive;
-          if Assigned(FGame) then
-            FGame.OnActivate(AState);
-        end;
-
       emtMouseEvent:
-        begin
-          if not (AMessage is TMouseEventMessage) then
-            Continue;
-
-          APosition := (AMessage as TMouseEventMessage).Position;
-          (FControlState as TControlState).SetMousePosition(APosition);
-          if Assigned(FGame) then
-            FGame.OnMouseMove(APosition);
-        end;
+        if Assigned(FGame) then
+          FGame.OnMouseMove(AMessage.MousePosition);
 
       emtMouseButtonEvent:
+        if AMessage.IsMouseButtonPressed then
         begin
-          if not (AMessage is TMouseButtonEventMessage) then
-            Continue;
-
-          AState := (AMessage as TMouseButtonEventMessage).IsPressed;
-          AButton := (AMessage as TMouseButtonEventMessage).Button;
-          APosition := (AMessage as TMouseButtonEventMessage).Position;
-          (FControlState as TControlState).SetMousePosition(APosition);
-          (FControlState as TControlState).SetButtonState(AButton, AState);
-          if AState then
-          begin
-            if Assigned(FGame) then
-              FGame.OnMouseButtonDown(AButton, APosition);
-          end
-          else
-          begin
-            if Assigned(FGame) then
-              FGame.OnMouseButtonUp(AButton, APosition);
-          end;
-        end;
-
-      emtWheelEvent:
-        begin
-          if not (AMessage is TWheelEventMessage) then
-            Continue;
-
-          APosition := (AMessage as TWheelEventMessage).Position;
-          ADirection := (AMessage as TWheelEventMessage).Direction;
-          (FControlState as TControlState).SetWheelState(ADirection);
-          (FControlState as TControlState).SetMousePosition(APosition);
           if Assigned(FGame) then
-            FGame.OnMouseWheel(ADirection, APosition);
+            FGame.OnMouseButtonDown(AMessage.MouseButton, AMessage.MousePosition);
+        end
+        else
+        begin
+          if Assigned(FGame) then
+            FGame.OnMouseButtonUp(AMessage.MouseButton, AMessage.MousePosition);
         end;
+
+      emtMouseWheelEvent:
+        if Assigned(FGame) then
+          FGame.OnMouseWheel(AMessage.MouseWheelDirection, AMessage.MousePosition);
 
       emtKeyEvent:
+        if AMessage.IsKeyPressed then
         begin
-          if not (AMessage is TKeyEventMessage) then
-            Continue;
-
-          AState := (AMessage as TKeyEventMessage).IsPressed;
-          AKey := (AMessage as TKeyEventMessage).Key;
-          (FControlState as TControlState).SetKeyState(AKey, AState);
-          if AState then
-          begin
-            if Assigned(FGame) then
-              FGame.OnKeyDown(AKey);
-          end
-          else
-          begin
-            if Assigned(FGame) then
-              FGame.OnKeyUp(AKey);
-          end;
+          if Assigned(FGame) then
+            FGame.OnKeyDown(AMessage.KeyButton);
+        end
+        else
+        begin
+          if Assigned(FGame) then
+            FGame.OnKeyUp(AMessage.KeyButton);
         end;
+
     end;
-    AMessage.Free;
   end;
-  FreeAndNil(AQueue);
+
+  FMessages.Clear;
 end;
 
 procedure TQApplication.Loop;
@@ -480,7 +427,6 @@ var
   AMessage: TMsg;
 begin
   FIsStoped := False;
-  //FIsRuning := True;
   while GetMessageA(AMessage, FWindow.Handle, 0, 0) do// and FIsRuning do
   begin
     if AMessage.message = 0 then
@@ -505,22 +451,16 @@ end;
 procedure TQApplication.MainTimerUpdate(const ADeltaTime: Double);
 begin
   FCriticalSection.Enter;
-    //if FIsRuning then
-    //begin
-    ProcessMessageQueue;
+    ProcessMessages;
     OnUpdate(ADeltaTime);
     OnDraw(0);
     (FControlState as TControlState).ClearWheelState;
-    //end;
 
     if FIsStoped then
       FMainTimer.SetState(False);
 
     if FIsStoped then
-    begin
       FMainTimer.SetState(False);
-      FIsRuning := False;
-    end;
   FCriticalSection.Leave;
 end;
 
@@ -554,10 +494,7 @@ end;
 procedure TQApplication.OnActivate(AIsActivate: Boolean);
 begin
   if Assigned(FMainTimer) then
-  begin
     FMainTimer.SetState(AIsActivate);
-    FMessageQueue.AddToQueue(TActivateEventMessage.Create(AIsActivate));
-  end;
 end;
 
 procedure TQApplication.OnDraw(const ALayer: Integer);
@@ -584,31 +521,53 @@ end;
 function TQApplication.OnMouseMove;
 begin
   Result := True;
-  FMessageQueue.AddToQueue(TMouseEventMessage.Create(AMousePosition));
+  FCriticalSection.Enter;
+    (FControlState as TControlState).SetMousePosition(AMousePosition);
+    FMessages.Add(TEventMessage.CreateAsMouseEvent(AMousePosition));
+  FCriticalSection.Leave;
 end;
 
 function TQApplication.OnMouseButtonDown;
 begin
   Result := True;
-  FMessageQueue.AddToQueue(TMouseButtonEventMessage.Create(AButton, True, AMousePosition));
+  FCriticalSection.Enter;
+    (FControlState as TControlState).SetMousePosition(AMousePosition);
+    (FControlState as TControlState).SetButtonState(AButton, True);
+    FMessages.Add(
+      TEventMessage.CreateAsMouseButtonEvent(AMousePosition, AButton, True));
+  FCriticalSection.Leave;
 end;
 
 function TQApplication.OnMouseButtonUp;
 begin
   Result := True;
-  FMessageQueue.AddToQueue(TMouseButtonEventMessage.Create(AButton, False, AMousePosition));
+  FCriticalSection.Enter;
+    (FControlState as TControlState).SetMousePosition(AMousePosition);
+    (FControlState as TControlState).SetButtonState(AButton, False);
+    FMessages.Add(
+      TEventMessage.CreateAsMouseButtonEvent(AMousePosition, AButton, False));
+  FCriticalSection.Leave;
 end;
 
 function TQApplication.OnMouseWheel;
 begin
   Result := True;
-  FMessageQueue.AddToQueue(TWheelEventMessage.Create(ADirection, AMousePosition));
+    FCriticalSection.Enter;
+    (FControlState as TControlState).SetMousePosition(AMousePosition);
+    (FControlState as TControlState).SetWheelState(ADirection);
+    FMessages.Add(
+      TEventMessage.CreateAsMouseWheelEvent(AMousePosition, ADirection));
+  FCriticalSection.Leave;
 end;
 
 function TQApplication.OnKeyDown;
 begin
   Result := True;
-  FMessageQueue.AddToQueue(TKeyEventMessage.Create(AKey, True));
+  FCriticalSection.Enter;
+    (FControlState as TControlState).SetKeyState(AKey, True);
+    FMessages.Add(
+      TEventMessage.CreateAsKeyEvent(AKey, True));
+  FCriticalSection.Leave;
 
   if AKey = KB_ALT then
     FIsAltPressed := True;
@@ -619,7 +578,11 @@ end;
 function TQApplication.OnKeyUp;
 begin
   Result := True;
-  FMessageQueue.AddToQueue(TKeyEventMessage.Create(AKey, False));
+  FCriticalSection.Enter;
+    (FControlState as TControlState).SetKeyState(AKey, False);
+    FMessages.Add(
+      TEventMessage.CreateAsKeyEvent(AKey, False));
+  FCriticalSection.Leave;
 
   if AKey = KB_ALT then
     FIsAltPressed := False;

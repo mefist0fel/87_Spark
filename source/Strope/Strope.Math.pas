@@ -122,11 +122,15 @@ function SquareRoot10Interpolate(AFrom, ATo, AProgress: Single): Single;
 
 {$REGION '  Angle work Functions  '}
 function RoundAngle(Angle: Single): Single;
-function AngleBetween(A, B: TVector2F): Single;
+function GetAngle(A, B: TVector2F): Single; overload;
+function GetAngle(A: TVector2F): Single; overload;
+function RotateToAngle(SourceAngle, DestionationAngle, Speed: Single): Single;
 {$ENDREGION}
 
 {$REGION '  TVector2F additional Functions  '}
 function Distance(A, B: TVector2F): Single;
+function ClipAndRotate(Angle, Length: Single): TVector2F;
+function Dot(A, B: TVector2F): Single;
 {$ENDREGION}
 
 implementation
@@ -247,7 +251,7 @@ begin
   Result:= Angle;
 end;
 
-function AngleBetween(A, B: TVector2F): Single;
+function GetAngle(A, B: TVector2F): Single;
 var
   S, C: Single;
 begin
@@ -262,12 +266,53 @@ begin
   S := RoundAngle(180 - S);
   Result:= S;
 end;
-{$ENDREGION}
 
-{$REGION '  TVector2F additional Functions  '}
-function Distance(A, B: TVector2F): Single;
+function GetAngle(A: TVector2F): Single;
+var
+  S, C: Single;
 begin
-  Result:= Sqrt(Sqr(A.X - B.X) + Sqr(A.Y - B.Y));
+  C := (- A.Y) / A.Length;
+  If C > 1 then
+    C := 1;
+  If C < -1 then
+    C := -1;
+  S := (arccos(C)) * 180 / PI;
+  If A.X > 0 then
+     S := RoundAngle(360 - S);
+  S := RoundAngle(180 - S);
+  Result:= S;
+end;
+
+function RotateToAngle(SourceAngle, DestionationAngle, Speed: Single): Single;
+var
+  Angle,
+  Source: Single;
+begin
+  Source := SourceAngle;
+  if ((SourceAngle < 10) or (DestionationAngle<10)) then
+    begin
+      SourceAngle := RoundAngle(SourceAngle + 90);
+      DestionationAngle := RoundAngle(DestionationAngle + 90);
+    end;
+  if ((SourceAngle > 350) or (DestionationAngle > 350)) then
+    begin
+      SourceAngle := RoundAngle(SourceAngle - 90);
+      DestionationAngle := RoundAngle(DestionationAngle - 90);
+    end;
+  Angle := Speed;
+  If (Abs(DestionationAngle - SourceAngle) < Speed) then
+    Angle:= Abs(DestionationAngle - SourceAngle);
+  If (SourceAngle < DestionationAngle) then
+  begin
+    If (DestionationAngle-SourceAngle > 180) then
+      Angle := -1 * Angle;
+  end
+  else
+  begin
+    If (SourceAngle - DestionationAngle < 180) then
+      Angle := -1 * Angle;
+  end;
+  Result:= RoundAngle(Angle + Source);
 end;
 {$ENDREGION}
 
@@ -473,6 +518,22 @@ begin
   Result.Create(
     InterpolateValue(Self.X, AVector.X, AProgress, AInterpolationType),
     InterpolateValue(Self.Y, AVector.Y, AProgress, AInterpolationType));
+end;
+
+function Distance(A, B: TVector2F): Single;
+begin
+  Result:= Sqrt(Sqr(A.X - B.X) + Sqr(A.Y - B.Y));
+end;
+
+function ClipAndRotate(Angle, Length: Single): TVector2F;
+begin
+  Result.X:=  sin(Angle / 180 * PI) * Length;
+  Result.Y:= -cos(Angle / 180 * PI) * Length;
+end;
+
+function Dot(A, B: TVector2F): Single;
+begin
+  Result:= A.X * B.X + A.Y * B.Y;
 end;
 {$ENDREGION}
 

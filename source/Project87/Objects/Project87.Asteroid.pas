@@ -12,11 +12,11 @@ uses
 type
   TAsteroid = class (TGameObject)
     private
-      FRadius: Single;
     public
-      constructor Create(const APosition: TVector2F; AAngle, ARadius: Single);
+      constructor CreateAsteroid(const APosition: TVector2F; AAngle, ARadius: Single);
+
       procedure OnDraw; override;
-      procedure OnUpdate(const  ADelta: Double); override;
+      procedure OnUpdate(const ADelta: Double); override;
   end;
 
 implementation
@@ -25,24 +25,27 @@ uses
   Project87.Resources;
 
 {$REGION '  TAsteroid  '}
-constructor TAsteroid.Create(const APosition: TVector2F; AAngle, ARadius: Single);
+constructor TAsteroid.CreateAsteroid(const APosition: TVector2F; AAngle, ARadius: Single);
 begin
+  inherited Create;
+
   FPosition := APosition;
   FAngle := AAngle;
   FRadius := ARadius;
-  inherited Create;
+  FUseCollistion := True;
+  FMass := 10;
 end;
 
 procedure TAsteroid.OnDraw;
 begin
-  TheResources.AsteroidTexture.Draw(FPosition, TVector2F.Create(FRadius, FRadius), FAngle, $ffffffff);
+  TheResources.AsteroidTexture.Draw(FPosition, Vec2F(FRadius, FRadius) * 2, FAngle, $FFFFFFFF);
+//  TheResources.HeroTexture.Draw(FPosition - FCorrection * 0.5, FCorrection, 0, $ffffffff);
 end;
 
-procedure TAsteroid.OnUpdate(const  ADelta: Double);
+procedure TAsteroid.OnUpdate(const ADelta: Double);
 begin
 
 end;
-
 {$ENDREGION}
 
 end.

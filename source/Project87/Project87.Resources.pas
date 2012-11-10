@@ -4,13 +4,15 @@ interface
 
 uses
   QEngine.Core,
-  QEngine.Texture;
+  QEngine.Texture,
+  QEngine.Font;
 
 type
   TResources = class
     public
       HeroTexture: TQuadTexture;
       AsteroidTexture: TQuadTexture;
+      Font: TQuadFont;
 
       constructor Create;
       destructor Destroy; override;
@@ -28,16 +30,21 @@ begin
 
   HeroTexture := TheEngine.CreateTexture;
   HeroTexture.LoadFromFile('..\data\gfx\quad.png', 0);
+
   AsteroidTexture := TheEngine.CreateTexture;
   AsteroidTexture.LoadFromFile('..\data\gfx\asteroid.png', 0);
 
-  inherited;
+  Font := TheEngine.CreateFont;
+  Font.LoadFromFile('..\data\fnt\droid_sans_bold_28.png', '..\data\fnt\droid_sans_bold_28.qef');
 end;
 
 destructor TResources.Destroy;
 begin
-  HeroTexture.Destroy;
-  AsteroidTexture.Destroy;
+  HeroTexture.Free;
+  AsteroidTexture.Free;
+  Font.Free;
+
+  TheResources := nil;
 
   inherited;
 end;

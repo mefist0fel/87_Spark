@@ -51,6 +51,7 @@ var
   AFontEx: TFontExResource;
 begin
   //Создавать сцены и загружать основные ресурсы тут
+<<<<<<< HEAD
   AFontEx := TFontExResource.CreateAndLoad('Font', 'Quad_14',
     AFntDir + 'quad_14.png', AFntDir + 'quad_14.qef');
   ResourceManager.AddResource(AFontEx);
@@ -62,9 +63,13 @@ begin
   SceneManager.AddScene(TIntroScene.Create('Intro'));
   SceneManager.AddScene(TMainMenuScene.Create('MainMenu'));
   SceneManager.AddScene(TGameScene.Create('Spark'));
+  SceneManager.MakeCurrent('Intro');
+=======
+  SceneManager.AddScene(TGameScene.Create('Spark'));
 //  SceneManager.AddScene(TIntroScene.Create('Intro'));
 //  SceneManager.MakeCurrent('Intro');
   SceneManager.MakeCurrent('Spark');
+>>>>>>> master
   SceneManager.OnInitialize;
 end;
 {$ENDREGION}

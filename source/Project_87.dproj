@@ -86,6 +86,7 @@
 			<DCCReference Include="Project87\Objects\Project87.Asteroid.pas"/>
 			<DCCReference Include="uMain.pas"/>
 			<DCCReference Include="Strope\Strope.Utils.pas"/>
+			<DCCReference Include="Project87\Objects\Project87.Fluid.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>
