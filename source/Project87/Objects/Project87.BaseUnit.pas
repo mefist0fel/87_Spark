@@ -66,6 +66,9 @@ end;
 
 procedure TBaseUnit.OnCollide(OtherObject: TPhysicalObject);
 begin
+  if FIsDead then
+    Exit;
+
   if (OtherObject is TAsteroid) or (OtherObject is THero) or (OtherObject is TBaseEnemy) then
   begin
     FShowShieldTime := 0.7;
@@ -74,6 +77,9 @@ end;
 
 procedure TBaseUnit.OnUpdate(const ADelta: Double);
 begin
+  if FIsDead then
+    Exit;
+
   if (FShowShieldTime > 0) then
   begin
     FShowShieldTime := FShowShieldTime - ADelta;
@@ -92,7 +98,9 @@ end;
 
 procedure TBaseUnit.Kill;
 begin
-  Free;
+  //Вообще возможен более сложный сценарий, например установить другой флаг.
+  //Такой, что объект уже не колайдится, но на его месте ещё рисуется взрыв.
+  FIsDead := True;
 end;
 {$ENDREGION}
 
