@@ -321,7 +321,6 @@ end;
 {$ENDREGION}
 
 {$REGION '  Collision Functions  '}
-
 function LineVsCircle( const LineA, LineB, CircleCenter: TVector2F; Radius: Single) : Boolean;
   var
     p1, p2  : array[ 0..1 ] of Single;

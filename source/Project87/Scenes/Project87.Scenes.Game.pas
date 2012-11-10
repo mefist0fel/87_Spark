@@ -36,8 +36,10 @@ uses
   Project87.Hero,
   Project87.Asteroid,
   Project87.Fluid,
-  Project87.BaseEnemy,
   Project87.BaseUnit,
+  Project87.BaseEnemy,
+  Project87.BigEnemy,
+  Project87.SmallEnemy,
   QApplication.Application;
 
 {$REGION '  TGameScene  '}
@@ -75,6 +77,10 @@ begin
       Random(360), 20 + Random(100));
   for I := 0 to 40 do
     TBaseEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), usRed);
+  for I := 0 to 10 do
+    TBigEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), usRed);
+  for I := 0 to 20 do
+    TSmallEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), usGreen);
 
   for I := 0 to 100 do
     TFluid.CreateFluid(Vec2F(Random(5000) - 2500, Random(5000) - 2500));

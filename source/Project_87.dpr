@@ -41,7 +41,9 @@ uses
   Project87.BaseEnemy in 'Project87\Objects\Project87.BaseEnemy.pas',
   Project87.Bullet in 'Project87\Objects\Project87.Bullet.pas',
   Project87.Types.Weapon in 'Project87\Types\Project87.Types.Weapon.pas',
-  Project87.BaseUnit in 'Project87\Objects\Project87.BaseUnit.pas';
+  Project87.BaseUnit in 'Project87\Objects\Project87.BaseUnit.pas',
+  Project87.BigEnemy in 'Project87\Objects\Project87.BigEnemy.pas',
+  Project87.SmallEnemy in 'Project87\Objects\Project87.SmallEnemy.pas';
 
 begin
   ReportMemoryLeaksOnShutdown := True;
