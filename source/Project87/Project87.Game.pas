@@ -23,6 +23,7 @@ implementation
 uses
   Project87.Scenes.IntroScene,
   Project87.Scenes.MainMenuScene,
+  Project87.Scenes.StarMapScene,
   Project87.Scenes.Game,
   Project87.Scenes.TestScene,
   QGame.Resources;
@@ -79,9 +80,10 @@ begin
 
   SceneManager.AddScene(TIntroScene.Create('Intro'));
   SceneManager.AddScene(TMainMenuScene.Create('MainMenu'));
+  SceneManager.AddScene(TStarMapScene.Create('StarMap'));
   SceneManager.AddScene(TGameScene.Create('Spark'));
   //SceneManager.MakeCurrent('Intro');
-  SceneManager.MakeCurrent('Spark');
+  SceneManager.MakeCurrent('StarMap');
   SceneManager.OnInitialize;
 end;
 {$ENDREGION}

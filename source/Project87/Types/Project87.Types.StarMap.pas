@@ -80,6 +80,8 @@ type
       function IsHaveAllNeighbors(const ASector: TVectorI): Boolean;
       procedure GenerateSystems(const ASector: TVectorI);
       procedure GenerateMissingSectors(const ASector: TVectorI);
+
+      procedure DrawSystemMarker(ASystem: TStarSystem);
     private
       class procedure TakeId(Id: TObjectId);
       class function GetNewId(): TObjectId;
@@ -89,6 +91,7 @@ type
       constructor Create;
       destructor Destroy; override;
 
+      procedure FillFirst;
       procedure LoadFromFile(const AFile: string);
       procedure SaveToFile(const AFile: string);
 
@@ -111,7 +114,7 @@ uses
   QGame.Resources;
 
 const
-  SECTOR_SIZE = 5000;
+  SECTOR_SIZE = 2048;
   SYSTEMS_IN_SECTOR = 100;
   SYSTEM_SIZE = 15;
 
@@ -258,8 +261,6 @@ begin
   FSystems.Free;
   FSectors.Free;
 
-  FStarMarker.Free;
-
   inherited;
 end;
 
@@ -286,6 +287,7 @@ var
   I: Integer;
   ASystem: TStarSystem;
 begin
+  FSectors.Add(ASector);
   for I := 0 to SYSTEMS_IN_SECTOR - 1 do
   begin
     ASystem := TStarSystem.Create;
@@ -332,6 +334,26 @@ begin
     GenerateSystems(AValue);
 end;
 
+procedure TStarMap.DrawSystemMarker(ASystem: TStarSystem);
+begin
+  FStarMarker.Draw(ASystem.Position, Vec2F(20, 20));
+end;
+
+procedure TStarMap.FillFirst;
+begin
+  GenerateSystems(Vec2I(0, 0));
+  FCurrentSystem := FSystems[0];
+
+  GenerateSystems(Vec2I(0, 1));
+  GenerateSystems(Vec2I(0, -1));
+  GenerateSystems(Vec2I(1, 0));
+  GenerateSystems(Vec2I(-1, 0));
+  GenerateSystems(Vec2I(1, 1));
+  GenerateSystems(Vec2I(1, -1));
+  GenerateSystems(Vec2I(-1, 1));
+  GenerateSystems(Vec2I(-1, -1));
+end;
+
 procedure TStarMap.LoadFromFile(const AFile: string);
 var
   AStream: TFileStream;
@@ -342,7 +364,7 @@ var
   AVectorIBuf: TVectorI;
   ASystem: TStarSystem;
 begin
-  AStream.Create(AFile, fmOpenRead);
+  AStream := TFileStream.Create(AFile, fmOpenRead);
     AStream.Read(AId, SizeOf(AId));
     AStream.Read(ASectorsCount, SizeOf(ASectorsCount));
     AStream.Read(ASystemsCount, SizeOf(ASystemsCount));
@@ -379,7 +401,7 @@ var
   AVectorIBuf: TVectorI;
   ASystem: TStarSystem;
 begin
-  AStream.Create(AFile, fmOpenWrite);
+  AStream := TFileStream.Create(AFile, fmOpenWrite);
     AId := FCurrentSystem.Id;
     AStream.Write(AId, SizeOf(AId));
 
@@ -405,7 +427,7 @@ end;
 
 procedure TStarMap.OnInitialize(AParameter: TObject);
 begin
-
+  //nothing to do
 end;
 
 procedure TStarMap.OnDraw(const ALayer: Integer);
@@ -415,6 +437,7 @@ var
   AShift: TVectorF;
 begin
   TheEngine.Camera := FCamera;
+  FCamera.Position := FCurrentSystem.Position;
   for ASystem in FSystems do
   begin
     ASPosition := FCamera.GetScreenPos(ASystem.Position);
@@ -423,10 +446,9 @@ begin
       (ASPosition.Y < FCamera.Resolution.Y + 2 * SYSTEM_SIZE)
     then
     begin
-
+      DrawSystemMarker(ASystem);
     end;
   end;
-
 end;
 
 procedure TStarMap.OnUpdate(const ADelta: Double);
