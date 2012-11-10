@@ -14,6 +14,7 @@ type
     private
     public
       constructor CreateFluid(const APosition: TVector2F);
+
       procedure OnDraw; override;
       procedure OnUpdate(const  ADelta: Double); override;
       procedure OnCollide(OtherObject: TGameObject); override;
@@ -29,6 +30,7 @@ uses
 constructor TFluid.CreateFluid(const APosition: TVector2F);
 begin
   inherited Create;
+
   FPosition := APosition;
   FRadius := 100;
   FUseCollistion := False;
@@ -36,13 +38,13 @@ end;
 
 procedure TFluid.OnDraw;
 begin
-  TheResources.AsteroidTexture.Draw(FPosition, TVector2F.Create(10, 10), FAngle, $ffffff00);
+  TheResources.AsteroidTexture.Draw(FPosition, TVector2F.Create(10, 10), FAngle, $FFFFFF00);
 end;
 
 procedure TFluid.OnUpdate(const  ADelta: Double);
 begin
   if Random(100) = 0 then
-    FVelocity := Vector2F(Random(100) - 50, Random(100) - 50);
+    FVelocity := Vec2F(Random(100) - 50, Random(100) - 50);
 end;
 
 procedure TFluid.OnCollide(OtherObject: TGameObject);

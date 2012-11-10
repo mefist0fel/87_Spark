@@ -21,6 +21,8 @@ procedure InitializeApplication;
 var
   AParameters: TQApplicationParameters;
 begin
+  Randomize;
+
   CreateEngine(TVectorI.Create(1024, 768), TVectorI.Create(1280, 720));
   //CreateEngine(TVectorI.Create(1024, 768), GetDesktopResolution);
 

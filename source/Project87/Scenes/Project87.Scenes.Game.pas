@@ -15,7 +15,6 @@ type
   TGameScene = class sealed (TScene)
     strict private
       FTestCamera: IQuadCamera;
-      FImage: TQuadTexture;
       FObjectManager: TObjectManager;
       FResource: TResources;
     public
@@ -30,6 +29,7 @@ type
 implementation
 
 uses
+  SysUtils,
   QuadEngine,
   QEngine.Core,
   Project87.Hero,
@@ -40,13 +40,17 @@ uses
 {$REGION '  TGameScene  '}
 constructor TGameScene.Create(const AName: string);
 begin
+  inherited Create(AName);
+
   FObjectManager := TObjectManager.GetInstance;
   FResource := TResources.Create;
-  inherited Create(AName);
 end;
 
 destructor TGameScene.Destroy;
 begin
+  FreeAndNil(FObjectManager);
+  FreeAndNil(FResource);
+
   inherited;
 end;
 
@@ -55,19 +59,18 @@ var
   I: Word;
 begin
   FTestCamera := TheEngine.CreateCamera;
+  FTestCamera.Position := Vec2F(300, 140);
   TheEngine.Camera := FTestCamera;
-  FTestCamera.Position := TVector2F.Create(300, 140);
-
-  FImage := TheEngine.CreateTexture;
-  FImage.LoadFromFile('..\data\gfx\miku.png', 0, 128, 128);
-  TheRender.SetBlendMode(qbmSrcAlpha);
 
   THero.CreateHero(ZeroVectorF);
 
-  for i := 0 to 100 do
-    TAsteroid.CreateAsteroid(TVector2F.Create( Random(5000) - 2500, Random(5000) - 2500), Random(360), 20 + Random(100));
-  for i := 0 to 100 do
-    TFluid.CreateFluid(TVector2F.Create( Random(5000) - 2500, Random(5000) - 2500));
+  for I := 0 to 100 do
+    TAsteroid.CreateAsteroid(
+      Vec2F(Random(5000) - 2500, Random(5000) - 2500),
+      Random(360), 20 + Random(100));
+
+  for I := 0 to 100 do
+    TFluid.CreateFluid(Vec2F(Random(5000) - 2500, Random(5000) - 2500));
 end;
 
 procedure TGameScene.OnUpdate(const ADelta: Double);
@@ -83,6 +86,9 @@ end;
 procedure TGameScene.OnDraw(const ALayer: Integer);
 begin
   TheRender.Clear($FF000000);
+
+  TheEngine.Camera := FTestCamera;
+  TheRender.SetBlendMode(qbmSrcAlpha);
   FObjectManager.OnDraw;
 end;
 {$ENDREGION}

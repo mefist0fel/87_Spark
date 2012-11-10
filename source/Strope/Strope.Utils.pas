@@ -3,16 +3,18 @@ unit Strope.Utils;
 interface
 
 uses
-  Strope.Math,
-  Windows;
+  Strope.Math;
 
 function GetDesktopResolution: TVector2I;
 
 implementation
 
+uses
+  Windows;
+
 function GetDesktopResolution: TVector2I;
 begin
-  Result := TVector2I.Create(GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN));
+  Result := Vec2I(GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN));
 end;
 
 end.

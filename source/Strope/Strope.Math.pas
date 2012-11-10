@@ -127,12 +127,7 @@ function GetAngle(A: TVector2F): Single; overload;
 function RotateToAngle(SourceAngle, DestionationAngle, Speed: Single): Single;
 {$ENDREGION}
 
-{$REGION '  TVector2I additional Functions  '}
-function Vector2I(X, Y: Integer): TVector2I;
-{$ENDREGION}
-
 {$REGION '  TVector2F additional Functions  '}
-function Vector2F(X, Y: Single): TVector2F;
 function Distance(A, B: TVector2F): Single;
 function ClipAndRotate(Angle, Length: Single): TVector2F;
 function Dot(A, B: TVector2F): Single;
@@ -333,12 +328,6 @@ begin
   Self.Y := Y;
 end;
 
-function Vector2I(X, Y: Integer): TVector2I;
-begin
-  Result.X := X;
-  Result.Y := Y;
-end;
-
 class operator TVector2I.Negative(const AVector: TVector2I): TVector2I;
 begin
   Result.X := -AVector.X;
@@ -407,12 +396,6 @@ constructor TVector2F.Create(X, Y: Single);
 begin
   Self.X := X;
   Self.Y := Y;
-end;
-
-function Vector2F(X, Y: Single): TVector2F;
-begin
-  Result.X := X;
-  Result.Y := Y;
 end;
 
 class operator TVector2F.Implicit(const AVector: TVector2I): TVector2F;

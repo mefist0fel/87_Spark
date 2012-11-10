@@ -24,6 +24,7 @@ type
       procedure CheckKeys;
     public
       constructor CreateHero( APosition: TVector2F);
+
       procedure OnDraw; override;
       procedure OnUpdate(const  ADelta: Double); override;
       procedure OnCollide(OtherObject: TGameObject); override;
@@ -45,6 +46,7 @@ uses
 constructor THero.CreateHero( APosition: TVector2F);
 begin
   inherited Create;
+
   FPosition := APosition;
   FRadius := 35;
   FHeroMaxSpeed := 80;
@@ -55,20 +57,22 @@ end;
 
 procedure THero.OnDraw;
 begin
-  TheResources.HeroTexture.Draw(FPosition, TVector2F.Create(30, 50), FAngle, $ffffffff);
-  TheResources.HeroTexture.Draw(FPosition, TVector2F.Create(10, 20), FTowerAngle, $ffffffff);
-  TheResources.AsteroidTexture.Draw(FPosition, TVector2F.Create(70, 70), FTowerAngle, $22ffffff);
+  TheResources.HeroTexture.Draw(FPosition, Vec2F(30, 50), FAngle, $FFFFFFFF);
+  TheResources.HeroTexture.Draw(FPosition, Vec2F(10, 20), FTowerAngle, $FFFFFFFF);
+  TheResources.AsteroidTexture.Draw(FPosition, Vec2F(70, 70), FTowerAngle, $22FFFFFF);
   TheResources.Font.TextOut(FMessage, FPosition, 2);
 end;
 
-procedure THero.OnUpdate(const  ADelta: Double);
+procedure THero.OnUpdate(const ADelta: Double);
 begin
   CheckKeys;
+
   FAngle := RotateToAngle(FAngle, FNeedAngle, 220 * ADelta);
   FSpeed := FSpeed * (1 - ADelta * 50) + FNeedSpeed * (ADelta * 50);
   FVelocity := FVelocity + ClipAndRotate(FAngle, FSpeed);
   if FVelocity.Length > 1400 then
     FVelocity := FVelocity * (1400 / FVelocity.Length);
+
   Control(ADelta);
 end;
 
@@ -80,7 +84,7 @@ begin
 //    FMessage := 'Fluid';
 end;
 
-procedure THero.Control(const  ADelta: Double);
+procedure THero.Control(const ADelta: Double);
 var
   MousePosition: TVector2F;
   DistanceToCamera: Single;
@@ -92,7 +96,8 @@ begin
     DistanceToCamera := 1;
 
   FNeedCameraPosition := (MousePosition - FPosition) * (0.5 / DistanceToCamera) + FPosition;
-  TheEngine.Camera.Position := TheEngine.Camera.Position * (1 - ADelta * 20) + FNeedCameraPosition * (ADelta * 20);
+  TheEngine.Camera.Position := TheEngine.Camera.Position * (1 - ADelta * 20) +
+    FNeedCameraPosition * (ADelta * 20);
 end;
 
 procedure THero.CheckKeys;
@@ -101,6 +106,7 @@ var
 begin
   NeedDirection := ZeroVectorF;
   FNeedSpeed := 0;
+
  { if TheControlState.Keyboard.IsKeyPressed[KB_W] or
      TheControlState.Keyboard.IsKeyPressed[KB_UP] then
     NeedDirection := NeedDirection + TVector2F.Create(0, 1);
@@ -124,15 +130,21 @@ begin
     FNeedAngle := GetAngle(FMoveDirection);
     FNeedSpeed := FHeroMaxSpeed;
   end;          }
+
   FNeedAngle := FAngle;
-  if TheControlState.Keyboard.IsKeyPressed[KB_A] or
-     TheControlState.Keyboard.IsKeyPressed[KB_LEFT] then
+  if TheKeyboardState.IsKeyPressed[KB_A] or
+     TheKeyboardState.IsKeyPressed[KB_LEFT]
+  then
     FNeedAngle := RoundAngle(FNeedAngle - 20);
-  if TheControlState.Keyboard.IsKeyPressed[KB_D] or
-     TheControlState.Keyboard.IsKeyPressed[KB_RIGHT] then
+
+  if TheKeyboardState.IsKeyPressed[KB_D] or
+     TheKeyboardState.IsKeyPressed[KB_RIGHT]
+  then
     FNeedAngle := RoundAngle(FNeedAngle + 20);
-  if TheControlState.Keyboard.IsKeyPressed[KB_W] or
-     TheControlState.Keyboard.IsKeyPressed[KB_UP] then
+
+  if TheKeyboardState.IsKeyPressed[KB_W] or
+     TheKeyboardState.IsKeyPressed[KB_UP]
+  then
     FNeedSpeed := FHeroMaxSpeed;
 end;
 {$ENDREGION}
