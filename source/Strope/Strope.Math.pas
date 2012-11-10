@@ -129,8 +129,12 @@ function RotateToAngle(SourceAngle, DestionationAngle, Speed: Single): Single;
 
 {$REGION '  TVector2F additional Functions  '}
 function Distance(A, B: TVector2F): Single;
-function ClipAndRotate(Angle, Length: Single): TVector2F;
+function GetRotatedVector(Angle, Length: Single): TVector2F;
 function Dot(A, B: TVector2F): Single;
+{$ENDREGION}
+
+{$REGION '  Collision Functions  '}
+function LineVsCircle( const LineA, LineB, CircleCenter: TVector2F; Radius: Single) : Boolean;
 {$ENDREGION}
 
 implementation
@@ -313,6 +317,36 @@ begin
       Angle := -1 * Angle;
   end;
   Result:= RoundAngle(Angle + Source);
+end;
+{$ENDREGION}
+
+{$REGION '  Collision Functions  '}
+
+function LineVsCircle( const LineA, LineB, CircleCenter: TVector2F; Radius: Single) : Boolean;
+  var
+    p1, p2  : array[ 0..1 ] of Single;
+    dx, dy  : Single;
+    a, b, c : Single;
+begin
+  p1[ 0 ] := LineA.X - CircleCenter.X;
+  p1[ 1 ] := LineA.Y - CircleCenter.Y;
+  p2[ 0 ] := LineB.X - CircleCenter.X;
+  p2[ 1 ] := LineB.Y - CircleCenter.Y;
+
+  dx := p2[ 0 ] - p1[ 0 ];
+  dy := p2[ 1 ] - p1[ 1 ];
+
+  a := sqr( dx ) + sqr( dy );
+  b := ( p1[ 0 ] * dx + p1[ 1 ] * dy ) * 2;
+  c := sqr( p1[ 0 ] ) + sqr( p1[ 1 ] ) - sqr( Radius );
+
+  if -b < 0 Then
+    Result := c < 0
+  else
+    if -b < a * 2 Then
+      Result := a * c * 4 - sqr( b )  < 0
+    else
+      Result := a + b + c < 0;
 end;
 {$ENDREGION}
 
@@ -525,7 +559,7 @@ begin
   Result:= Sqrt(Sqr(A.X - B.X) + Sqr(A.Y - B.Y));
 end;
 
-function ClipAndRotate(Angle, Length: Single): TVector2F;
+function GetRotatedVector(Angle, Length: Single): TVector2F;
 begin
   Result.X:=  sin(Angle / 180 * PI) * Length;
   Result.Y:= -cos(Angle / 180 * PI) * Length;
@@ -572,5 +606,4 @@ begin
     InterpolateValue(Self.Y, AVector.Y, AProgress, AInterpolationType));
 end;
 {$ENDREGION}
-
 end.

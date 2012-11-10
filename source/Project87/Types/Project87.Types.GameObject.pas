@@ -296,12 +296,12 @@ begin
             ProjectionLength := Dot(OtherObject.FVelocity, Connection) / Connection.Length;
 
             GameObject.FVelocity := GameObject.FVelocity -
-              ClipAndRotate(
+              GetRotatedVector(
                 GetAngle(Connection),
                 ProjectionLength / GameObject.FMass * OtherObject.FMass);
 
             OtherObject.FVelocity := OtherObject.FVelocity +
-              ClipAndRotate(GetAngle(Connection), ProjectionLength);
+              GetRotatedVector(GetAngle(Connection), ProjectionLength);
 
             GameObject.FCorrection :=
               (GameObject.FPosition - OtherObject.FPosition).Normalize *
@@ -338,7 +338,7 @@ begin
   for GameObject in FGameObject do
     if (GameObject <> nil) then
       for i := 0 to FastListCount - 1 do
-        if Distance(GameObject.FPosition, FastList[I].FPosition) < FastList[I].FRadius then
+        if LineVsCircle(GameObject.FPosition, GameObject.FPreviosPosition, FastList[I].FPosition, FastList[I].FRadius) then
           GameObject.OnCollide(FastList[I]);
 end;
 

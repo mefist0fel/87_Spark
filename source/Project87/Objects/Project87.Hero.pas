@@ -122,7 +122,7 @@ begin
 
   FAngle := RotateToAngle(FAngle, FNeedAngle, 220 * ADelta);
   FSpeed := FSpeed * (1 - ADelta * 50) + FNeedSpeed * (ADelta * 50);
-  FVelocity := FVelocity + ClipAndRotate(FAngle, FSpeed);
+  FVelocity := FVelocity + GetRotatedVector(FAngle, FSpeed);
   if FVelocity.Length > 600 then
     FVelocity := FVelocity * (600 / FVelocity.Length);
 end;
