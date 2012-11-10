@@ -23,7 +23,6 @@ type
       procedure CheckKeys;
     public
       constructor CreateHero( APosition: TVector2F);
-
       procedure OnDraw; override;
       procedure OnUpdate(const  ADelta: Double); override;
       procedure OnCollide(OtherObject: TGameObject); override;
@@ -55,15 +54,10 @@ end;
 
 procedure THero.OnDraw;
 begin
-<<<<<<< HEAD
-  TheResources.HeroTexture.Draw(FPosition, TVector2F.Create(50, 50), FAngle, $FFFFFFFF);
-  TheResources.HeroTexture.Draw(FPosition, TVector2F.Create(50, 50), FTowerAngle, $FFFFFFFF);
-=======
   TheResources.HeroTexture.Draw(FPosition, TVector2F.Create(30, 50), FAngle, $ffffffff);
   TheResources.HeroTexture.Draw(FPosition, TVector2F.Create(10, 20), FTowerAngle, $ffffffff);
   TheResources.AsteroidTexture.Draw(FPosition, TVector2F.Create(70, 70), FTowerAngle, $22ffffff);
   TheResources.Font.TextOut(FMessage, FPosition, 2);
->>>>>>> 555ee598794442d6cecf0955ef65720a4770c45d
 end;
 
 procedure THero.OnUpdate(const  ADelta: Double);

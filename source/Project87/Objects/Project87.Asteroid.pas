@@ -14,7 +14,6 @@ type
     private
     public
       constructor CreateAsteroid(const APosition: TVector2F; AAngle, ARadius: Single);
-
       procedure OnDraw; override;
       procedure OnUpdate(const  ADelta: Double); override;
   end;
