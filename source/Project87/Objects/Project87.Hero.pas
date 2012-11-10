@@ -22,12 +22,8 @@ type
       procedure Control(const  ADelta: Double);
       procedure CheckKeys;
     public
-<<<<<<< HEAD
-      constructor Create( APosition: TVector2F);
-
-=======
       constructor CreateHero( APosition: TVector2F);
->>>>>>> 555ee598794442d6cecf0955ef65720a4770c45d
+
       procedure OnDraw; override;
       procedure OnUpdate(const  ADelta: Double); override;
       procedure OnCollide(OtherObject: TGameObject); override;
