@@ -5,6 +5,7 @@ interface
 uses
   QCore.Input,
   QGame.Scene,
+  Strope.Math,
   Project87.Types.StarMap;
 
 type
@@ -19,6 +20,11 @@ type
       procedure OnDraw(const ALayer: Integer); override;
       procedure OnUpdate(const ADelta: Double); override;
       procedure OnDestroy; override;
+
+      function OnMouseMove(const AMousePosition: TVectorF): Boolean; override;
+      function OnMouseButtonUp(AButton: TMouseButton;
+        const AMousePosition: TVectorF): Boolean; override;
+      function OnKeyUp(AKey: TKeyButton): Boolean; override;
   end;
 
 implementation
@@ -62,6 +68,22 @@ end;
 procedure TStarMapScene.OnDestroy;
 begin
   FMap.SaveToFile('..\data\map\starmap.map');
+end;
+
+function TStarMapScene.OnMouseMove(const AMousePosition: TVectorF): Boolean;
+begin
+  FMap.OnMouseMove(AMousePosition);
+end;
+
+function TStarMapScene.OnMouseButtonUp(AButton: TMouseButton;
+  const AMousePosition: TVectorF): Boolean;
+begin
+  FMap.OnMouseButtonUp(AButton, AMousePosition);
+end;
+
+function TStarMapScene.OnKeyUp(AKey: TKeyButton): Boolean;
+begin
+
 end;
 {$ENDREGION}
 

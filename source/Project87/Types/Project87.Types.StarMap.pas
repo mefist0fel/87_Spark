@@ -77,6 +77,7 @@ type
       FStarMarker: TQuadTexture;
       FCamera: IQuadCamera;
 
+      function ChessDistation(const A, B: TVectorI): Integer;
       function IsHaveAllNeighbors(const ASector: TVectorI): Boolean;
       procedure GenerateSystems(const ASector: TVectorI);
       procedure GenerateMissingSectors(const ASector: TVectorI);
@@ -264,13 +265,12 @@ begin
   inherited;
 end;
 
+function TStarMap.ChessDistation(const A, B: TVectorI): Integer;
+begin
+  Result := Min(Abs(A.X - B.X), Abs(A.Y - B.Y));
+end;
+
 function TStarMap.IsHaveAllNeighbors(const ASector: TVectorI): Boolean;
-
-  function ChessDistation(const A, B: TVectorI): Integer;
-  begin
-    Result := Min(Abs(A.X - B.X), Abs(A.Y - B.Y));
-  end;
-
 var
   ANeighborsCount: Integer;
   AItem: TVectorI;
@@ -335,8 +335,32 @@ begin
 end;
 
 procedure TStarMap.DrawSystemMarker(ASystem: TStarSystem);
+var
+  ASize: Single;
+  AColor: Cardinal;
 begin
-  FStarMarker.Draw(ASystem.Position, Vec2F(20, 20));
+  ASize := 1;
+  AColor := $FFFFFFFF;
+
+  if ASystem = FCurrentSystem then
+  begin
+    ASize := 1.2;
+    AColor := $FFFF8080;
+  end;
+
+  if ASystem = FSelectedSystem then
+  begin
+    ASize := 1.2;
+    AColor := $FFFFB080;
+  end;
+
+  if ASystem.FIsFocused then
+  begin
+    ASize := 1.2;
+  end;
+
+  FStarMarker.Draw(ASystem.Position, Vec2F(20, 20) * ASize,
+    0, AColor);
 end;
 
 procedure TStarMap.FillFirst;
@@ -453,18 +477,64 @@ end;
 
 procedure TStarMap.OnUpdate(const ADelta: Double);
 begin
-
 end;
 
 function TStarMap.OnMouseMove(const AMousePosition: TVectorF): Boolean;
+var
+  ASystem: TStarSystem;
+  ASPosition, AWPosition: TVectorF;
+  AShift: TVectorF;
 begin
+  AWPosition := FCamera.GetWorldPos(AMousePosition);
+  for ASystem in FSystems do
+  begin
+    if ChessDistation(ASystem.Sector, FCurrentSystem.Sector) > 1 then
+      Continue;
 
+    ASPosition := FCamera.GetScreenPos(ASystem.Position);
+    if (ASPosition.X > -2 * SYSTEM_SIZE) and (ASPosition.Y > -2 * SYSTEM_SIZE) and
+      (ASPosition.X < FCamera.Resolution.X + 2 * SYSTEM_SIZE) and
+      (ASPosition.Y < FCamera.Resolution.Y + 2 * SYSTEM_SIZE)
+    then
+      if ASystem.IsContains(AWPosition) then
+      begin
+        ASystem.FIsFocused := True;
+        Break;
+      end
+      else
+        ASystem.FIsFocused := False;
+  end;
 end;
 
 function TStarMap.OnMouseButtonUp(AButton: TMouseButton;
   const AMousePosition: TVectorF): Boolean;
+var
+  ASystem: TStarSystem;
+  ASPosition, AWPosition: TVectorF;
+  AShift: TVectorF;
 begin
+  AWPosition := FCamera.GetWorldPos(AMousePosition);
+  for ASystem in FSystems do
+  begin
+    if ChessDistation(ASystem.Sector, FCurrentSystem.Sector) > 1 then
+      Continue;
+    if ASystem = FCurrentSystem then
+      Continue;
 
+    ASPosition := FCamera.GetScreenPos(ASystem.Position);
+    if (ASPosition.X > -2 * SYSTEM_SIZE) and (ASPosition.Y > -2 * SYSTEM_SIZE) and
+      (ASPosition.X < FCamera.Resolution.X + 2 * SYSTEM_SIZE) and
+      (ASPosition.Y < FCamera.Resolution.Y + 2 * SYSTEM_SIZE)
+    then
+      if ASystem.IsContains(AWPosition) then
+      begin
+        ASystem.FIsSelected := True;
+        if Assigned(FSelectedSystem) then
+          FSelectedSystem.FIsSelected := False;
+        FSelectedSystem := ASystem;
+        Break;
+      end;
+  end;
 end;
 
 function TStarMap.OnKeyUp(AKey: TKeyButton): Boolean;
