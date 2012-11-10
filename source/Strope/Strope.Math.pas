@@ -128,9 +128,9 @@ function RotateToAngle(SourceAngle, DestionationAngle, Speed: Single): Single;
 {$ENDREGION}
 
 {$REGION '  TVector2F additional Functions  '}
-function Distance(A, B: TVector2F): Single;
+function Distance(const A, B: TVector2F): Single;
 function ClipAndRotate(Angle, Length: Single): TVector2F;
-function Dot(A, B: TVector2F): Single;
+function Dot(const A, B: TVector2F): Single;
 {$ENDREGION}
 
 implementation
@@ -520,7 +520,7 @@ begin
     InterpolateValue(Self.Y, AVector.Y, AProgress, AInterpolationType));
 end;
 
-function Distance(A, B: TVector2F): Single;
+function Distance(const A, B: TVector2F): Single;
 begin
   Result:= Sqrt(Sqr(A.X - B.X) + Sqr(A.Y - B.Y));
 end;
@@ -531,7 +531,7 @@ begin
   Result.Y:= -cos(Angle / 180 * PI) * Length;
 end;
 
-function Dot(A, B: TVector2F): Single;
+function Dot(const A, B: TVector2F): Single;
 begin
   Result:= A.X * B.X + A.Y * B.Y;
 end;
