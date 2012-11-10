@@ -7,6 +7,9 @@ uses
   Generics.Collections,
   QCore.Types,
   QCore.Input,
+  QEngine.Core,
+  QEngine.Camera,
+  QEngine.Texture,
   Strope.Math;
 
 type
@@ -71,6 +74,9 @@ type
       FCurrentSystem: TStarSystem;
       FSelectedSystem: TStarSystem;
 
+      FStarMarker: TQuadTexture;
+      FCamera: IQuadCamera;
+
       function IsHaveAllNeighbors(const ASector: TVectorI): Boolean;
       procedure GenerateSystems(const ASector: TVectorI);
       procedure GenerateMissingSectors(const ASector: TVectorI);
@@ -100,7 +106,9 @@ implementation
 
 uses
   SysUtils,
-  Math;
+  Math,
+  QGame.Game,
+  QGame.Resources;
 
 const
   SECTOR_SIZE = 5000;
@@ -234,6 +242,11 @@ begin
   FSystems := TList<TStarSystem>.Create;
   FCurrentSystem := nil;
   FSelectedSystem := nil;
+
+  FStarMarker :=
+    (TheResourceManager.GetResource('Image', 'SimpleStarMarker') as TTextureExResource).Texture;
+
+  FCamera := TheEngine.CreateCamera;
 end;
 
 destructor TStarMap.Destroy;
@@ -244,6 +257,8 @@ begin
     ASystem.Free;
   FSystems.Free;
   FSectors.Free;
+
+  FStarMarker.Free;
 
   inherited;
 end;
@@ -321,12 +336,14 @@ procedure TStarMap.LoadFromFile(const AFile: string);
 var
   AStream: TFileStream;
   I: Integer;
+  AId: TObjectId;
   ASectorsCount: Integer;
   ASystemsCount: Integer;
   AVectorIBuf: TVectorI;
   ASystem: TStarSystem;
 begin
   AStream.Create(AFile, fmOpenRead);
+    AStream.Read(AId, SizeOf(AId));
     AStream.Read(ASectorsCount, SizeOf(ASectorsCount));
     AStream.Read(ASystemsCount, SizeOf(ASystemsCount));
 
@@ -342,6 +359,11 @@ begin
     begin
       ASystem := TStarSystem.Create;
       ASystem.LoadFromStream(AStream);
+      if AId = ASystem.Id then
+      begin
+        FCurrentSystem := ASystem;
+        ASystem.FIsSelected := True;
+      end;
       FSystems.Add(ASystem);
     end;
   AStream.Free;
@@ -351,12 +373,16 @@ procedure TStarMap.SaveToFile(const AFile: string);
 var
   AStream: TFileStream;
   I: Integer;
+  AId: TObjectId;
   ASectorsCount: Integer;
   ASystemsCount: Integer;
   AVectorIBuf: TVectorI;
   ASystem: TStarSystem;
 begin
   AStream.Create(AFile, fmOpenWrite);
+    AId := FCurrentSystem.Id;
+    AStream.Write(AId, SizeOf(AId));
+
     ASectorsCount := FSectors.Count;
     AStream.Write(ASectorsCount, SizeOf(ASectorsCount));
 
@@ -383,7 +409,22 @@ begin
 end;
 
 procedure TStarMap.OnDraw(const ALayer: Integer);
+var
+  ASystem: TStarSystem;
+  ASPosition: TVectorF;
+  AShift: TVectorF;
 begin
+  TheEngine.Camera := FCamera;
+  for ASystem in FSystems do
+  begin
+    ASPosition := FCamera.GetScreenPos(ASystem.Position);
+    if (ASPosition.X > -2 * SYSTEM_SIZE) and (ASPosition.Y > -2 * SYSTEM_SIZE) and
+      () ()
+    then
+    begin
+
+    end;
+  end;
 
 end;
 

@@ -73,6 +73,10 @@ begin
     AGfxDir + 'menu_elements\big_star.png', 0);
   ResourceManager.AddResource(ATextureEx);
 
+  ATextureEx := TTextureExResource.CreateAndLoad('Image', 'SimpleStarMarker',
+    AGfxDir + 'starmap_elements\marker_focused.png', 0);
+  ResourceManager.AddResource(ATextureEx);
+
   SceneManager.AddScene(TIntroScene.Create('Intro'));
   SceneManager.AddScene(TMainMenuScene.Create('MainMenu'));
   SceneManager.AddScene(TGameScene.Create('Spark'));
