@@ -49,7 +49,7 @@ begin
   if (FReloadTimer = 0) then
   begin
     FReloadTimer := FReloadTime;
-    TBullet.CreateBullet(APosition, ClipAndRotate(AAngle, 1600), AAngle, FLife);
+    TBullet.CreateBullet(APosition, ClipAndRotate(AAngle, 1600), AAngle, FDamage, FLife);
   end;
 end;
 {$ENDREGION}

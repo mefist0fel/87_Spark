@@ -13,12 +13,14 @@ type
       FTowerAngle: Single;
       FShowShieldTime: Single;
       FMessage: String;
+      FLife: Single;
     public
       constructor CreateEnemy(const APosition: TVector2F; AAngle: Single);
 
       procedure OnDraw; override;
       procedure OnUpdate(const ADelta: Double); override;
       procedure OnCollide(OtherObject: TPhysicalObject); override;
+      procedure Hit(ADamage: Single);
   end;
 
 implementation
@@ -40,6 +42,7 @@ begin
   FUseCollistion := True;
   FMass := 1;
   FMessage := '';
+  FLife := 100;
 end;
 
 procedure TBaseEnemy.OnDraw;
@@ -69,7 +72,11 @@ begin
     if (FShowShieldTime < 0) then
       FShowShieldTime := 0;
   end;
+end;
 
+procedure TBaseEnemy.Hit(ADamage: Single);
+begin
+  FShowShieldTime := 0.7;
 end;
 {$ENDREGION}
 

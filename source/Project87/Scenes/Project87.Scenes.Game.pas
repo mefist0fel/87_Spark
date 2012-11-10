@@ -14,9 +14,10 @@ uses
 type
   TGameScene = class sealed (TScene)
     strict private
-      FTestCamera: IQuadCamera;
+      FMainCamera: IQuadCamera;
       FObjectManager: TObjectManager;
       FResource: TResources;
+      FStartAnimation: Single;
     public
       constructor Create(const AName: string);
       destructor Destroy; override;
@@ -59,9 +60,11 @@ procedure TGameScene.OnInitialize(AParameter: TObject);
 var
   I: Word;
 begin
-  FTestCamera := TheEngine.CreateCamera;
-  FTestCamera.Position := Vec2F(300, 140);
-  TheEngine.Camera := FTestCamera;
+  FMainCamera := TheEngine.CreateCamera;
+  FMainCamera.Position := Vec2F(300, 140);
+  TheEngine.Camera := FMainCamera;
+
+  FStartAnimation := 1;
 
   THero.CreateHero(ZeroVectorF);
 
@@ -78,6 +81,18 @@ end;
 
 procedure TGameScene.OnUpdate(const ADelta: Double);
 begin
+  if (FStartAnimation > 0) then
+  begin
+    FStartAnimation := FStartAnimation - ADelta;
+    TheEngine.Camera.Scale := Vec2F(1 - FStartAnimation * FStartAnimation * 0.8, 1 - FStartAnimation * FStartAnimation * 0.8);
+    if (FStartAnimation <= 0) then
+    begin
+      FStartAnimation := 0;
+      TheEngine.Camera.Scale := Vec2F(1, 1);
+    end;
+  end;
+
+
   if TheControlState.Keyboard.IsKeyPressed[KB_ESC] then
   begin
     TheApplication.Stop;
@@ -90,7 +105,7 @@ procedure TGameScene.OnDraw(const ALayer: Integer);
 begin
   TheRender.Clear($FF000000);
 
-  TheEngine.Camera := FTestCamera;
+  TheEngine.Camera := FMainCamera;
   TheRender.SetBlendMode(qbmSrcAlpha);
   FObjectManager.OnDraw;
 end;

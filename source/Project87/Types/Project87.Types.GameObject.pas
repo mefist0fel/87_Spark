@@ -7,19 +7,14 @@ uses
   SysUtils,
   Strope.Math;
 
-type
-  TBorder = record
-    Width: Single;
-    Height: Single;
-  end;
-
 const
   MAX_PHYSICAL_VELOCITY = 1500;
   MAX_FAST_OBJECTS = 200;
-  VIEW_BORDER: TBorder = (Width: 800; Height: 600);
+  BORDER_OF_VIEW: TVector2F = (X: 800; Y: 600);
 
 type
   TObjectManager = class;
+  TPhysicalObject = class;
 
   TGameObject = class
     private
@@ -37,6 +32,7 @@ type
 
       procedure OnDraw; virtual;
       procedure OnUpdate(const ADelta: Double); virtual;
+      procedure OnCollide(OtherObject: TPhysicalObject); virtual;
 
       property Manager: TObjectManager read FParent;
       property Position: TVector2F read FPosition;
@@ -96,6 +92,10 @@ type
 
 implementation
 
+uses
+  QApplication.Application,
+  QEngine.Core;
+
 {$REGION '  TGameObject  '}
 constructor TGameObject.Create;
 begin
@@ -115,6 +115,11 @@ begin
 end;
 
 procedure TGameObject.OnUpdate(const ADelta: Double);
+begin
+  //nothing to do
+end;
+
+procedure TGameObject.OnCollide(OtherObject: TPhysicalObject);
 begin
   //nothing to do
 end;
@@ -308,13 +313,33 @@ end;
 
 procedure TObjectManager.CheckFastCollisions;
 var
+  I,
+  FastListCount: Integer;
   PhysicalObject: TPhysicalObject;
   GameObject: TGameObject;
   FastList: array [0..MAX_FAST_OBJECTS] of TPhysicalObject;
+  ActionCenter: TVector2F;
 begin
-//  for GameObject in FPhysicalObject do
-
-
+  FastListCount := 0;
+  ActionCenter := TheEngine.Camera.Position;
+  for PhysicalObject in FPhysicalObject do
+    if (PhysicalObject <> nil) then
+    if (PhysicalObject.FPosition.X - BORDER_OF_VIEW.X < ActionCenter.X) then
+    if (PhysicalObject.FPosition.Y - BORDER_OF_VIEW.Y < ActionCenter.Y) then
+    if (PhysicalObject.FPosition.X + BORDER_OF_VIEW.X > ActionCenter.X) then
+    if (PhysicalObject.FPosition.Y + BORDER_OF_VIEW.Y > ActionCenter.Y) then
+      begin
+        if FastListCount > MAX_FAST_OBJECTS then
+          Break;
+        FastList[FastListCount] := PhysicalObject;
+        Inc(FastListCount);
+      end;
+//  TheApplication.Window.Caption := IntToStr(FastListCount);
+  for GameObject in FGameObject do
+    if (GameObject <> nil) then
+      for i := 0 to FastListCount - 1 do
+        if Distance(GameObject.FPosition, FastList[I].FPosition) < FastList[I].FRadius then
+          GameObject.OnCollide(FastList[I]);
 end;
 
 {$ENDREGION}
