@@ -51,6 +51,10 @@ var
   AFontEx: TFontExResource;
 begin
   //Создавать сцены и загружать основные ресурсы тут
+  AFontEx := TFontExResource.CreateAndLoad('Font', 'Droid_28',
+    AFntDir + 'droid_sans_bold_28.png', AFntDir + 'droid_sans_bold_28.qef');
+  ResourceManager.AddResource(AFontEx);
+
   AFontEx := TFontExResource.CreateAndLoad('Font', 'Quad_14',
     AFntDir + 'quad_14.png', AFntDir + 'quad_14.qef');
   ResourceManager.AddResource(AFontEx);
@@ -63,8 +67,8 @@ begin
   SceneManager.AddScene(TMainMenuScene.Create('MainMenu'));
   SceneManager.AddScene(TGameScene.Create('Spark'));
 //  SceneManager.AddScene(TIntroScene.Create('Intro'));
-//  SceneManager.MakeCurrent('Intro');
-  SceneManager.MakeCurrent('Spark');
+  SceneManager.MakeCurrent('Intro');
+//  SceneManager.MakeCurrent('Spark');
   SceneManager.OnInitialize;
 end;
 {$ENDREGION}
