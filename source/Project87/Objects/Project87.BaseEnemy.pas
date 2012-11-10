@@ -47,6 +47,9 @@ var
   ShieldAlpha: Byte;
   Position: TVectorF;
 begin
+  if FIsDead then
+    Exit;
+
   TheResources.HeroTexture.Draw(FPosition, Vec2F(30, 50), FAngle, FColor);
   TheResources.HeroTexture.Draw(FPosition, Vec2F(10, 20), FTowerAngle, FColor);
   ShieldAlpha := Trunc(FShowShieldTime * $52);
@@ -57,6 +60,9 @@ end;
 
 procedure TBaseEnemy.OnCollide(OtherObject: TPhysicalObject);
 begin
+  if FIsDead then
+    Exit;
+
   if (OtherObject is TAsteroid) or (OtherObject is THero) or (OtherObject is TBaseEnemy) then
   begin
     FShowShieldTime := 0.7;

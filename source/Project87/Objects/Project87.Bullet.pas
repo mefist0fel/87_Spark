@@ -41,25 +41,34 @@ end;
 
 procedure TBullet.OnDraw;
 begin
+  if FIsDead then
+    Exit;
+
   TheResources.AsteroidTexture.Draw(FPosition, TVector2F.Create(4, 24), FAngle, $FFFFFFFF);
 end;
 
 procedure TBullet.OnUpdate(const  ADelta: Double);
 begin
+  if FIsDead then
+    Exit;
+
   FLife := FLife - ADelta;
   if FLife < 0 then
-    Free;
+    FIsDead := True;
 end;
 
 procedure TBullet.OnCollide(OtherObject: TPhysicalObject);
 begin
+  if FIsDead then
+    Exit;
+
   if (OtherObject is TBaseEnemy) then
   begin
     TBaseEnemy(OtherObject).Hit(FDamage);
-    Free;
+    FIsDead := True;
   end;
   if (OtherObject is TAsteroid) then
-    Free;
+    FIsDead := True;
 end;
 {$ENDREGION}
 

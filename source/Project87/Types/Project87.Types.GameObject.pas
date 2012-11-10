@@ -22,6 +22,7 @@ type
 
       procedure Move(const ADelta: Double);
     protected
+      FIsDead: Boolean;
       FAngle: Single;
       FPreviosPosition: TVector2F;
       FPosition: TVector2F;
@@ -46,6 +47,7 @@ type
 
       procedure Move(const ADelta: Double);
     protected
+      FIsDead: Boolean;
       FUseCollistion: Boolean;
       FMass: Single;
       FRadius: Single;
@@ -68,8 +70,8 @@ type
     private
       class var FInstance: TObjectManager;
 
-      FGameObject: TList<TGameObject>;
-      FPhysicalObject: TList<TPhysicalObject>;
+      FGameObjects: TList<TGameObject>;
+      FPhysicalObjects: TList<TPhysicalObject>;
 
       constructor Create;
 
@@ -81,6 +83,7 @@ type
       procedure AddObject(AObject: TGameObject);
       procedure CheckCollisions;
       procedure CheckFastCollisions;
+      procedure CheckDeadObjects;
     public
       destructor Destroy; override;
 
@@ -101,6 +104,7 @@ constructor TGameObject.Create;
 begin
   FParent := TObjectManager.GetInstance;
   FParent.AddObject(Self);
+  FIsDead := False;
 end;
 
 destructor TGameObject.Destroy;
@@ -134,6 +138,7 @@ end;
 {$REGION '  TPhysicalObject  '}
 constructor TPhysicalObject.Create;
 begin
+  FIsDead := False;
   FUseCollistion := False;
   FParent := TObjectManager.GetInstance;
   FParent.AddPhysicalObject(Self);
@@ -177,8 +182,8 @@ end;
 {$REGION '  TObjectManager  '}
 constructor TObjectManager.Create;
 begin
-  FPhysicalObject := TList<TPhysicalObject>.Create();
-  FGameObject := TList<TGameObject>.Create();
+  FPhysicalObjects := TList<TPhysicalObject>.Create();
+  FGameObjects := TList<TGameObject>.Create();
 end;
 
 destructor TObjectManager.Destroy;
@@ -186,13 +191,13 @@ var
   AGameObject: TGameObject;
   APhysicalObject: TPhysicalObject;
 begin
-  for APhysicalObject in FPhysicalObject do
+  for APhysicalObject in FPhysicalObjects do
     APhysicalObject.Free;
-  FPhysicalObject.Free;
+  FPhysicalObjects.Free;
 
-  for AGameObject in FGameObject do
+  for AGameObject in FGameObjects do
     AGameObject.Free;
-  FGameObject.Free;
+  FGameObjects.Free;
 
   FInstance := nil;
 
@@ -201,36 +206,36 @@ end;
 
 procedure TObjectManager.RemovePhysicalObject(APhysicalObject: TPhysicalObject);
 begin
-  FPhysicalObject.Remove(APhysicalObject);
+  FPhysicalObjects.Remove(APhysicalObject);
 end;
 
 procedure TObjectManager.DestroyPhysicalObject(APhysicalObject: TPhysicalObject);
 begin
-  if FPhysicalObject.Contains(APhysicalObject) then
+  if FPhysicalObjects.Contains(APhysicalObject) then
     APhysicalObject.Free;
 end;
 
 procedure TObjectManager.AddPhysicalObject(APhysicalObject: TPhysicalObject);
 begin
   if Assigned(APhysicalObject) then
-    FPhysicalObject.Add(APhysicalObject);
+    FPhysicalObjects.Add(APhysicalObject);
 end;
 
 procedure TObjectManager.RemoveObject(AObject: TGameObject);
 begin
-  FGameObject.Remove(AObject);
+  FGameObjects.Remove(AObject);
 end;
 
 procedure TObjectManager.DestroyObject(AObject: TGameObject);
 begin
-  if FGameObject.Contains(AObject) then
+  if FGameObjects.Contains(AObject) then
     AObject.Free;
 end;
 
 procedure TObjectManager.AddObject(AObject: TGameObject);
 begin
   if Assigned(AObject) then
-    FGameObject.Add(AObject);
+    FGameObjects.Add(AObject);
 end;
 
 class function TObjectManager.GetInstance: TObjectManager;
@@ -246,9 +251,10 @@ var
   PhysicalObject: TPhysicalObject;
   GameObject: TGameObject;
 begin
-  for PhysicalObject in FPhysicalObject do
+  for PhysicalObject in FPhysicalObjects do
     PhysicalObject.OnDraw;
-  for GameObject in FGameObject do
+
+  for GameObject in FGameObjects do
     GameObject.OnDraw;
 end;
 
@@ -257,21 +263,23 @@ var
   PhysicalObject: TPhysicalObject;
   GameObject: TGameObject;
 begin
-  for PhysicalObject in FPhysicalObject do
+  for PhysicalObject in FPhysicalObjects do
     PhysicalObject.OnUpdate(ADelta);
 
   CheckCollisions();
 
-  for PhysicalObject in FPhysicalObject do
+  for PhysicalObject in FPhysicalObjects do
     PhysicalObject.Move(ADelta);
 
-  for GameObject in FGameObject do
+  for GameObject in FGameObjects do
     GameObject.OnUpdate(ADelta);
 
   CheckFastCollisions();
 
-  for GameObject in FGameObject do
+  for GameObject in FGameObjects do
     GameObject.Move(ADelta);
+
+  CheckDeadObjects;
 end;
 
 procedure TObjectManager.CheckCollisions;
@@ -280,8 +288,8 @@ var
   Connection: TVector2F;
   ProjectionLength: Single;
 begin
-  for GameObject in FPhysicalObject do
-    for OtherObject in FPhysicalObject do
+  for GameObject in FPhysicalObjects do
+    for OtherObject in FPhysicalObjects do
       if (GameObject <> OtherObject) then
         if (Distance(GameObject.FPosition, OtherObject.FPosition) <
           GameObject.FRadius + OtherObject.FRadius)
@@ -322,7 +330,8 @@ var
 begin
   FastListCount := 0;
   ActionCenter := TheEngine.Camera.Position;
-  for PhysicalObject in FPhysicalObject do
+
+  for PhysicalObject in FPhysicalObjects do
     if (PhysicalObject <> nil) then
     if (PhysicalObject.FPosition.X - BORDER_OF_VIEW.X < ActionCenter.X) then
     if (PhysicalObject.FPosition.Y - BORDER_OF_VIEW.Y < ActionCenter.Y) then
@@ -334,14 +343,30 @@ begin
         FastList[FastListCount] := PhysicalObject;
         Inc(FastListCount);
       end;
+
 //  TheApplication.Window.Caption := IntToStr(FastListCount);
-  for GameObject in FGameObject do
+  for GameObject in FGameObjects do
     if (GameObject <> nil) then
-      for i := 0 to FastListCount - 1 do
-        if LineVsCircle(GameObject.FPosition, GameObject.FPreviosPosition, FastList[I].FPosition, FastList[I].FRadius) then
+      for I := 0 to FastListCount - 1 do
+        if LineVsCircle(GameObject.FPosition, GameObject.FPreviosPosition,
+            FastList[I].FPosition, FastList[I].FRadius)
+        then
           GameObject.OnCollide(FastList[I]);
 end;
 
+procedure TObjectManager.CheckDeadObjects;
+var
+  AObject: TGameObject;
+  APObject: TPhysicalObject;
+begin
+  for AObject in FGameObjects do
+    if AObject.FIsDead then
+      AObject.Free;
+
+  for APObject in FPhysicalObjects do
+    if APObject.FIsDead then
+      APObject.Free;
+end;
 {$ENDREGION}
 
 end.
