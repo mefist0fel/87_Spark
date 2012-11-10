@@ -6,28 +6,33 @@ uses
   QEngine.Camera,
   QGame.Scene,
   Strope.Math,
-  Project87.Types.GameObject;
+  Project87.Types.GameObject,
+  Project87.Types.Weapon;
 
 type
-  THero = class (TGameObject)
+  THero = class (TPhysicalObject)
     private
       FTowerAngle: Single;
       FNeedAngle: Single;
+      FAngularSpeed: Single;
       FNeedCameraPosition: TVector2F;
       FMoveDirection: TVector2F;
       FHeroMaxSpeed: Single;
       FNeedSpeed: Single;
       FSpeed: Single;
       FMessage: string;
-
+      FShowShieldTime: Single;
+      FCannon: TCannon;
       procedure Control(const  ADelta: Double);
+      procedure UpdateParameters(const ADelta: Double);
       procedure CheckKeys;
+      procedure CheckMouse;
     public
-      constructor CreateHero( APosition: TVector2F);
+      constructor CreateHero(const APosition: TVector2F);
 
       procedure OnDraw; override;
       procedure OnUpdate(const  ADelta: Double); override;
-      procedure OnCollide(OtherObject: TGameObject); override;
+      procedure OnCollide(OtherObject: TPhysicalObject); override;
   end;
 
 implementation
@@ -39,49 +44,41 @@ uses
   QCore.Input,
   QApplication.Application,
   Project87.Asteroid,
-  Project87.Fluid,
+  Project87.BaseEnemy,
   Project87.Resources;
 
 {$REGION '  THero  '}
-constructor THero.CreateHero( APosition: TVector2F);
+constructor THero.CreateHero(const APosition: TVector2F);
 begin
   inherited Create;
-
+  FCannon := TCannon.Create(OPlayer, 0.1, 10);
+  FAngularSpeed := 20;
   FPosition := APosition;
   FRadius := 35;
-  FHeroMaxSpeed := 80;
+  FHeroMaxSpeed := 40;
   FUseCollistion := True;
   FMass := 1;
   FMessage := '';
 end;
 
 procedure THero.OnDraw;
+var
+  ShieldAlpha: Byte;
 begin
   TheResources.HeroTexture.Draw(FPosition, Vec2F(30, 50), FAngle, $FFFFFFFF);
   TheResources.HeroTexture.Draw(FPosition, Vec2F(10, 20), FTowerAngle, $FFFFFFFF);
-  TheResources.AsteroidTexture.Draw(FPosition, Vec2F(70, 70), FTowerAngle, $22FFFFFF);
-  TheResources.Font.TextOut(FMessage, FPosition, 2);
+  ShieldAlpha := Trunc(FShowShieldTime * $52);
+  TheResources.AsteroidTexture.Draw(FPosition, Vec2F(70, 70), FTowerAngle, ShieldAlpha * $1000000 + $FFFFFF);
+  TheResources.Font.TextOut(FMessage, FPosition, 1);
 end;
 
 procedure THero.OnUpdate(const ADelta: Double);
 begin
   CheckKeys;
-
-  FAngle := RotateToAngle(FAngle, FNeedAngle, 220 * ADelta);
-  FSpeed := FSpeed * (1 - ADelta * 50) + FNeedSpeed * (ADelta * 50);
-  FVelocity := FVelocity + ClipAndRotate(FAngle, FSpeed);
-  if FVelocity.Length > 1400 then
-    FVelocity := FVelocity * (1400 / FVelocity.Length);
-
+  CheckMouse;
+  UpdateParameters(ADelta);
   Control(ADelta);
-end;
-
-procedure THero.OnCollide(OtherObject: TGameObject);
-begin
-  if (OtherObject is TAsteroid) then
-    FMessage := 'Asteroid';
-//  if (OtherObject is TFluid) then
-//    FMessage := 'Fluid';
+  FCannon.OnUpdate(ADelta);
 end;
 
 procedure THero.Control(const ADelta: Double);
@@ -91,13 +88,49 @@ var
 begin
   MousePosition := TheEngine.Camera.GetWorldPos(TheControlState.Mouse.Position);
   FTowerAngle := GetAngle(FPosition, MousePosition);
-  DistanceToCamera := ((MousePosition - FPosition).Length) / 500;
+  DistanceToCamera := ((MousePosition - FPosition).Length) / 200;
   if DistanceToCamera < 1 then
     DistanceToCamera := 1;
 
   FNeedCameraPosition := (MousePosition - FPosition) * (0.5 / DistanceToCamera) + FPosition;
   TheEngine.Camera.Position := TheEngine.Camera.Position * (1 - ADelta * 20) +
     FNeedCameraPosition * (ADelta * 20);
+end;
+
+procedure THero.OnCollide(OtherObject: TPhysicalObject);
+begin
+  if (OtherObject is TAsteroid) then
+  begin
+    FMessage := 'Asteroid';
+    FShowShieldTime := 0.7;
+  end;
+  if (OtherObject is TBaseEnemy) then
+  begin
+    FMessage := 'Enemy';
+    FShowShieldTime := 0.7;
+  end;
+end;
+
+procedure THero.UpdateParameters(const ADelta: Double);
+begin
+  if (FShowShieldTime > 0) then
+  begin
+    FShowShieldTime := FShowShieldTime - ADelta;
+    if (FShowShieldTime < 0) then
+      FShowShieldTime := 0;
+  end;
+
+  FAngle := RotateToAngle(FAngle, FNeedAngle, 220 * ADelta);
+  FSpeed := FSpeed * (1 - ADelta * 50) + FNeedSpeed * (ADelta * 50);
+  FVelocity := FVelocity + ClipAndRotate(FAngle, FSpeed);
+  if FVelocity.Length > 600 then
+    FVelocity := FVelocity * (600 / FVelocity.Length);
+end;
+
+procedure THero.CheckMouse;
+begin
+  if TheMouseState.IsButtonPressed[mbLeft] then
+    FCannon.Fire(FPosition, FTowerAngle);
 end;
 
 procedure THero.CheckKeys;
@@ -132,15 +165,26 @@ begin
   end;          }
 
   FNeedAngle := FAngle;
+//  FAngularSpeed := FAngularSpeed * 0.9;
   if TheKeyboardState.IsKeyPressed[KB_A] or
      TheKeyboardState.IsKeyPressed[KB_LEFT]
   then
-    FNeedAngle := RoundAngle(FNeedAngle - 20);
+  begin
+//    FAngularSpeed := FAngularSpeed - 0.5;
+//    if FAngularSpeed < -20 then
+//      FAngularSpeed := -20;
+    FNeedAngle := RoundAngle(FNeedAngle - FAngularSpeed);
+  end;
 
   if TheKeyboardState.IsKeyPressed[KB_D] or
      TheKeyboardState.IsKeyPressed[KB_RIGHT]
   then
-    FNeedAngle := RoundAngle(FNeedAngle + 20);
+  begin
+//    FAngularSpeed := FAngularSpeed + 0.5;
+//    if FAngularSpeed > 20 then
+//      FAngularSpeed := 20;
+    FNeedAngle := RoundAngle(FNeedAngle + FAngularSpeed);
+  end;
 
   if TheKeyboardState.IsKeyPressed[KB_W] or
      TheKeyboardState.IsKeyPressed[KB_UP]

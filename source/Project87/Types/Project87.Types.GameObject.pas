@@ -7,13 +7,42 @@ uses
   SysUtils,
   Strope.Math;
 
+type
+  TBorder = record
+    Width: Single;
+    Height: Single;
+  end;
+
 const
   MAX_PHYSICAL_VELOCITY = 1500;
+  MAX_FAST_OBJECTS = 200;
+  VIEW_BORDER: TBorder = (Width: 800; Height: 600);
 
 type
   TObjectManager = class;
 
   TGameObject = class
+    private
+      FParent: TObjectManager;
+
+      procedure Move(const ADelta: Double);
+    protected
+      FAngle: Single;
+      FPreviosPosition: TVector2F;
+      FPosition: TVector2F;
+      FVelocity: TVector2F;
+    public
+      constructor Create;
+      destructor Destroy; override;
+
+      procedure OnDraw; virtual;
+      procedure OnUpdate(const ADelta: Double); virtual;
+
+      property Manager: TObjectManager read FParent;
+      property Position: TVector2F read FPosition;
+  end;
+
+  TPhysicalObject = class
     private
       FFriction: Single;
       FCorrection: TVector2F;
@@ -33,7 +62,7 @@ type
 
       procedure OnDraw; virtual;
       procedure OnUpdate(const ADelta: Double); virtual;
-      procedure OnCollide(OtherObject: TGameObject); virtual;
+      procedure OnCollide(OtherObject: TPhysicalObject); virtual;
 
       property Manager: TObjectManager read FParent;
       property Position: TVector2F read FPosition;
@@ -43,14 +72,19 @@ type
     private
       class var FInstance: TObjectManager;
 
-      FObject: TList<TGameObject>;
+      FGameObject: TList<TGameObject>;
+      FPhysicalObject: TList<TPhysicalObject>;
 
       constructor Create;
 
+      procedure RemovePhysicalObject(APhysicalObject: TPhysicalObject);
+      procedure DestroyPhysicalObject(APhysicalObject: TPhysicalObject);
+      procedure AddPhysicalObject(APhysicalObject: TPhysicalObject);
       procedure RemoveObject(AObject: TGameObject);
       procedure DestroyObject(AObject: TGameObject);
       procedure AddObject(AObject: TGameObject);
       procedure CheckCollisions;
+      procedure CheckFastCollisions;
     public
       destructor Destroy; override;
 
@@ -65,18 +99,13 @@ implementation
 {$REGION '  TGameObject  '}
 constructor TGameObject.Create;
 begin
-  FUseCollistion := False;
   FParent := TObjectManager.GetInstance;
   FParent.AddObject(Self);
-  FMass := 1;
-  FFriction := 2.5;
-  FRadius := 20;
 end;
 
 destructor TGameObject.Destroy;
 begin
   FParent.RemoveObject(Self);
-
   inherited;
 end;
 
@@ -90,12 +119,47 @@ begin
   //nothing to do
 end;
 
-procedure TGameObject.OnCollide(OtherObject: TGameObject);
+procedure TGameObject.Move(const ADelta: Double);
+begin
+  FPreviosPosition := FPosition;
+  FPosition := FPosition + FVelocity * ADelta;
+end;
+{$ENDREGION}
+
+{$REGION '  TPhysicalObject  '}
+constructor TPhysicalObject.Create;
+begin
+  FUseCollistion := False;
+  FParent := TObjectManager.GetInstance;
+  FParent.AddPhysicalObject(Self);
+  FMass := 1;
+  FFriction := 2.5;
+  FRadius := 20;
+end;
+
+destructor TPhysicalObject.Destroy;
+begin
+  FParent.RemovePhysicalObject(Self);
+
+  inherited;
+end;
+
+procedure TPhysicalObject.OnDraw;
 begin
   //nothing to do
 end;
 
-procedure TGameObject.Move(const ADelta: Double);
+procedure TPhysicalObject.OnUpdate(const ADelta: Double);
+begin
+  //nothing to do
+end;
+
+procedure TPhysicalObject.OnCollide(OtherObject: TPhysicalObject);
+begin
+  //nothing to do
+end;
+
+procedure TPhysicalObject.Move(const ADelta: Double);
 begin
   if FVelocity.Length > MAX_PHYSICAL_VELOCITY then
     FVelocity := FVelocity * (MAX_PHYSICAL_VELOCITY / FVelocity.Length);
@@ -108,39 +172,60 @@ end;
 {$REGION '  TObjectManager  '}
 constructor TObjectManager.Create;
 begin
-  FObject := TList<TGameObject>.Create();
+  FPhysicalObject := TList<TPhysicalObject>.Create();
+  FGameObject := TList<TGameObject>.Create();
 end;
 
 destructor TObjectManager.Destroy;
 var
-  AObject: TGameObject;
+  AGameObject: TGameObject;
+  APhysicalObject: TPhysicalObject;
 begin
-  for AObject in FObject do
-    AObject.Free; //Сами он не почистятся.
-  FObject.Free;
+  for APhysicalObject in FPhysicalObject do
+    APhysicalObject.Free;
+  FPhysicalObject.Free;
+
+  for AGameObject in FGameObject do
+    AGameObject.Free;
+  FGameObject.Free;
 
   FInstance := nil;
 
   inherited;
 end;
 
+procedure TObjectManager.RemovePhysicalObject(APhysicalObject: TPhysicalObject);
+begin
+  FPhysicalObject.Remove(APhysicalObject);
+end;
+
+procedure TObjectManager.DestroyPhysicalObject(APhysicalObject: TPhysicalObject);
+begin
+  if FPhysicalObject.Contains(APhysicalObject) then
+    APhysicalObject.Free;
+end;
+
+procedure TObjectManager.AddPhysicalObject(APhysicalObject: TPhysicalObject);
+begin
+  if Assigned(APhysicalObject) then
+    FPhysicalObject.Add(APhysicalObject);
+end;
+
 procedure TObjectManager.RemoveObject(AObject: TGameObject);
 begin
-  FObject.Remove(AObject);
+  FGameObject.Remove(AObject);
 end;
 
 procedure TObjectManager.DestroyObject(AObject: TGameObject);
 begin
-  //Серъёзно, ты же там ещё раз деструктор вызываешь. Вот и AV может получится.
-  //С этими менеджерами объектов я уже так спотыкался, так что осторожнее.
-  if FObject.Contains(AObject) then
+  if FGameObject.Contains(AObject) then
     AObject.Free;
 end;
 
 procedure TObjectManager.AddObject(AObject: TGameObject);
 begin
   if Assigned(AObject) then
-    FObject.Add(AObject);
+    FGameObject.Add(AObject);
 end;
 
 class function TObjectManager.GetInstance: TObjectManager;
@@ -151,14 +236,47 @@ begin
   Result := FInstance;
 end;
 
+procedure TObjectManager.OnDraw;
+var
+  PhysicalObject: TPhysicalObject;
+  GameObject: TGameObject;
+begin
+  for PhysicalObject in FPhysicalObject do
+    PhysicalObject.OnDraw;
+  for GameObject in FGameObject do
+    GameObject.OnDraw;
+end;
+
+procedure TObjectManager.OnUpdate(const ADelta: Double);
+var
+  PhysicalObject: TPhysicalObject;
+  GameObject: TGameObject;
+begin
+  for PhysicalObject in FPhysicalObject do
+    PhysicalObject.OnUpdate(ADelta);
+
+  CheckCollisions();
+
+  for PhysicalObject in FPhysicalObject do
+    PhysicalObject.Move(ADelta);
+
+  for GameObject in FGameObject do
+    GameObject.OnUpdate(ADelta);
+
+  CheckFastCollisions();
+
+  for GameObject in FGameObject do
+    GameObject.Move(ADelta);
+end;
+
 procedure TObjectManager.CheckCollisions;
 var
-  GameObject, OtherObject: TGameObject;
+  GameObject, OtherObject: TPhysicalObject;
   Connection: TVector2F;
   ProjectionLength: Single;
 begin
-  for GameObject in FObject do
-    for OtherObject in FObject do
+  for GameObject in FPhysicalObject do
+    for OtherObject in FPhysicalObject do
       if (GameObject <> OtherObject) then
         if (Distance(GameObject.FPosition, OtherObject.FPosition) <
           GameObject.FRadius + OtherObject.FRadius)
@@ -188,26 +306,17 @@ begin
         end;
 end;
 
-procedure TObjectManager.OnUpdate(const ADelta: Double);
+procedure TObjectManager.CheckFastCollisions;
 var
+  PhysicalObject: TPhysicalObject;
   GameObject: TGameObject;
+  FastList: array [0..MAX_FAST_OBJECTS] of TPhysicalObject;
 begin
-  for GameObject in FObject do
-    GameObject.OnUpdate(ADelta);
+//  for GameObject in FPhysicalObject do
 
-  CheckCollisions();
 
-  for GameObject in FObject do
-    GameObject.Move(ADelta);
 end;
 
-procedure TObjectManager.OnDraw;
-var
-  GameObject: TGameObject;
-begin
-  for GameObject in FObject do
-    GameObject.OnDraw;
-end;
 {$ENDREGION}
 
 end.

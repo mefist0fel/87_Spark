@@ -35,6 +35,7 @@ uses
   Project87.Hero,
   Project87.Asteroid,
   Project87.Fluid,
+  Project87.BaseEnemy,
   QApplication.Application;
 
 {$REGION '  TGameScene  '}
@@ -68,6 +69,8 @@ begin
     TAsteroid.CreateAsteroid(
       Vec2F(Random(5000) - 2500, Random(5000) - 2500),
       Random(360), 20 + Random(100));
+  for I := 0 to 40 do
+    TBaseEnemy.CreateEnemy(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360));
 
   for I := 0 to 100 do
     TFluid.CreateFluid(Vec2F(Random(5000) - 2500, Random(5000) - 2500));

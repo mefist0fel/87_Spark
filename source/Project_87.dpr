@@ -37,7 +37,10 @@ uses
   Project87.Asteroid in 'Project87\Objects\Project87.Asteroid.pas',
   uMain in 'uMain.pas',
   Strope.Utils in 'Strope\Strope.Utils.pas',
-  Project87.Fluid in 'Project87\Objects\Project87.Fluid.pas';
+  Project87.Fluid in 'Project87\Objects\Project87.Fluid.pas',
+  Project87.BaseEnemy in 'Project87.BaseEnemy.pas',
+  Project87.Bullet in 'Project87\Objects\Project87.Bullet.pas',
+  Project87.Types.Weapon in 'Project87\Types\Project87.Types.Weapon.pas';
 
 begin
   ReportMemoryLeaksOnShutdown := True;
