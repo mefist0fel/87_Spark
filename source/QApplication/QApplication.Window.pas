@@ -201,12 +201,10 @@ begin
       end;
     WM_MOUSEWHEEL:
       begin
-        X := LParam and $0000FFFF;
-        Y := (LParam and $FFFF0000) shr 16;
         if WParam > 0 then
-          FOwner.OnMouseWheel(1, TVectorF.Create(X, Y))
+          FOwner.OnMouseWheel(1)
         else
-          FOwner.OnMouseWheel(-1, TVectorF.Create(X, Y));
+          FOwner.OnMouseWheel(-1);
         Exit(True);
       end;
     {$ENDREGION}

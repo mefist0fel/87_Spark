@@ -91,7 +91,7 @@ type
     /// относительно левого верхнего края рабочего окна.</param>
     ///<returns>Возвращенное логическое значение сигнализирует о том,
     ///было ли событие обработано объектом.</returns>
-    function OnMouseWheel(ADirection: Integer; const AMousePosition: TVectorF): Boolean;
+    function OnMouseWheel(ADirection: Integer): Boolean;
 
     ///<summary>Метод вызывается для рекции на событие <b><i>нажатие кнопки на клавиатуре</i></b></summary>
     ///<param name="AKey">Нажатая кнопка на клавиатуре.</param>
@@ -170,8 +170,7 @@ type
       /// относительно левого верхнего края рабочего окна.</param>
       ///<returns>Возвращенное логическое значение сигнализирует о том,
       ///было ли событие обработано объектом.</returns>
-      function OnMouseWheel(ADirection: Integer;
-        const AMousePosition: TVectorF): Boolean; virtual; abstract;
+      function OnMouseWheel(ADirection: Integer): Boolean; virtual; abstract;
 
       ///<summary>Метод вызывается для рекции на событие <b><i>нажатие кнопки на клавиатуре</i></b></summary>
       ///<param name="AKey">Нажатая кнопка на клавиатуре.</param>

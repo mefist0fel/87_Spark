@@ -37,7 +37,8 @@ uses
   Project87.Asteroid in 'Project87\Objects\Project87.Asteroid.pas',
   uMain in 'uMain.pas',
   Strope.Utils in 'Strope\Strope.Utils.pas',
-  Project87.Fluid in 'Project87\Objects\Project87.Fluid.pas';
+  Project87.Fluid in 'Project87\Objects\Project87.Fluid.pas',
+  Project87.Types.StarMap in 'Project87\Types\Project87.Types.StarMap.pas';
 
 begin
   ReportMemoryLeaksOnShutdown := True;

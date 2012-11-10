@@ -47,8 +47,10 @@ end;
 procedure TProject87Game.OnInitialize(AParameter: TObject = nil);
 const
   AFntDir = '..\data\fnt\';
+  AGfxDir = '..\data\gfx\';
 var
   AFontEx: TFontExResource;
+  ATextureEx: TTextureExResource;
 begin
   //Создавать сцены и загружать основные ресурсы тут
   AFontEx := TFontExResource.CreateAndLoad('Font', 'Droid_28',
@@ -63,12 +65,19 @@ begin
     AFntDir + 'quad_24.png', AFntDir + 'quad_24.qef');
   ResourceManager.AddResource(AFontEx);
 
+  AFontEx := TFontExResource.CreateAndLoad('Font', 'Quad_72',
+    AFntDir + 'quad_72.png', AFntDir + 'quad_72.qef');
+  ResourceManager.AddResource(AFontEx);
+
+  ATextureEx := TTextureExResource.CreateAndLoad('Image', 'BigMenuStar',
+    AGfxDir + 'menu_elements\big_star.png', 0);
+  ResourceManager.AddResource(ATextureEx);
+
   SceneManager.AddScene(TIntroScene.Create('Intro'));
   SceneManager.AddScene(TMainMenuScene.Create('MainMenu'));
   SceneManager.AddScene(TGameScene.Create('Spark'));
-//  SceneManager.AddScene(TIntroScene.Create('Intro'));
-  SceneManager.MakeCurrent('Intro');
-//  SceneManager.MakeCurrent('Spark');
+  //SceneManager.MakeCurrent('Intro');
+  SceneManager.MakeCurrent('Spark');
   SceneManager.OnInitialize;
 end;
 {$ENDREGION}
