@@ -11,20 +11,22 @@ uses
   Strope.Math,
   Project87.Types.GameObject,
   Project87.Types.Starmap,
-  Project87.Resources;
+  Project87.Resources,
   Project87.Hero;
 
 type
   TGameScene = class sealed (TScene)
     strict private
       FMainCamera: IQuadCamera;
+      FGUICamera: IQuadCamera;
+
       FObjectManager: TObjectManager;
       FResource: TResources;
       FStartAnimation: Single;
       FSystemResult: TStarSystemResult;
       FHero: THero;
-      FFont: TQuadFont;<<<<<<< .mine      FFont: TQuadFont;
-=======>>>>>>> .theirs    public
+      FFont: TQuadFont;
+    public
       constructor Create(const AName: string);
       destructor Destroy; override;
 
@@ -60,6 +62,7 @@ begin
   FObjectManager := TObjectManager.GetInstance;
   FResource := TResources.Create;
   FMainCamera := TheEngine.CreateCamera;
+  FGUICamera := TheEngine.CreateCamera;
 
   FFont := (TheResourceManager.GetResource('Font', 'Quad_24') as TFontExResource).Font;
 end;
@@ -105,11 +108,13 @@ begin
   if (FStartAnimation > 0) then
   begin
     FStartAnimation := FStartAnimation - ADelta * 2;
-    TheEngine.Camera.Scale := Vec2F(1 - FStartAnimation * FStartAnimation * 0.8, 1 - FStartAnimation * FStartAnimation * 0.8);
+    FMainCamera.Scale := Vec2F(
+      1 - FStartAnimation * FStartAnimation * 0.8,
+      1 - FStartAnimation * FStartAnimation * 0.8);
     if (FStartAnimation <= 0) then
     begin
       FStartAnimation := 0;
-      TheEngine.Camera.Scale := Vec2F(1, 1);
+      FMainCamera.Scale := Vec2F(1, 1);
     end;
   end;
 
@@ -124,7 +129,19 @@ begin
   TheRender.SetBlendMode(qbmSrcAlpha);
   FObjectManager.OnDraw;
 
+  TheEngine.Camera := FGUICamera;
+  FFont.TextOut(FloatToStr(FHero.Life), FGUICamera.GetWorldPos(Vec2F(10, 10)));
+  FFont.TextOut(IntToStr(FHero.Fluid[0]), FGUICamera.GetWorldPos(Vec2F(10, 38)),
+    1, $FFFFFF00);
+  FFont.TextOut(IntToStr(FHero.Fluid[1]), FGUICamera.GetWorldPos(Vec2F(10, 63)),
+    1, $FF0000FF);
+  FFont.TextOut(IntToStr(FHero.Fluid[2]), FGUICamera.GetWorldPos(Vec2F(10, 88)),
+    1, $FFFF0000);
+  FFont.TextOut(IntToStr(FHero.Fluid[3]), FGUICamera.GetWorldPos(Vec2F(10, 113)),
+    1, $FF00FF00);
 
+  //Передавай камеру как-нибудь по другому в апдейт.
+  TheEngine.Camera := FMainCamera;
 end;
 
 function TGameScene.OnKeyUp(AKey: Word): Boolean;

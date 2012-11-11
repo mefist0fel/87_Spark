@@ -22,6 +22,7 @@ type
       FTowerAngle: Single;
       FShowShieldTime: Single;
       FLife: Single;
+
       function GetSideColor(ASide: TUnitSide): Cardinal;
     public
       constructor CreateUnit(const APosition: TVector2F; AAngle: Single; ASide: TUnitSide); virtual;
@@ -30,6 +31,8 @@ type
       procedure OnCollide(OtherObject: TPhysicalObject); override;
       procedure Hit(ADamage: Single); virtual;
       procedure Kill; virtual;
+
+      property Life: Single read FLife;
   end;
 
 implementation

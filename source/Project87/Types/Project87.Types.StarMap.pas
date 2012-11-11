@@ -27,6 +27,7 @@ type
       FResources: Single;
     public
       constructor Create(AEnemies, AResources: Single);
+
       property Enemies: Single read FEnemies;
       property Resources: Single read FResources;
   end;
@@ -45,9 +46,10 @@ type
       FFractions: TLifeFractions;
       FSeed: Integer;
       FLifeSeed: Integer;
+    private
       FEnemies: Single;
       FResources: Single;
-    private
+
       FIsSelected: Boolean;
       FIsFocused: Boolean;
 
@@ -120,7 +122,7 @@ type
       destructor Destroy; override;
 
       procedure FillFirst;
-      procedure BackToMap;
+      procedure BackToMap(AResult: TStarSystemResult = nil);
       procedure LoadFromFile(const AFile: string);
       procedure SaveToFile(const AFile: string);
 
@@ -472,6 +474,12 @@ end;
 
 procedure TStarMap.BackToMap;
 begin
+  if Assigned(AResult) then
+  begin
+    FCurrentSystem.FEnemies := AResult.Enemies;
+    FCurrentSystem.FResources := AResult.Resources;
+  end;
+
   if Assigned(FSelectedSystem) then
     FSelectedSystem.FIsSelected := False;
   FSelectedSystem := nil;
@@ -714,6 +722,8 @@ var
   AShift: TVectorF;
 begin
   Result := False;
+  if FIsTransition or FIsBack or FIsEnter then
+    Exit;
 
   AWPosition := FCamera.GetWorldPos(AMousePosition);
   for ASystem in FSystems do
@@ -749,7 +759,7 @@ var
   AShift: TVectorF;
 begin
   Result := False;
-  if FIsTransition then
+  if FIsTransition or FIsBack or FIsEnter then
     Exit;
 
   AWPosition := FCamera.GetWorldPos(AMousePosition);
@@ -800,7 +810,7 @@ end;
 function TStarMap.OnKeyUp(AKey: TKeyButton): Boolean;
 begin
   Result := False;
-  if FIsTransition then
+  if FIsTransition or FIsBack or FIsEnter then
     Exit;
 
   if AKey = KB_ENTER then
