@@ -50,7 +50,7 @@ uses
   Project87.Types.SimpleGUI in 'Project87\Types\Project87.Types.SimpleGUI.pas';
 
 begin
-  ReportMemoryLeaksOnShutdown := True;
+  //ReportMemoryLeaksOnShutdown := True;
   try
     try
       InitializeApplication;

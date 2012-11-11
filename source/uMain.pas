@@ -28,7 +28,7 @@ begin
 
   TheApplication := TQApplication.Create;
   AParameters := TQApplicationParameters.Create(
-    TProject87Game.Create, TheEngine.CurrentResolution, False, 10);
+    TProject87Game.Create, TheEngine.CurrentResolution, False, 16);
   TheApplication.OnInitialize(AParameters);
 end;
 
