@@ -82,7 +82,8 @@ type
       FMarkerArrow: TQuadTexture;
 
       FIsTransition: Boolean;
-      FTransitionTime: Single;
+      FIsBack: Boolean;
+      FTime: Single;
       FCamera: IQuadCamera;
 
       function ChessDistation(const A, B: TVectorI): Integer;
@@ -94,6 +95,8 @@ type
       procedure TransitionToSelected;
       function CheckAvailableDistance(const APoint: TVectorF): Boolean;
       function CheckDistanceToCurrent(ASystem: TStarSystem): Boolean;
+      procedure PrepareCamera;
+      procedure DrawInfoBox;
 
       procedure DrawSystemMarker(ASystem: TStarSystem);
     private
@@ -136,6 +139,7 @@ const
   SYSTEM_SIZE = 12;
   MAX_DISTANCE = 320;
   TRANSITION_TIME = 1.2;
+  BACK_TO_MAP_TIME = 0.8;
 
   SystemSize: TVectorF = (X: SYSTEM_SIZE; Y: SYSTEM_SIZE);
 
@@ -268,7 +272,7 @@ begin
   FSelectedSystem := nil;
 
   FSmallFont :=
-    (TheResourceManager.GetResource('Font', 'Quad_14') as TFontExResource).Font;
+    (TheResourceManager.GetResource('Font', 'Quad_24') as TFontExResource).Font;
   FStarMarker :=
     (TheResourceManager.GetResource('Image', 'SimpleStarMarker') as TTextureExResource).Texture;
   FMarkerLine :=
@@ -449,6 +453,10 @@ begin
   if Assigned(FSelectedSystem) then
     FSelectedSystem.FIsSelected := False;
   FSelectedSystem := nil;
+  FInfoSystem := nil;
+
+  FIsBack := True;
+  FTime := 0;
 end;
 
 procedure TStarMap.LoadFromFile(const AFile: string);
@@ -524,10 +532,65 @@ end;
 
 procedure TStarMap.OnInitialize(AParameter: TObject);
 begin
-  if Assigned(FSelectedSystem) then
-    FSelectedSystem.FIsSelected := False;
-  FSelectedSystem := nil;
-  FInfoSystem := nil;
+
+end;
+
+procedure TStarMap.PrepareCamera;
+var
+  AScale: TVectorF;
+begin
+  TheEngine.Camera := FCamera;
+  if FIsTransition then
+    FCamera.Position := FCurrentSystem.Position.InterpolateTo(
+      FSelectedSystem.Position, FTime / TRANSITION_TIME, itHermit01)
+  else
+    FCamera.Position := FCurrentSystem.Position;
+
+  if FIsBack then
+  begin
+    AScale := Vec2F(60, 60);
+    AScale := AScale.InterpolateTo(Vec2F(1, 1), FTime / BACK_TO_MAP_TIME, itHermit01);
+    FCamera.Scale := AScale;
+  end
+  else
+    FCamera.Scale := Vec2F(1, 1);
+end;
+
+procedure TStarMap.DrawInfoBox;
+var
+  AString: string;
+  APosition: TVectorF;
+  ASize: TVectorF;
+  ASingle: Single;
+begin
+  if Assigned(FInfoSystem) then
+  begin
+    AString := 'System ID - ' + IntToStr(FInfoSystem.Id);
+    ASingle := FSmallFont.TextWidth(AString, 1.2);
+
+    APosition := FInfoSystem.Position + SystemSize;
+    ASize := Vec2F(ASingle + 3 * SYSTEM_SIZE, 90);
+    TheRender.Rectangle(
+      APosition.X - 5, APosition.Y - 5,
+      APosition.X + ASize.X + 5, APosition.Y + ASize.Y + 5,
+      $10FFFFFF);
+    TheRender.RectangleEx(
+      APosition.X, APosition.Y,
+      APosition.X + ASize.X, APosition.Y + ASize.Y,
+      $C0606080, $C0606080, $C0202020, $C0202020);
+
+    APosition := APosition + SystemSize;
+    FSmallFont.TextOut(AString, APosition, 1.2);
+
+    APosition.Y := APosition.Y + FSmallFont.TextHeight(AString, 1.5);
+    APosition.X := APosition.X + 20;
+    case FInfoSystem.Size of
+      ssSmall: AString := 'Small system';
+      ssMedium: AString := 'Medium system';
+      ssBig: AString := 'Big system';
+    end;
+    FSmallFont.TextOut(AString, APosition, 1, $FFFFB000);
+  end;
 end;
 
 procedure TStarMap.OnDraw(const ALayer: Integer);
@@ -537,13 +600,9 @@ var
   AAngle: Single;
   AString: string;
   ASingle: Single;
+  AScale: TVectorF;
 begin
-  TheEngine.Camera := FCamera;
-  if FIsTransition then
-    FCamera.Position := FCurrentSystem.Position.InterpolateTo(
-      FSelectedSystem.Position, FTransitionTime / TRANSITION_TIME, itHermit01)
-  else
-    FCamera.Position := FCurrentSystem.Position;
+  PrepareCamera;
 
   TheRender.SetBlendMode(qbmSrcAlpha);
 
@@ -557,7 +616,7 @@ begin
       FSelectedSystem.Position, 0.5);
     ASize := Vec2F(
       Distance(FCurrentSystem.Position, FSelectedSystem.Position),
-      SYSTEM_SIZE * 0.5);
+      SYSTEM_SIZE * 0.35);
     FMarkerLine.Draw(APosition, ASize, AAngle - 90, $FFB0B0B0);
   end;
 
@@ -573,46 +632,26 @@ begin
     end;
   end;
 
-  if Assigned(FInfoSystem) then
-  begin
-    AString := 'System ID - ' + IntToStr(FInfoSystem.Id);
-    ASingle := FSmallFont.TextWidth(AString, 2);
-
-    APosition := FInfoSystem.Position + SystemSize;
-    ASize := Vec2F(ASingle + 3 * SYSTEM_SIZE, 80);
-    TheRender.Rectangle(
-      APosition.X - 5, APosition.Y - 5,
-      APosition.X + ASize.X + 5, APosition.Y + ASize.Y + 5,
-      $10FFFFFF);
-    TheRender.RectangleEx(
-      APosition.X, APosition.Y,
-      APosition.X + ASize.X, APosition.Y + ASize.Y,
-      $C0606080, $C0606080, $C0202020, $C0202020);
-
-    APosition := APosition + SystemSize;
-    FSmallFont.TextOut(AString, APosition, 2);
-
-    APosition.Y := APosition.Y + FSmallFont.TextHeight(AString, 2.4);
-    APosition.X := APosition.X + 20;
-    case FInfoSystem.Size of
-      ssSmall: AString := 'Small system';
-      ssMedium: AString := 'Medium system';
-      ssBig: AString := 'Big system';
-    end;
-    FSmallFont.TextOut(AString, APosition, 1.4, $FFFFB000);
-  end;
+  DrawInfoBox;
 end;
 
 procedure TStarMap.OnUpdate(const ADelta: Double);
 begin
   if FIsTransition then
   begin
-    FTransitionTime := FTransitionTime + ADelta;
-    if FTransitionTime > TRANSITION_TIME then
+    FTime := FTime + ADelta;
+    if FTime > TRANSITION_TIME then
     begin
       FIsTransition := False;
       TransitionToSelected;
     end;
+  end;
+
+  if FIsBack then
+  begin
+    FTime := FTime + ADelta;
+    if FTime > BACK_TO_MAP_TIME then
+      FIsBack := False;
   end;
 end;
 
@@ -684,7 +723,7 @@ begin
           if ASystem = FSelectedSystem then
           begin
             FIsTransition := True;
-            FTransitionTime := 0;
+            FTime := 0;
           end
           else
           begin
@@ -719,7 +758,7 @@ begin
   if AKey = KB_T then
   begin
     FIsTransition := True;
-    FTransitionTime := 0;
+    FTime := 0;
   end;
 end;
 {$ENDREGION}
