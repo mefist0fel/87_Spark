@@ -46,7 +46,8 @@ uses
   Project87.SmallEnemy in 'Project87\Objects\Project87.SmallEnemy.pas',
   Project87.ScannerWave in 'Project87\Objects\Project87.ScannerWave.pas',
   Project87.Scenes.StarMapScene in 'Project87\Scenes\Project87.Scenes.StarMapScene.pas',
-  Project87.Types.StarMap in 'Project87\Types\Project87.Types.StarMap.pas';
+  Project87.Types.StarMap in 'Project87\Types\Project87.Types.StarMap.pas',
+  Project87.Types.SimpleGUI in 'Project87\Types\Project87.Types.SimpleGUI.pas';
 
 begin
   ReportMemoryLeaksOnShutdown := True;

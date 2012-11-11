@@ -78,6 +78,14 @@ begin
     AGfxDir + 'starmap_elements\marker_focused.png', 0);
   ResourceManager.AddResource(ATextureEx);
 
+  ATextureEx := TTextureExResource.CreateAndLoad('Image', 'MarkerLine',
+    AGfxDir + 'starmap_elements\marker_line.png', 0);
+  ResourceManager.AddResource(ATextureEx);
+
+  ATextureEx := TTextureExResource.CreateAndLoad('Image', 'MarkerArrow',
+    AGfxDir + 'starmap_elements\marker_arrow.png', 0);
+  ResourceManager.AddResource(ATextureEx);
+
   SceneManager.AddScene(TIntroScene.Create('Intro'));
   SceneManager.AddScene(TMainMenuScene.Create('MainMenu'));
   SceneManager.AddScene(TStarMapScene.Create('StarMap'));
