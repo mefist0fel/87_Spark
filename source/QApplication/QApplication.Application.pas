@@ -112,12 +112,9 @@ type
       ///<summary>Метод вызывается для реакции на событие <b><i>прокрутка колеса мыши вниз</i></b></summary>
       ///<param name="ADirection">Напревление прокрутки колеса.
       /// Значение +1 соответствует прокрутке вверх, -1 - вниз.</param>
-      ///<param name="AMousePosition">Координаты мыши в момент прокрутки колеса,
-      /// относительно левого верхнего края рабочего окна.</param>
       ///<returns>Возвращенное логическое значение сигнализирует о том,
       ///было ли событие обработано.</returns>
-      function OnMouseWheel(ADirection: Integer;
-        const AMousePosition: TVectorF): Boolean; override;
+      function OnMouseWheel(ADirection: Integer): Boolean; override;
 
       ///<summary>Метод вызывается для рекции на событие <b><i>нажатие кнопки на клавиатуре</i></b></summary>
       ///<param name="AKey">Нажатая кнопка на клавиатуре.</param>
@@ -402,7 +399,7 @@ begin
 
       emtMouseWheelEvent:
         if Assigned(FGame) then
-          FGame.OnMouseWheel(AMessage.MouseWheelDirection, AMessage.MousePosition);
+          FGame.OnMouseWheel(AMessage.MouseWheelDirection);
 
       emtKeyEvent:
         if AMessage.IsKeyPressed then
@@ -553,10 +550,9 @@ function TQApplication.OnMouseWheel;
 begin
   Result := True;
     FCriticalSection.Enter;
-    (FControlState as TControlState).SetMousePosition(AMousePosition);
     (FControlState as TControlState).SetWheelState(ADirection);
     FMessages.Add(
-      TEventMessage.CreateAsMouseWheelEvent(AMousePosition, ADirection));
+      TEventMessage.CreateAsMouseWheelEvent(ADirection));
   FCriticalSection.Leave;
 end;
 

@@ -25,8 +25,7 @@ type
         AButton: TMouseButton; const AMousePosition: TVectorF): Boolean; override;
       function OnMouseButtonUp(
         AButton: TMouseButton; const AMousePosition: TVectorF): Boolean; override;
-      function OnMouseWheel(ADirection: Integer;
-        const AMousePosition: TVectorF): Boolean; override;
+      function OnMouseWheel(ADirection: Integer): Boolean; override;
       function OnKeyDown(AKey: TKeyButton): Boolean; override;
       function OnKeyUp(AKey: TKeyButton): Boolean; override;
 
@@ -91,8 +90,7 @@ begin
   Result := False;
 end;
 
-function TScene.OnMouseWheel(ADirection: Integer;
-  const AMousePosition: TVectorF): Boolean;
+function TScene.OnMouseWheel(ADirection: Integer): Boolean;
 begin
   Result := False;
 end;

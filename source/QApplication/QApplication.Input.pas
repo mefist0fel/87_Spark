@@ -32,7 +32,7 @@ type
       constructor CreateAsMouseEvent(const APosition: TVectorF);
       constructor CreateAsMouseButtonEvent(const APosition: TVectorF;
         AButton: TMouseButton; AIsPressed: Boolean);
-      constructor CreateAsMouseWheelEvent(const APostion: TVectorF; ADirection: Integer);
+      constructor CreateAsMouseWheelEvent(ADirection: Integer);
       constructor CreateAsKeyEvent(AKey: TKeyButton; AIsPressed: Boolean);
 
       property MessageType: TEventMessageType read FMessageType;
@@ -73,11 +73,9 @@ begin
   FMousePosition := APosition;
 end;
 
-constructor TEventMessage.CreateAsMouseWheelEvent(const APostion: TVectorF;
-  ADirection: Integer);
+constructor TEventMessage.CreateAsMouseWheelEvent(ADirection: Integer);
 begin
   FMessageType := emtMouseWheelEvent;
-  FMousePosition := APostion;
   FMouseWheelDirection := ADirection;
 end;
 {$ENDREGION}

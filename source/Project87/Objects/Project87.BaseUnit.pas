@@ -9,11 +9,11 @@ uses
 
 type
   TUnitSide = ( //ship races
-    usNeutral,
-    usHero,
-    usRed,
-    usGreen,
-    usBlue
+    usNeutral = 0,
+    usHero    = 1,
+    usRed     = 2,
+    usGreen   = 3,
+    usBlue    = 4
   );
 
   TBaseUnit = class (TPhysicalObject)

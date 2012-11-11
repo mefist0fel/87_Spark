@@ -83,12 +83,9 @@ type
       ///<summary>Метод вызывается для реакции на событие <b><i>прокрутка колеса мыши вниз</i></b></summary>
       ///<param name="ADirection">Напревление прокрутки колеса.
       /// Значение +1 соответствует прокрутке вверх, -1 - вниз.</param>
-      ///<param name="AMousePosition">Координаты мыши в момент прокрутки колеса,
-      /// относительно левого верхнего края рабочего окна.</param>
       ///<returns>Возвращенное логическое значение сигнализирует о том,
       ///было ли событие обработано объектом.</returns>
-      function OnMouseWheel(ADirection: Integer;
-        const AMousePosition: TVectorF): Boolean; override;
+      function OnMouseWheel(ADirection: Integer): Boolean; override;
 
       ///<summary>Метод вызывается для рекции на событие <b><i>нажатие кнопки на клавиатуре</i></b></summary>
       ///<param name="AKey">Нажатая кнопка на клавиатуре.</param>
@@ -202,10 +199,9 @@ begin
   Result := SceneManager.OnMouseButtonUp(AButton, AMousePosition);
 end;
 
-function TQGame.OnMouseWheel(ADirection: Integer;
-  const AMousePosition: TVector2F): Boolean;
+function TQGame.OnMouseWheel(ADirection: Integer): Boolean;
 begin
-  Result := SceneManager.OnMouseWheel(ADirection, AMousePosition);
+  Result := SceneManager.OnMouseWheel(ADirection);
 end;
 
 function TQGame.OnKeyDown(AKey: Word): Boolean;

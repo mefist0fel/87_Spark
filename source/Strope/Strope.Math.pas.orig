@@ -128,9 +128,15 @@ function RotateToAngle(SourceAngle, DestionationAngle, Speed: Single): Single;
 {$ENDREGION}
 
 {$REGION '  TVector2F additional Functions  '}
+<<<<<<< HEAD
 function Distance(const A, B: TVector2F): Single;
-function GetRotatedVector(Angle, Length: Single): TVector2F;
+function ClipAndRotate(Angle, Length: Single): TVector2F;
 function Dot(const A, B: TVector2F): Single;
+=======
+function Distance(A, B: TVector2F): Single;
+function GetRotatedVector(Angle, Length: Single): TVector2F;
+function Dot(A, B: TVector2F): Single;
+>>>>>>> master
 {$ENDREGION}
 
 {$REGION '  Collision Functions  '}
@@ -321,6 +327,7 @@ end;
 {$ENDREGION}
 
 {$REGION '  Collision Functions  '}
+
 function LineVsCircle( const LineA, LineB, CircleCenter: TVector2F; Radius: Single) : Boolean;
   var
     p1, p2  : array[ 0..1 ] of Single;

@@ -23,7 +23,6 @@ implementation
 uses
   Project87.Scenes.IntroScene,
   Project87.Scenes.MainMenuScene,
-  Project87.Scenes.StarMapScene,
   Project87.Scenes.Game,
   Project87.Scenes.TestScene,
   QGame.Resources;
@@ -48,16 +47,11 @@ end;
 procedure TProject87Game.OnInitialize(AParameter: TObject = nil);
 const
   AFntDir = '..\data\fnt\';
-  AGfxDir = '..\data\gfx\';
 var
   AFontEx: TFontExResource;
-  ATextureEx: TTextureExResource;
 begin
   //Создавать сцены и загружать основные ресурсы тут
-  AFontEx := TFontExResource.CreateAndLoad('Font', 'Droid_28',
-    AFntDir + 'droid_sans_bold_28.png', AFntDir + 'droid_sans_bold_28.qef');
-  ResourceManager.AddResource(AFontEx);
-
+<<<<<<< HEAD
   AFontEx := TFontExResource.CreateAndLoad('Font', 'Quad_14',
     AFntDir + 'quad_14.png', AFntDir + 'quad_14.qef');
   ResourceManager.AddResource(AFontEx);
@@ -66,24 +60,16 @@ begin
     AFntDir + 'quad_24.png', AFntDir + 'quad_24.qef');
   ResourceManager.AddResource(AFontEx);
 
-  AFontEx := TFontExResource.CreateAndLoad('Font', 'Quad_72',
-    AFntDir + 'quad_72.png', AFntDir + 'quad_72.qef');
-  ResourceManager.AddResource(AFontEx);
-
-  ATextureEx := TTextureExResource.CreateAndLoad('Image', 'BigMenuStar',
-    AGfxDir + 'menu_elements\big_star.png', 0);
-  ResourceManager.AddResource(ATextureEx);
-
-  ATextureEx := TTextureExResource.CreateAndLoad('Image', 'SimpleStarMarker',
-    AGfxDir + 'starmap_elements\marker_focused.png', 0);
-  ResourceManager.AddResource(ATextureEx);
-
   SceneManager.AddScene(TIntroScene.Create('Intro'));
   SceneManager.AddScene(TMainMenuScene.Create('MainMenu'));
-  SceneManager.AddScene(TStarMapScene.Create('StarMap'));
   SceneManager.AddScene(TGameScene.Create('Spark'));
-  //SceneManager.MakeCurrent('Intro');
-  SceneManager.MakeCurrent('StarMap');
+  SceneManager.MakeCurrent('Intro');
+=======
+  SceneManager.AddScene(TGameScene.Create('Spark'));
+//  SceneManager.AddScene(TIntroScene.Create('Intro'));
+//  SceneManager.MakeCurrent('Intro');
+  SceneManager.MakeCurrent('Spark');
+>>>>>>> master
   SceneManager.OnInitialize;
 end;
 {$ENDREGION}

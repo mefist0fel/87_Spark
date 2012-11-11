@@ -25,6 +25,8 @@ type
       procedure OnInitialize(AParameter: TObject = nil); override;
       procedure OnUpdate(const ADelta: Double); override;
       procedure OnDraw(const ALayer: Integer); override;
+
+      function OnKeyUp(AKey: TKeyButton): Boolean; override;
   end;
 
 implementation
@@ -33,6 +35,7 @@ uses
   SysUtils,
   QuadEngine,
   QEngine.Core,
+  QGame.Game,
   Project87.Hero,
   Project87.Asteroid,
   Project87.Fluid,
@@ -62,6 +65,7 @@ end;
 procedure TGameScene.OnInitialize(AParameter: TObject);
 var
   I: Word;
+  UnitSide: TUnitSide ;
 begin
   FMainCamera := TheEngine.CreateCamera;
   FMainCamera.Position := Vec2F(300, 140);
@@ -75,12 +79,13 @@ begin
     TAsteroid.CreateAsteroid(
       Vec2F(Random(5000) - 2500, Random(5000) - 2500),
       Random(360), 20 + Random(100));
+  UnitSide := TUnitSide(Random(3) + 2);
   for I := 0 to 40 do
-    TBaseEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), usRed);
+    TBaseEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), UnitSide);
   for I := 0 to 10 do
-    TBigEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), usRed);
+    TBigEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), UnitSide);
   for I := 0 to 20 do
-    TSmallEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), usGreen);
+    TSmallEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), UnitSide);
 
   for I := 0 to 400 do
     TFluid.CreateFluid(Vec2F(Random(5000) - 2500, Random(5000) - 2500), TFluidType(Random(4)));
@@ -115,6 +120,16 @@ begin
   TheEngine.Camera := FMainCamera;
   TheRender.SetBlendMode(qbmSrcAlpha);
   FObjectManager.OnDraw;
+end;
+
+function TGameScene.OnKeyUp(AKey: Word): Boolean;
+begin
+  Result := False;
+  if AKey = KB_BACKSPACE then
+  begin
+    TheSceneManager.MakeCurrent('StarMap');
+    TheSceneManager.OnInitialize;
+  end;
 end;
 {$ENDREGION}
 

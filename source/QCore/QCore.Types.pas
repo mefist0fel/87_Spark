@@ -91,7 +91,7 @@ type
     /// относительно левого верхнего края рабочего окна.</param>
     ///<returns>Возвращенное логическое значение сигнализирует о том,
     ///было ли событие обработано объектом.</returns>
-    function OnMouseWheel(ADirection: Integer; const AMousePosition: TVectorF): Boolean;
+    function OnMouseWheel(ADirection: Integer): Boolean;
 
     ///<summary>Метод вызывается для рекции на событие <b><i>нажатие кнопки на клавиатуре</i></b></summary>
     ///<param name="AKey">Нажатая кнопка на клавиатуре.</param>
@@ -114,32 +114,32 @@ type
     public
       ///<summary>Метод вызывается для инициализации объекта.</summary>
       ///<param name="AParameter">Объект-параметр для инициализации.</param>
-      procedure OnInitialize(AParameter: TObject = nil); virtual; abstract;
+      procedure OnInitialize(AParameter: TObject = nil); virtual;
 
       ///<summary>Метод служит для активации или деактивации объекта.</summary>
       ///<param name="AIsActivate">Значение True служит для активации объекта,
       ///значение False - для деактивации.</param>
-      procedure OnActivate(AIsActivate: Boolean); virtual; abstract;
+      procedure OnActivate(AIsActivate: Boolean); virtual;
 
       ///<summary>Метод вызывается для отрисовки объекта.</summary>
       ///<param name="ALayer">Слой объекта для отрисовки.</param>
-      procedure OnDraw(const ALayer: Integer); virtual; abstract;
+      procedure OnDraw(const ALayer: Integer); virtual;
 
       ///<summary>Метод вызывается для обновления состояния объекта.</summary>
       ///<param name="ADelta">Промежуток времены в секундах,
       ///прошедший с предыдущего обновления состояния.</param>
-      procedure OnUpdate(const ADelta: Double); virtual; abstract;
+      procedure OnUpdate(const ADelta: Double); virtual;
 
       ///<summary>Метод должен вызываться (вручную или в деструкторе) для или перед удалением объекта.
       /// Служит для очистки занятых объектом ресурсов.</summary>
-      procedure OnDestroy; virtual; abstract;
+      procedure OnDestroy; virtual;
 
       ///<summary>Метод вызывается для реакции на событие "движение мышки"</summary>
       ///<param name="AMousePosition">Текущие координаты мыши,
       ///относительно левого верхнего края рабочего окна.</param>
       ///<returns>Возвращенное логическое значение сигнализирует о том,
       ///было ли событие обработано объектом.</returns>
-      function OnMouseMove(const AMousePosition: TVectorF): Boolean; virtual; abstract;
+      function OnMouseMove(const AMousePosition: TVectorF): Boolean; virtual;
 
       ///<summary>Метод вызывается для реакции на событие <b><i>нажатие кнопки мыши</i></b></summary>
       ///<param name="AButton">Нажатая кнопка мыши.</param>
@@ -150,7 +150,7 @@ type
       ///<remarks>Значения перечисления <see creg="QCore.Input|TMouseButton" />
       /// можно узать в модуле QCore.Input.</remarks>
       function OnMouseButtonDown(
-        AButton: TMouseButton; const AMousePosition: TVectorF): Boolean; virtual; abstract;
+        AButton: TMouseButton; const AMousePosition: TVectorF): Boolean; virtual;
 
       ///<summary>Метод вызывается для реакции на событие <b><i>отпускание кнопки мыши</i></b></summary>
       ///<param name="AButton">Отпущенная кнопка мыши.</param>
@@ -161,7 +161,7 @@ type
       ///<remarks>Значения перечисления <see creg="QCore.Input|TMouseButton" />
       /// можно узать в модуле QCore.Input.</remarks>
       function OnMouseButtonUp(
-        AButton: TMouseButton; const AMousePosition: TVectorF): Boolean; virtual; abstract;
+        AButton: TMouseButton; const AMousePosition: TVectorF): Boolean; virtual;
 
       ///<summary>Метод вызывается для реакции на событие <b><i>прокрутка колеса мыши вниз</i></b></summary>
       ///<param name="ADirection">Напревление прокрутки колеса.
@@ -170,22 +170,21 @@ type
       /// относительно левого верхнего края рабочего окна.</param>
       ///<returns>Возвращенное логическое значение сигнализирует о том,
       ///было ли событие обработано объектом.</returns>
-      function OnMouseWheel(ADirection: Integer;
-        const AMousePosition: TVectorF): Boolean; virtual; abstract;
+      function OnMouseWheel(ADirection: Integer): Boolean; virtual;
 
       ///<summary>Метод вызывается для рекции на событие <b><i>нажатие кнопки на клавиатуре</i></b></summary>
       ///<param name="AKey">Нажатая кнопка на клавиатуре.</param>
       ///<returns>Возвращенное логическое значение сигнализирует о том,
       ///было ли событие обработано объектом.</returns>
       ///<remarks>Значения констант TKeyButton можно узать в модуле uInput.</remarks>
-      function OnKeyDown(AKey: TKeyButton): Boolean; virtual; abstract;
+      function OnKeyDown(AKey: TKeyButton): Boolean; virtual;
 
       ///<summary>Метод вызывается для рекции на событие <b><i>отпускание кнопки на клавиатуре</i></b></summary>
       ///<param name="AKey">Отпущенная кнопка на клавиатуре.</param>
       ///<returns>Возвращенное логическое значение сигнализирует о том,
       ///было ли событие обработано объектом.</returns>
       ///<remarks>Значения констант TKeyButton можно узать в модуле uInput.</remarks>
-      function OnKeyUp(AKey: TKeyButton): Boolean; virtual; abstract;
+      function OnKeyUp(AKey: TKeyButton): Boolean; virtual;
   end;
 
 implementation
@@ -220,6 +219,65 @@ begin
   if Result = 0 then
     Destroy;
   //FRefCount := 1;
+end;
+{$ENDREGION}
+
+{$REGION '  TComponent  '}
+procedure TComponent.OnActivate(AIsActivate: Boolean);
+begin
+
+end;
+
+procedure TComponent.OnDestroy;
+begin
+
+end;
+
+procedure TComponent.OnDraw(const ALayer: Integer);
+begin
+
+end;
+
+procedure TComponent.OnInitialize(AParameter: TObject);
+begin
+
+end;
+
+function TComponent.OnKeyDown(AKey: TKeyButton): Boolean;
+begin
+  Result := False;
+end;
+
+function TComponent.OnKeyUp(AKey: TKeyButton): Boolean;
+begin
+  Result := False;
+end;
+
+function TComponent.OnMouseButtonDown(AButton: TMouseButton;
+  const AMousePosition: TVectorF): Boolean;
+begin
+  Result := False;
+end;
+
+function TComponent.OnMouseButtonUp(AButton: TMouseButton;
+  const AMousePosition: TVectorF): Boolean;
+begin
+  Result := False;
+end;
+
+function TComponent.OnMouseMove(const AMousePosition: TVectorF): Boolean;
+begin
+  Result := False;
+end;
+
+function TComponent.OnMouseWheel(ADirection: Integer): Boolean;
+begin
+  Result := False;
+end;
+
+procedure TComponent.OnUpdate(const ADelta: Double);
+begin
+
 end;
 {$ENDREGION}
 
