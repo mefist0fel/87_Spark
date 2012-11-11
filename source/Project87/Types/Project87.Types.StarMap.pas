@@ -95,6 +95,8 @@ type
       procedure TransitionToSelected;
       function CheckAvailableDistance(const APoint: TVectorF): Boolean;
       function CheckDistanceToCurrent(ASystem: TStarSystem): Boolean;
+      procedure PrepareCamera;
+      procedure DrawInfoBox;
 
       procedure DrawSystemMarker(ASystem: TStarSystem);
     private
@@ -533,13 +535,8 @@ begin
 
 end;
 
-procedure TStarMap.OnDraw(const ALayer: Integer);
+procedure TStarMap.PrepareCamera;
 var
-  ASystem: TStarSystem;
-  APosition, ASize: TVectorF;
-  AAngle: Single;
-  AString: string;
-  ASingle: Single;
   AScale: TVectorF;
 begin
   TheEngine.Camera := FCamera;
@@ -557,35 +554,15 @@ begin
   end
   else
     FCamera.Scale := Vec2F(1, 1);
+end;
 
-  TheRender.SetBlendMode(qbmSrcAlpha);
-
-  TheResources.AsteroidTexture.Draw(FCamera.Position,
-    Vec2F(MAX_DISTANCE, MAX_DISTANCE) * 2, 0, $30FF4040);
-
-  if Assigned(FSelectedSystem) then
-  begin
-    AAngle := GetAngle(FCurrentSystem.Position, FSelectedSystem.Position);
-    APosition := FCurrentSystem.Position.InterpolateTo(
-      FSelectedSystem.Position, 0.5);
-    ASize := Vec2F(
-      Distance(FCurrentSystem.Position, FSelectedSystem.Position),
-      SYSTEM_SIZE * 0.5);
-    FMarkerLine.Draw(APosition, ASize, AAngle - 90, $FFB0B0B0);
-  end;
-
-  for ASystem in FSystems do
-  begin
-    APosition := FCamera.GetScreenPos(ASystem.Position);
-    if (APosition.X > -2 * SYSTEM_SIZE) and (APosition.Y > -2 * SYSTEM_SIZE) and
-      (APosition.X < FCamera.Resolution.X + 2 * SYSTEM_SIZE) and
-      (APosition.Y < FCamera.Resolution.Y + 2 * SYSTEM_SIZE)
-    then
-    begin
-      DrawSystemMarker(ASystem);
-    end;
-  end;
-
+procedure TStarMap.DrawInfoBox;
+var
+  AString: string;
+  APosition: TVectorF;
+  ASize: TVectorF;
+  ASingle: Single;
+begin
   if Assigned(FInfoSystem) then
   begin
     AString := 'System ID - ' + IntToStr(FInfoSystem.Id);
@@ -614,6 +591,48 @@ begin
     end;
     FSmallFont.TextOut(AString, APosition, 1, $FFFFB000);
   end;
+end;
+
+procedure TStarMap.OnDraw(const ALayer: Integer);
+var
+  ASystem: TStarSystem;
+  APosition, ASize: TVectorF;
+  AAngle: Single;
+  AString: string;
+  ASingle: Single;
+  AScale: TVectorF;
+begin
+  PrepareCamera;
+
+  TheRender.SetBlendMode(qbmSrcAlpha);
+
+  TheResources.AsteroidTexture.Draw(FCamera.Position,
+    Vec2F(MAX_DISTANCE, MAX_DISTANCE) * 2, 0, $30FF4040);
+
+  if Assigned(FSelectedSystem) then
+  begin
+    AAngle := GetAngle(FCurrentSystem.Position, FSelectedSystem.Position);
+    APosition := FCurrentSystem.Position.InterpolateTo(
+      FSelectedSystem.Position, 0.5);
+    ASize := Vec2F(
+      Distance(FCurrentSystem.Position, FSelectedSystem.Position),
+      SYSTEM_SIZE * 0.35);
+    FMarkerLine.Draw(APosition, ASize, AAngle - 90, $FFB0B0B0);
+  end;
+
+  for ASystem in FSystems do
+  begin
+    APosition := FCamera.GetScreenPos(ASystem.Position);
+    if (APosition.X > -2 * SYSTEM_SIZE) and (APosition.Y > -2 * SYSTEM_SIZE) and
+      (APosition.X < FCamera.Resolution.X + 2 * SYSTEM_SIZE) and
+      (APosition.Y < FCamera.Resolution.Y + 2 * SYSTEM_SIZE)
+    then
+    begin
+      DrawSystemMarker(ASystem);
+    end;
+  end;
+
+  DrawInfoBox;
 end;
 
 procedure TStarMap.OnUpdate(const ADelta: Double);
