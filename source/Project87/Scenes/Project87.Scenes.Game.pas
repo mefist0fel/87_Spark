@@ -69,7 +69,7 @@ begin
 
   FStartAnimation := 1;
 
-  THero.CreateHero(ZeroVectorF);
+  THero.CreateUnit(ZeroVectorF, Random(360), usHero);
 
   for I := 0 to 100 do
     TAsteroid.CreateAsteroid(
@@ -82,8 +82,8 @@ begin
   for I := 0 to 20 do
     TSmallEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), usGreen);
 
-  for I := 0 to 100 do
-    TFluid.CreateFluid(Vec2F(Random(5000) - 2500, Random(5000) - 2500));
+  for I := 0 to 400 do
+    TFluid.CreateFluid(Vec2F(Random(5000) - 2500, Random(5000) - 2500), TFluidType(Random(4)));
 end;
 
 procedure TGameScene.OnUpdate(const ADelta: Double);

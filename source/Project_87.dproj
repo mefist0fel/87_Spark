@@ -93,6 +93,7 @@
 			<DCCReference Include="Project87\Objects\Project87.BaseUnit.pas"/>
 			<DCCReference Include="Project87\Objects\Project87.BigEnemy.pas"/>
 			<DCCReference Include="Project87\Objects\Project87.SmallEnemy.pas"/>
+			<DCCReference Include="Project87\Objects\Project87.ScannerWave.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>
