@@ -45,7 +45,6 @@ end;
 procedure TBaseEnemy.OnDraw;
 var
   ShieldAlpha: Byte;
-  Position: TVectorF;
 begin
   if FIsDead then
     Exit;

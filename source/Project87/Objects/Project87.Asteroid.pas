@@ -27,12 +27,12 @@ type
       FShowFluids: Single;
       procedure GenerateScannedResources;
     public
-      constructor CreateAsteroid(const APosition: TVector2F; AAngle, ARadius: Single);
+      constructor CreateAsteroid(const APosition: TVector2F; AAngle, ARadius: Single; AType: TFluidType);
 
       procedure OnDraw; override;
       procedure OnUpdate(const ADelta: Double); override;
       procedure Scan;
-      procedure Hit;
+      procedure Hit(AAngle: Single; ANumber: Integer);
   end;
 
 implementation
@@ -42,7 +42,7 @@ uses
   Project87.Resources;
 
 {$REGION '  TAsteroid  '}
-constructor TAsteroid.CreateAsteroid(const APosition: TVector2F; AAngle, ARadius: Single);
+constructor TAsteroid.CreateAsteroid(const APosition: TVector2F; AAngle, ARadius: Single; AType: TFluidType);
 begin
   inherited Create;
   if not FResources.Generated then
@@ -52,6 +52,7 @@ begin
   FAngle := AAngle;
   FRadius := ARadius;
   FUseCollistion := True;
+  FType := AType;
   FMass := 10;
 end;
 
@@ -68,7 +69,6 @@ end;
 
 procedure TAsteroid.OnDraw;
 var
-  FluidsString: String;
   Alpha,
   I: Word;
   Color: Cardinal;
@@ -84,6 +84,7 @@ begin
       fBlue:   Color := $00FF00;
       fRed:    Color := $FF0000;
       fGreen:  Color := $0000FF;
+      else Color := $0000FF;
     end;
     for I := 0 to FFluids - 1 do
       TheResources.FluidTexture.Draw(FPosition + FResources.Position[I], Vec2F(8, 8), 0, Alpha * $1000000 + Color);
@@ -107,9 +108,20 @@ begin
     FShowFluids := 1;
 end;
 
-procedure TAsteroid.Hit;
+procedure TAsteroid.Hit(AAngle: Single; ANumber: Integer);
+var
+  I: Integer;
 begin
-
+  if FFluids = 0 then
+    Exit;
+  if (FFluids < ANumber) then
+    ANumber := FFluids;
+  FFluids := FFluids - ANumber;
+  for I := 1 to ANumber do
+    TFluid.CreateFluid(
+      FPosition + GetRotatedVector(AAngle, FRadius),
+      GetRotatedVector(AAngle + Random(10) - 5, Random(200) + 50),
+      FType);
 end;
 {$ENDREGION}
 
