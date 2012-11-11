@@ -43,7 +43,8 @@ uses
   Project87.Types.Weapon in 'Project87\Types\Project87.Types.Weapon.pas',
   Project87.BaseUnit in 'Project87\Objects\Project87.BaseUnit.pas',
   Project87.Scenes.StarMapScene in 'Project87\Scenes\Project87.Scenes.StarMapScene.pas',
-  Project87.Types.StarMap in 'Project87\Types\Project87.Types.StarMap.pas';
+  Project87.Types.StarMap in 'Project87\Types\Project87.Types.StarMap.pas',
+  Project87.Types.SimpleGUI in 'Project87\Types\Project87.Types.SimpleGUI.pas';
 
 begin
   ReportMemoryLeaksOnShutdown := True;
