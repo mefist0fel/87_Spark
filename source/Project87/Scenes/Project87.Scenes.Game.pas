@@ -6,10 +6,12 @@ uses
   QCore.Input,
   QEngine.Camera,
   QEngine.Texture,
+  QEngine.Font,
   QGame.Scene,
   Strope.Math,
   Project87.Types.GameObject,
-  Project87.Resources;
+  Project87.Resources,
+  Project87.Hero;
 
 type
   TGameScene = class sealed (TScene)
@@ -18,6 +20,9 @@ type
       FObjectManager: TObjectManager;
       FResource: TResources;
       FStartAnimation: Single;
+
+      FHero: THero;
+      FFont: TQuadFont;
     public
       constructor Create(const AName: string);
       destructor Destroy; override;
@@ -36,7 +41,7 @@ uses
   QuadEngine,
   QEngine.Core,
   QGame.Game,
-  Project87.Hero,
+  QGame.Resources,
   Project87.Asteroid,
   Project87.Fluid,
   Project87.BaseUnit,
@@ -53,6 +58,8 @@ begin
   FObjectManager := TObjectManager.GetInstance;
   FResource := TResources.Create;
   FMainCamera := TheEngine.CreateCamera;
+
+  FFont := (TheResourceManager.GetResource('Font', 'Quad_24') as TFontExResource).Font;
 end;
 
 destructor TGameScene.Destroy;
@@ -73,7 +80,7 @@ begin
 
   TObjectManager.GetInstance.ClearObjects();
 
-  THero.CreateUnit(ZeroVectorF, Random(360), usHero);
+  FHero := THero.CreateUnit(ZeroVectorF, Random(360), usHero);
 
   for I := 0 to 100 do
     TAsteroid.CreateAsteroid(
@@ -120,6 +127,8 @@ begin
   TheEngine.Camera := FMainCamera;
   TheRender.SetBlendMode(qbmSrcAlpha);
   FObjectManager.OnDraw;
+
+
 end;
 
 function TGameScene.OnKeyUp(AKey: Word): Boolean;

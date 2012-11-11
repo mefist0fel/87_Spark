@@ -73,6 +73,7 @@ const
   TIME_WAIT = 3.5;
   TIME_SHOWDOWN = 1.3;
   TIME_CHANGE = 0.25;
+  NEXT_SCENE = 'StarMap';
 
 constructor TIntroScene.Create(const AName: string);
 begin
@@ -221,7 +222,7 @@ begin
       begin
         if FIsToMenu then
         begin
-          TheGame.SceneManager.MakeCurrent('MainMenu');
+          TheGame.SceneManager.MakeCurrent(NEXT_SCENE);
           TheGame.SceneManager.OnInitialize;
           Exit;
         end;
@@ -232,7 +233,7 @@ begin
           Inc(FLogo);
           if FLogo = 2 then
           begin
-            TheGame.SceneManager.MakeCurrent('MainMenu');
+            TheGame.SceneManager.MakeCurrent(NEXT_SCENE);
             TheGame.SceneManager.OnInitialize;
             TheGame.SceneManager.DeleteScene(Name);
             Exit;

@@ -31,7 +31,8 @@ implementation
 
 uses
   QuadEngine,
-  QEngine.Core;
+  QEngine.Core,
+  QApplication.Application;
 
 {$REGION '  TStarMapScene  '}
 constructor TStarMapScene.Create(const AName: string);
@@ -87,6 +88,12 @@ end;
 
 function TStarMapScene.OnKeyUp(AKey: TKeyButton): Boolean;
 begin
+  if AKey = KB_ESC then
+  begin
+    TheApplication.Stop;
+    Exit;
+  end;
+
   FMap.OnKeyUp(AKey);
 end;
 {$ENDREGION}
