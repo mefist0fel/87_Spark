@@ -16,7 +16,7 @@ type
       constructor Create(const AName: string);
       destructor Destroy; override;
 
-      procedure OnInitialize(APameter: TObject = nil); override;
+      procedure OnInitialize(AParameter: TObject = nil); override;
       procedure OnDraw(const ALayer: Integer); override;
       procedure OnUpdate(const ADelta: Double); override;
       procedure OnDestroy; override;
@@ -31,7 +31,8 @@ implementation
 
 uses
   QuadEngine,
-  QEngine.Core;
+  QEngine.Core,
+  QApplication.Application;
 
 {$REGION '  TStarMapScene  '}
 constructor TStarMapScene.Create(const AName: string);
@@ -50,9 +51,12 @@ begin
   inherited;
 end;
 
-procedure TStarMapScene.OnInitialize(APameter: TObject);
+procedure TStarMapScene.OnInitialize(AParameter: TObject);
 begin
-  FMap.BackToMap;
+  if AParameter is TStarSystemResult then
+    FMap.BackToMap(AParameter as TStarSystemResult)
+  else
+    FMap.BackToMap;
 end;
 
 procedure TStarMapScene.OnDraw(const ALayer: Integer);
@@ -87,6 +91,12 @@ end;
 
 function TStarMapScene.OnKeyUp(AKey: TKeyButton): Boolean;
 begin
+  if AKey = KB_ESC then
+  begin
+    TheApplication.Stop;
+    Exit;
+  end;
+
   FMap.OnKeyUp(AKey);
 end;
 {$ENDREGION}

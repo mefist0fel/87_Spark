@@ -14,7 +14,7 @@ uses
 type
   THero = class (TBaseUnit)
     private
-      FFluid: Array [0..FLUID_TYPE_COUNT] of Word;
+      FFluid: array [0..FLUID_TYPE_COUNT] of Word;
       FNeedAngle: Single;
       FAngularSpeed: Single;
       FNeedCameraPosition: TVector2F;
@@ -24,10 +24,13 @@ type
       FMessage: string;
       FCannon: TCannon;
       FScanner: TScanner;
+
       procedure Control(const  ADelta: Double);
       procedure UpdateParameters(const ADelta: Double);
       procedure CheckKeys;
       procedure CheckMouse;
+
+      function GetFluid(AIndex: Integer): Word;
     public
       constructor CreateUnit(const APosition: TVector2F; AAngle: Single; ASide: TUnitSide); override;
 
@@ -36,6 +39,8 @@ type
       procedure OnCollide(OtherObject: TPhysicalObject); override;
 
       procedure AddFluid(AType: TFluidType);
+
+      property Fluid[AIndex: Integer]: Word read GetFluid;
   end;
 
 implementation
@@ -62,6 +67,13 @@ begin
   FUseCollistion := True;
   FMass := 1;
   FMessage := '';
+end;
+
+function THero.GetFluid(AIndex: Integer): Word;
+begin
+  if (AIndex < 0) or (AIndex > FLUID_TYPE_COUNT) then
+    Exit(0);
+  Exit(FFluid[AIndex]);
 end;
 
 procedure THero.OnDraw;
