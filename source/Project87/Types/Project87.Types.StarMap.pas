@@ -75,8 +75,8 @@ type
       FSelectedSystem: TStarSystem;
 
       FStarMarker: TQuadTexture;
-      FLineMarker: TQuadTexture;
-      FLineArrow: TQuadTexture;
+      FMarkerLine: TQuadTexture;
+      FMarkerArrow: TQuadTexture;
 
       FIsTransition: Boolean;
       FTransitionTime: Single;
@@ -86,6 +86,7 @@ type
       function IsHaveAllNeighbors(const ASector: TVectorI): Boolean;
       procedure GenerateSystems(const ASector: TVectorI);
       procedure GenerateMissingSectors(const ASector: TVectorI);
+      procedure CheckNeedSectors;
 
       procedure DrawSystemMarker(ASystem: TStarSystem);
     private
@@ -123,9 +124,9 @@ uses
 
 const
   SECTOR_SIZE = 2048;
-  SYSTEMS_IN_SECTOR = 100;
-  SYSTEM_SIZE = 15;
-  TRANSITION_TIME = 1.5;
+  SYSTEMS_IN_SECTOR = 120;
+  SYSTEM_SIZE = 4;
+  TRANSITION_TIME = 1.2;
 
 {$REGION '  TStarSystem  '}
 constructor TStarSystem.Create;
@@ -257,13 +258,14 @@ begin
 
   FStarMarker :=
     (TheResourceManager.GetResource('Image', 'SimpleStarMarker') as TTextureExResource).Texture;
-  FLineMarker :=
+  FMarkerLine :=
     (TheResourceManager.GetResource('Image', 'MarkerLine') as TTextureExResource).Texture;
-  FLineArrow :=
+  FMarkerArrow :=
     (TheResourceManager.GetResource('Image', 'MarkerArrow') as TTextureExResource).Texture;
 
   FIsTransition := False;
   FCamera := TheEngine.CreateCamera;
+  //FCamera.Scale := Vec2F(0.5, 0.5);
 end;
 
 destructor TStarMap.Destroy;
@@ -280,7 +282,7 @@ end;
 
 function TStarMap.ChessDistation(const A, B: TVectorI): Integer;
 begin
-  Result := Min(Abs(A.X - B.X), Abs(A.Y - B.Y));
+  Result := Max(Abs(A.X - B.X), Abs(A.Y - B.Y));
 end;
 
 function TStarMap.IsHaveAllNeighbors(const ASector: TVectorI): Boolean;
@@ -345,6 +347,14 @@ begin
   AValue := ASector + Vec2I(1, -1);
   if not FSectors.Contains(AValue) then
     GenerateSystems(AValue);
+end;
+
+procedure TStarMap.CheckNeedSectors;
+begin
+  if not IsHaveAllNeighbors(FSelectedSystem.Sector) then
+    GenerateMissingSectors(FSelectedSystem.Sector);
+  if not IsHaveAllNeighbors(FCurrentSystem.Sector) then
+    GenerateMissingSectors(FCurrentSystem.Sector);
 end;
 
 procedure TStarMap.DrawSystemMarker(ASystem: TStarSystem);
@@ -496,8 +506,8 @@ begin
       FSelectedSystem.Position, 0.5);
     ASize := Vec2F(
       Distance(FCurrentSystem.Position, FSelectedSystem.Position),
-      SYSTEM_SIZE * 0.9);
-    FStarMarker.Draw(APosition, ASize, AAngle - 90, $FFB0B0B0)
+      SYSTEM_SIZE * 0.7);
+    FMarkerLine.Draw(APosition, ASize, AAngle - 90, $FFB0B0B0);
   end;
 
   for ASystem in FSystems do
@@ -523,6 +533,7 @@ begin
     if FTransitionTime > TRANSITION_TIME then
     begin
       FIsTransition := False;
+      CheckNeedSectors;
       ASystem := FCurrentSystem;
       FCurrentSystem := FSelectedSystem;
       FSelectedSystem := ASystem;
@@ -594,6 +605,8 @@ end;
 function TStarMap.OnKeyUp(AKey: TKeyButton): Boolean;
 begin
   Result := False;
+  if FIsTransition then
+    Exit;
 
   if AKey = KB_ENTER then
   begin

@@ -376,7 +376,7 @@ end;
 
 class operator TVector2I.NotEqual(const A, B: TVector2I): Boolean;
 begin
-  Exit((A.X <> B.X) and (A.Y <> B.Y));
+  Exit((A.X <> B.X) or (A.Y <> B.Y));
 end;
 
 class operator TVector2I.Add(const A, B: TVector2I): TVector2I;
@@ -466,7 +466,7 @@ end;
 
 class operator TVector2F.NotEqual(const A, B: TVector2F): Boolean;
 begin
-  Exit((A.X <> B.X) and (A.Y <> B.Y));
+  Exit((A.X <> B.X) or (A.Y <> B.Y));
 end;
 
 class operator TVector2F.Add(const A, B: TVector2F): TVector2F;
