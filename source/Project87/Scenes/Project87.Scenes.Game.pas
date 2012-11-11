@@ -78,7 +78,8 @@ begin
   for I := 0 to 100 do
     TAsteroid.CreateAsteroid(
       Vec2F(Random(5000) - 2500, Random(5000) - 2500),
-      Random(360), 20 + Random(100));
+      Random(360), 20 + Random(100),
+      TFluidType(Random(4)));
   UnitSide := TUnitSide(Random(3) + 2);
   for I := 0 to 40 do
     TBaseEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), UnitSide);
@@ -87,15 +88,15 @@ begin
   for I := 0 to 20 do
     TSmallEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), UnitSide);
 
-  for I := 0 to 400 do
-    TFluid.CreateFluid(Vec2F(Random(5000) - 2500, Random(5000) - 2500), TFluidType(Random(4)));
+//  for I := 0 to 400 do
+//    TFluid.CreateFluid(Vec2F(Random(5000) - 2500, Random(5000) - 2500), TFluidType(Random(4)));
 end;
 
 procedure TGameScene.OnUpdate(const ADelta: Double);
 begin
   if (FStartAnimation > 0) then
   begin
-    FStartAnimation := FStartAnimation - ADelta;
+    FStartAnimation := FStartAnimation - ADelta * 2;
     TheEngine.Camera.Scale := Vec2F(1 - FStartAnimation * FStartAnimation * 0.8, 1 - FStartAnimation * FStartAnimation * 0.8);
     if (FStartAnimation <= 0) then
     begin

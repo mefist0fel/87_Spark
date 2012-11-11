@@ -18,7 +18,6 @@ type
       FNeedAngle: Single;
       FAngularSpeed: Single;
       FNeedCameraPosition: TVector2F;
-      FMoveDirection: TVector2F;
       FHeroMaxSpeed: Single;
       FNeedSpeed: Single;
       FSpeed: Single;

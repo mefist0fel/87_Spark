@@ -58,6 +58,8 @@ begin
 end;
 
 procedure TBullet.OnCollide(OtherObject: TPhysicalObject);
+var
+  CollideVector: TVectorF;
 begin
   if FIsDead then
     Exit;
@@ -68,7 +70,11 @@ begin
     FIsDead := True;
   end;
   if (OtherObject is TAsteroid) then
+  begin
+    CollideVector := (OtherObject.Position - FPosition);
+    TAsteroid(OtherObject).Hit(GetAngle(CollideVector), Random(2) + 1);
     FIsDead := True;
+  end;
 end;
 {$ENDREGION}
 

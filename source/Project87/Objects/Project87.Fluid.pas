@@ -22,7 +22,8 @@ type
     private
       FType: TFluidType;
     public
-      constructor CreateFluid(const APosition: TVector2F; AType: TFluidType = fYellow);
+      constructor CreateFluid(const APosition: TVector2F; AType: TFluidType = fYellow); overload;
+      constructor CreateFluid(const APosition, AVelocity: TVector2F; AType: TFluidType = fYellow); overload;
 
       procedure OnDraw; override;
       procedure OnUpdate(const  ADelta: Double); override;
@@ -43,6 +44,14 @@ begin
   inherited Create;
   FType := AType;
   FPosition := APosition;
+end;
+
+constructor TFluid.CreateFluid(const APosition, AVelocity: TVector2F; AType: TFluidType = fYellow);
+begin
+  inherited Create;
+  FType := AType;
+  FPosition := APosition;
+  FVelocity := AVelocity;
 end;
 
 procedure TFluid.OnDraw;
