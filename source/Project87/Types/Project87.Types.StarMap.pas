@@ -287,7 +287,6 @@ begin
   FIsEnter := False;
   FIsBack := True;
   FCamera := TheEngine.CreateCamera;
-  //FCamera.Scale := Vec2F(0.5, 0.5);
 end;
 
 destructor TStarMap.Destroy;
@@ -556,6 +555,7 @@ begin
     AScale := Vec2F(60, 60);
     AScale := AScale.InterpolateTo(Vec2F(1, 1), FTime / BACK_TO_MAP_TIME, itHermit01);
     FCamera.Scale := AScale;
+    Exit;
   end
   else
     FCamera.Scale := Vec2F(1, 1);
@@ -565,6 +565,7 @@ begin
     AScale := Vec2F(1, 1);
     AScale := AScale.InterpolateTo(Vec2F(60, 60), FTime / ENTER_TO_SYSTEM_TIME, itHermit01);
     FCamera.Scale := AScale;
+    Exit;
   end
   else
     FCamera.Scale := Vec2F(1, 1);
@@ -649,9 +650,9 @@ begin
 
   AAlpha := 0;
   if FIsEnter then
-    AAlpha := InterpolateValue(0, 1, FTime / ENTER_TO_SYSTEM_TIME, itHermit01);
+    AAlpha := InterpolateValue(0, 1, FTime / ENTER_TO_SYSTEM_TIME, itParabolic01);
   if FIsBack then
-    AAlpha := InterpolateValue(1, 0, FTime / BACK_TO_MAP_TIME, itHermit01);
+    AAlpha := InterpolateValue(1, 0, FTime / BACK_TO_MAP_TIME, itParabolic01);
 
   TheEngine.Camera := nil;
   TheRender.Rectangle(0, 0, FCamera.Resolution.X, FCamera.Resolution.Y,
