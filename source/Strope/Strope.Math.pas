@@ -246,12 +246,12 @@ end;
 {$REGION '  Angle work Functions  '}
 function RoundAngle(Angle: Single): Single;
 begin
-  Repeat
-    If Angle < 0 then
+  repeat
+    if Angle < 0 then
       Angle := Angle + 360;
-    If Angle >= 360 then
+    if Angle >= 360 then
       Angle := Angle - 360;
-  Until (Angle >= 0) and (Angle<360);
+  until (Angle >= 0) and (Angle<360);
   Result:= Angle;
 end;
 
@@ -260,13 +260,10 @@ var
   S, C: Single;
 begin
   C := (B.Y - A.Y) / Distance(A, B);
-  If C > 1 then
-    C := 1;
-  If C < -1 then
-    C := -1;
-  S := (arccos(C)) * 180 / PI;
-  If (A.X - B.X) > 0 then
-     S := RoundAngle(360 - S);
+  C := Clamp(C, 1, -1);
+  S := arccos(C) * 180 / PI;
+  if (A.X - B.X) > 0 then
+    S := RoundAngle(360 - S);
   S := RoundAngle(180 - S);
   Result:= S;
 end;
@@ -275,75 +272,74 @@ function GetAngle(A: TVector2F): Single;
 var
   S, C: Single;
 begin
-  C := (- A.Y) / A.Length;
-  If C > 1 then
-    C := 1;
-  If C < -1 then
-    C := -1;
-  S := (arccos(C)) * 180 / PI;
-  If A.X > 0 then
-     S := RoundAngle(360 - S);
+  C := (-A.Y) / A.Length;
+  C := Clamp(C, 1, -1);
+  S := arccos(C) * 180 / PI;
+  if A.X > 0 then
+    S := RoundAngle(360 - S);
   S := RoundAngle(180 - S);
-  Result:= S;
+  Result := S;
 end;
 
 function RotateToAngle(SourceAngle, DestionationAngle, Speed: Single): Single;
 var
-  Angle,
-  Source: Single;
+  Angle, Source: Single;
 begin
   Source := SourceAngle;
   if ((SourceAngle < 10) or (DestionationAngle<10)) then
-    begin
-      SourceAngle := RoundAngle(SourceAngle + 90);
-      DestionationAngle := RoundAngle(DestionationAngle + 90);
-    end;
-  if ((SourceAngle > 350) or (DestionationAngle > 350)) then
-    begin
-      SourceAngle := RoundAngle(SourceAngle - 90);
-      DestionationAngle := RoundAngle(DestionationAngle - 90);
-    end;
-  Angle := Speed;
-  If (Abs(DestionationAngle - SourceAngle) < Speed) then
-    Angle:= Abs(DestionationAngle - SourceAngle);
-  If (SourceAngle < DestionationAngle) then
   begin
-    If (DestionationAngle-SourceAngle > 180) then
+    SourceAngle := RoundAngle(SourceAngle + 90);
+    DestionationAngle := RoundAngle(DestionationAngle + 90);
+  end;
+
+  if ((SourceAngle > 350) or (DestionationAngle > 350)) then
+  begin
+    SourceAngle := RoundAngle(SourceAngle - 90);
+    DestionationAngle := RoundAngle(DestionationAngle - 90);
+  end;
+
+  Angle := Speed;
+  if (Abs(DestionationAngle - SourceAngle) < Speed) then
+    Angle := Abs(DestionationAngle - SourceAngle);
+  if (SourceAngle < DestionationAngle) then
+  begin
+    if (DestionationAngle - SourceAngle > 180) then
       Angle := -1 * Angle;
   end
   else
   begin
-    If (SourceAngle - DestionationAngle < 180) then
+    if (SourceAngle - DestionationAngle < 180) then
       Angle := -1 * Angle;
   end;
-  Result:= RoundAngle(Angle + Source);
+  Result := RoundAngle(Angle + Source);
 end;
 {$ENDREGION}
 
 {$REGION '  Collision Functions  '}
-function LineVsCircle( const LineA, LineB, CircleCenter: TVector2F; Radius: Single) : Boolean;
-  var
-    p1, p2  : array[ 0..1 ] of Single;
-    dx, dy  : Single;
-    a, b, c : Single;
+function LineVsCircle(const LineA, LineB, CircleCenter: TVector2F;
+  Radius: Single) : Boolean;
+var
+  p1, p2: array[ 0..1 ] of Single;
+  dx, dy: Single;
+  a, b, c: Single;
 begin
-  p1[ 0 ] := LineA.X - CircleCenter.X;
-  p1[ 1 ] := LineA.Y - CircleCenter.Y;
-  p2[ 0 ] := LineB.X - CircleCenter.X;
-  p2[ 1 ] := LineB.Y - CircleCenter.Y;
+  p1[0] := LineA.X - CircleCenter.X;
+  p1[1] := LineA.Y - CircleCenter.Y;
+  p2[0] := LineB.X - CircleCenter.X;
+  p2[1] := LineB.Y - CircleCenter.Y;
 
-  dx := p2[ 0 ] - p1[ 0 ];
-  dy := p2[ 1 ] - p1[ 1 ];
+  dx := p2[0] - p1[0];
+  dy := p2[1] - p1[1];
 
-  a := sqr( dx ) + sqr( dy );
-  b := ( p1[ 0 ] * dx + p1[ 1 ] * dy ) * 2;
-  c := sqr( p1[ 0 ] ) + sqr( p1[ 1 ] ) - sqr( Radius );
+  a := sqr(dx) + sqr(dy);
+  b := (p1[0] * dx + p1[1] * dy) * 2;
+  c := Sqr(p1[0]) + Sqr(p1[1]) - Sqr(Radius);
 
-  if -b < 0 Then
+  if -b < 0 then
     Result := c < 0
   else
-    if -b < a * 2 Then
-      Result := a * c * 4 - sqr( b )  < 0
+    if -b < a * 2 then
+      Result := a * c * 4 - Sqr(b)  < 0
     else
       Result := a + b + c < 0;
 end;
@@ -536,10 +532,8 @@ begin
 end;
 
 function TVector2F.Angle(const AVector: TVector2F): Single;
-const
-  Zero: TVector2F = (X: 0; Y: 0);
 begin
-  if (Zero = AVector) or (Zero = Self) then
+  if (ZeroVectorF = AVector) or (ZeroVectorF = Self) then
     Exit(0);
 
   Result := ArcCos(Self * AVector / (Self.Length * AVector.Length));
@@ -560,8 +554,8 @@ end;
 
 function GetRotatedVector(Angle, Length: Single): TVector2F;
 begin
-  Result.X:=  sin(Angle / 180 * PI) * Length;
-  Result.Y:= -cos(Angle / 180 * PI) * Length;
+  Result.X:=  sin(Angle / 180 * Pi) * Length;
+  Result.Y:= -cos(Angle / 180 * Pi) * Length;
 end;
 
 function Dot(const A, B: TVector2F): Single;

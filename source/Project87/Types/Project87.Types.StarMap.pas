@@ -75,6 +75,11 @@ type
       FSelectedSystem: TStarSystem;
 
       FStarMarker: TQuadTexture;
+      FLineMarker: TQuadTexture;
+      FLineArrow: TQuadTexture;
+
+      FIsTransition: Boolean;
+      FTransitionTime: Single;
       FCamera: IQuadCamera;
 
       function ChessDistation(const A, B: TVectorI): Integer;
@@ -112,6 +117,7 @@ implementation
 uses
   SysUtils,
   Math,
+  QuadEngine,
   QGame.Game,
   QGame.Resources;
 
@@ -119,6 +125,7 @@ const
   SECTOR_SIZE = 2048;
   SYSTEMS_IN_SECTOR = 100;
   SYSTEM_SIZE = 15;
+  TRANSITION_TIME = 1.5;
 
 {$REGION '  TStarSystem  '}
 constructor TStarSystem.Create;
@@ -250,7 +257,12 @@ begin
 
   FStarMarker :=
     (TheResourceManager.GetResource('Image', 'SimpleStarMarker') as TTextureExResource).Texture;
+  FLineMarker :=
+    (TheResourceManager.GetResource('Image', 'MarkerLine') as TTextureExResource).Texture;
+  FLineArrow :=
+    (TheResourceManager.GetResource('Image', 'MarkerArrow') as TTextureExResource).Texture;
 
+  FIsTransition := False;
   FCamera := TheEngine.CreateCamera;
 end;
 
@@ -465,17 +477,35 @@ end;
 procedure TStarMap.OnDraw(const ALayer: Integer);
 var
   ASystem: TStarSystem;
-  ASPosition: TVectorF;
-  AShift: TVectorF;
+  APosition, ASize: TVectorF;
+  AAngle: Single;
 begin
   TheEngine.Camera := FCamera;
-  FCamera.Position := FCurrentSystem.Position;
+  if FIsTransition then
+    FCamera.Position := FCurrentSystem.Position.InterpolateTo(
+      FSelectedSystem.Position, FTransitionTime / TRANSITION_TIME, itHermit01)
+  else
+    FCamera.Position := FCurrentSystem.Position;
+
+  TheRender.SetBlendMode(qbmSrcAlpha);
+
+  if Assigned(FSelectedSystem) then
+  begin
+    AAngle := GetAngle(FCurrentSystem.Position, FSelectedSystem.Position);
+    APosition := FCurrentSystem.Position.InterpolateTo(
+      FSelectedSystem.Position, 0.5);
+    ASize := Vec2F(
+      Distance(FCurrentSystem.Position, FSelectedSystem.Position),
+      SYSTEM_SIZE * 0.9);
+    FStarMarker.Draw(APosition, ASize, AAngle - 90, $FFB0B0B0)
+  end;
+
   for ASystem in FSystems do
   begin
-    ASPosition := FCamera.GetScreenPos(ASystem.Position);
-    if (ASPosition.X > -2 * SYSTEM_SIZE) and (ASPosition.Y > -2 * SYSTEM_SIZE) and
-      (ASPosition.X < FCamera.Resolution.X + 2 * SYSTEM_SIZE) and
-      (ASPosition.Y < FCamera.Resolution.Y + 2 * SYSTEM_SIZE)
+    APosition := FCamera.GetScreenPos(ASystem.Position);
+    if (APosition.X > -2 * SYSTEM_SIZE) and (APosition.Y > -2 * SYSTEM_SIZE) and
+      (APosition.X < FCamera.Resolution.X + 2 * SYSTEM_SIZE) and
+      (APosition.Y < FCamera.Resolution.Y + 2 * SYSTEM_SIZE)
     then
     begin
       DrawSystemMarker(ASystem);
@@ -484,7 +514,20 @@ begin
 end;
 
 procedure TStarMap.OnUpdate(const ADelta: Double);
+var
+  ASystem: TStarSystem;
 begin
+  if FIsTransition then
+  begin
+    FTransitionTime := FTransitionTime + ADelta;
+    if FTransitionTime > TRANSITION_TIME then
+    begin
+      FIsTransition := False;
+      ASystem := FCurrentSystem;
+      FCurrentSystem := FSelectedSystem;
+      FSelectedSystem := ASystem;
+    end;
+  end;
 end;
 
 function TStarMap.OnMouseMove(const AMousePosition: TVectorF): Boolean;
@@ -521,6 +564,9 @@ var
   ASPosition, AWPosition: TVectorF;
   AShift: TVectorF;
 begin
+  if FIsTransition then
+    Exit;
+
   AWPosition := FCamera.GetWorldPos(AMousePosition);
   for ASystem in FSystems do
   begin
@@ -547,10 +593,18 @@ end;
 
 function TStarMap.OnKeyUp(AKey: TKeyButton): Boolean;
 begin
+  Result := False;
+
   if AKey = KB_ENTER then
   begin
     TheSceneManager.MakeCurrent('Spark');
     TheSceneManager.OnInitialize(FCurrentSystem);
+  end;
+
+  if AKey = KB_T then
+  begin
+    FIsTransition := True;
+    FTransitionTime := 0;
   end;
 end;
 {$ENDREGION}
