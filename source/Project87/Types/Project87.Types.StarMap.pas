@@ -92,6 +92,8 @@ type
       procedure CheckNeedSectors;
       procedure EnterToSystem;
       procedure TransitionToSelected;
+      function CheckAvailableDistance(const APoint: TVectorF): Boolean;
+      function CheckDistanceToCurrent(ASystem: TStarSystem): Boolean;
 
       procedure DrawSystemMarker(ASystem: TStarSystem);
     private
@@ -125,12 +127,14 @@ uses
   Math,
   QuadEngine,
   QGame.Game,
-  QGame.Resources;
+  QGame.Resources,
+  Project87.Resources;
 
 const
   SECTOR_SIZE = 2048;
   SYSTEMS_IN_SECTOR = 120;
   SYSTEM_SIZE = 12;
+  MAX_DISTANCE = 320;
   TRANSITION_TIME = 1.2;
 
   SystemSize: TVectorF = (X: SYSTEM_SIZE; Y: SYSTEM_SIZE);
@@ -383,6 +387,16 @@ begin
   FSelectedSystem := nil;
 end;
 
+function TStarMap.CheckAvailableDistance(const APoint: TVectorF): Boolean;
+begin
+  Result := Distance(FCamera.Position, APoint) <= MAX_DISTANCE
+end;
+
+function TStarMap.CheckDistanceToCurrent(ASystem: TStarSystem): Boolean;
+begin
+  Result := Distance(ASystem.Position, FCurrentSystem.Position) <= MAX_DISTANCE
+end;
+
 procedure TStarMap.DrawSystemMarker(ASystem: TStarSystem);
 var
   ASize: Single;
@@ -407,6 +421,9 @@ begin
   begin
     ASize := 1.2;
   end;
+
+  if not CheckAvailableDistance(ASystem.Position) then
+    AColor := $FF808080;
 
   FStarMarker.Draw(ASystem.Position, SystemSize * ASize,
     0, AColor);
@@ -518,6 +535,8 @@ var
   ASystem: TStarSystem;
   APosition, ASize: TVectorF;
   AAngle: Single;
+  AString: string;
+  ASingle: Single;
 begin
   TheEngine.Camera := FCamera;
   if FIsTransition then
@@ -527,6 +546,9 @@ begin
     FCamera.Position := FCurrentSystem.Position;
 
   TheRender.SetBlendMode(qbmSrcAlpha);
+
+  TheResources.AsteroidTexture.Draw(FCamera.Position,
+    Vec2F(MAX_DISTANCE, MAX_DISTANCE) * 2, 0, $30FF4040);
 
   if Assigned(FSelectedSystem) then
   begin
@@ -553,15 +575,31 @@ begin
 
   if Assigned(FInfoSystem) then
   begin
-    APosition := FInfoSystem.Position + SystemSize;
-    ASize := Vec2F(160, 100);
+    AString := 'System ID - ' + IntToStr(FInfoSystem.Id);
+    ASingle := FSmallFont.TextWidth(AString, 2);
 
+    APosition := FInfoSystem.Position + SystemSize;
+    ASize := Vec2F(ASingle + 3 * SYSTEM_SIZE, 80);
+    TheRender.Rectangle(
+      APosition.X - 5, APosition.Y - 5,
+      APosition.X + ASize.X + 5, APosition.Y + ASize.Y + 5,
+      $10FFFFFF);
     TheRender.RectangleEx(
       APosition.X, APosition.Y,
       APosition.X + ASize.X, APosition.Y + ASize.Y,
-      $A0606080, $A0606080, $A0202020, $A0202020);
+      $C0606080, $C0606080, $C0202020, $C0202020);
 
-    FSmallFont.TextOut('Some info', APosition + SystemSize, 1.6);
+    APosition := APosition + SystemSize;
+    FSmallFont.TextOut(AString, APosition, 2);
+
+    APosition.Y := APosition.Y + FSmallFont.TextHeight(AString, 2.4);
+    APosition.X := APosition.X + 20;
+    case FInfoSystem.Size of
+      ssSmall: AString := 'Small system';
+      ssMedium: AString := 'Medium system';
+      ssBig: AString := 'Big system';
+    end;
+    FSmallFont.TextOut(AString, APosition, 1.4, $FFFFB000);
   end;
 end;
 
@@ -597,7 +635,7 @@ begin
       (ASPosition.X < FCamera.Resolution.X + 2 * SYSTEM_SIZE) and
       (ASPosition.Y < FCamera.Resolution.Y + 2 * SYSTEM_SIZE)
     then
-      if ASystem.IsContains(AWPosition) then
+      if ASystem.IsContains(AWPosition) and CheckDistanceToCurrent(ASystem) then
       begin
         ASystem.FIsFocused := True;
         Break;
@@ -639,7 +677,7 @@ begin
       (ASPosition.X < FCamera.Resolution.X + 2 * SYSTEM_SIZE) and
       (ASPosition.Y < FCamera.Resolution.Y + 2 * SYSTEM_SIZE)
     then
-      if ASystem.IsContains(AWPosition) then
+      if ASystem.IsContains(AWPosition) and CheckDistanceToCurrent(ASystem) then
       begin
         if (AButton = mbLeft) and (ASystem <> FCurrentSystem) then
         begin
