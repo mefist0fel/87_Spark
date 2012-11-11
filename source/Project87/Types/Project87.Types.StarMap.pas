@@ -83,6 +83,7 @@ type
 
       FIsTransition: Boolean;
       FIsBack: Boolean;
+      FIsEnter: Boolean;
       FTime: Single;
       FCamera: IQuadCamera;
 
@@ -129,6 +130,7 @@ uses
   SysUtils,
   Math,
   QuadEngine,
+  direct3d9,
   QGame.Game,
   QGame.Resources,
   Project87.Resources;
@@ -139,7 +141,8 @@ const
   SYSTEM_SIZE = 12;
   MAX_DISTANCE = 320;
   TRANSITION_TIME = 1.2;
-  BACK_TO_MAP_TIME = 0.8;
+  BACK_TO_MAP_TIME = 0.6;
+  ENTER_TO_SYSTEM_TIME = 0.6;
 
   SystemSize: TVectorF = (X: SYSTEM_SIZE; Y: SYSTEM_SIZE);
 
@@ -281,6 +284,8 @@ begin
     (TheResourceManager.GetResource('Image', 'MarkerArrow') as TTextureExResource).Texture;
 
   FIsTransition := False;
+  FIsEnter := False;
+  FIsBack := True;
   FCamera := TheEngine.CreateCamera;
   //FCamera.Scale := Vec2F(0.5, 0.5);
 end;
@@ -554,6 +559,15 @@ begin
   end
   else
     FCamera.Scale := Vec2F(1, 1);
+
+  if FIsEnter then
+  begin
+    AScale := Vec2F(1, 1);
+    AScale := AScale.InterpolateTo(Vec2F(60, 60), FTime / ENTER_TO_SYSTEM_TIME, itHermit01);
+    FCamera.Scale := AScale;
+  end
+  else
+    FCamera.Scale := Vec2F(1, 1);
 end;
 
 procedure TStarMap.DrawInfoBox;
@@ -598,8 +612,7 @@ var
   ASystem: TStarSystem;
   APosition, ASize: TVectorF;
   AAngle: Single;
-  AString: string;
-  ASingle: Single;
+  AAlpha: Single;
   AScale: TVectorF;
 begin
   PrepareCamera;
@@ -633,6 +646,16 @@ begin
   end;
 
   DrawInfoBox;
+
+  AAlpha := 0;
+  if FIsEnter then
+    AAlpha := InterpolateValue(0, 1, FTime / ENTER_TO_SYSTEM_TIME, itHermit01);
+  if FIsBack then
+    AAlpha := InterpolateValue(1, 0, FTime / BACK_TO_MAP_TIME, itHermit01);
+
+  TheEngine.Camera := nil;
+  TheRender.Rectangle(0, 0, FCamera.Resolution.X, FCamera.Resolution.Y,
+    D3DCOLOR_COLORVALUE(0, 0, 0, AAlpha));
 end;
 
 procedure TStarMap.OnUpdate(const ADelta: Double);
@@ -652,6 +675,16 @@ begin
     FTime := FTime + ADelta;
     if FTime > BACK_TO_MAP_TIME then
       FIsBack := False;
+  end;
+
+  if FIsEnter then
+  begin
+    FTime := FTime + ADelta;
+    if FTime > ENTER_TO_SYSTEM_TIME then
+    begin
+      FIsEnter := False;
+      EnterToSystem;
+    end;
   end;
 end;
 
@@ -703,7 +736,8 @@ begin
   AWPosition := FCamera.GetWorldPos(AMousePosition);
   if FCurrentSystem.IsContains(AWPosition) and (AButton = mbLeft) then
   begin
-    EnterToSystem;
+    FIsEnter := True;
+    FTime := 0;
     Exit;
   end;
 
@@ -752,7 +786,8 @@ begin
 
   if AKey = KB_ENTER then
   begin
-    EnterToSystem;
+    FIsEnter := True;
+    FTime := 0;
   end;
 
   if AKey = KB_T then
