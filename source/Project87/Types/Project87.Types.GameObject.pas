@@ -91,6 +91,7 @@ type
 
       procedure OnDraw;
       procedure OnUpdate(const ADelta: Double);
+      procedure ClearObjects;
   end;
 
 implementation
@@ -351,7 +352,6 @@ begin
         Inc(FastListCount);
       end;
 
-//  TheApplication.Window.Caption := IntToStr(FastListCount);
   for GameObject in FGameObjects do
     if (GameObject <> nil) then
       for I := 0 to FastListCount - 1 do
@@ -374,6 +374,21 @@ begin
   for APObject in FPhysicalObjects do
     if APObject.FIsDead then
       APObject.Free;
+end;
+
+procedure TObjectManager.ClearObjects;
+var
+  AObject: TGameObject;
+  APObject: TPhysicalObject;
+begin
+  for AObject in FGameObjects do
+    AObject.Free;
+
+  for APObject in FPhysicalObjects do
+    APObject.Free;
+
+  FPhysicalObjects.Clear;
+  FGameObjects.Clear;
 end;
 {$ENDREGION}
 

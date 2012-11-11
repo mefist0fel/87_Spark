@@ -53,7 +53,6 @@ begin
     fRed: TheResources.FluidTexture.Draw(FPosition, TVector2F.Create(8, 8), FAngle, $FFFF0000);
     fGreen: TheResources.FluidTexture.Draw(FPosition, TVector2F.Create(8, 8), FAngle, $FF0000FF);
   end;
-
 end;
 
 procedure TFluid.OnUpdate(const  ADelta: Double);

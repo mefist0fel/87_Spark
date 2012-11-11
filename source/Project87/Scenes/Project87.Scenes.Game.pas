@@ -52,6 +52,7 @@ begin
 
   FObjectManager := TObjectManager.GetInstance;
   FResource := TResources.Create;
+  FMainCamera := TheEngine.CreateCamera;
 end;
 
 destructor TGameScene.Destroy;
@@ -67,11 +68,10 @@ var
   I: Word;
   UnitSide: TUnitSide ;
 begin
-  FMainCamera := TheEngine.CreateCamera;
-  FMainCamera.Position := Vec2F(300, 140);
   TheEngine.Camera := FMainCamera;
-
   FStartAnimation := 1;
+
+  TObjectManager.GetInstance.ClearObjects();
 
   THero.CreateUnit(ZeroVectorF, Random(360), usHero);
 
@@ -103,7 +103,6 @@ begin
       TheEngine.Camera.Scale := Vec2F(1, 1);
     end;
   end;
-
 
   if TheControlState.Keyboard.IsKeyPressed[KB_ESC] then
   begin

@@ -83,7 +83,8 @@ begin
   SceneManager.AddScene(TStarMapScene.Create('StarMap'));
   SceneManager.AddScene(TGameScene.Create('Spark'));
   //SceneManager.MakeCurrent('Intro');
-  SceneManager.MakeCurrent('StarMap');
+  //SceneManager.MakeCurrent('StarMap');
+  SceneManager.MakeCurrent('Spark');
   SceneManager.OnInitialize;
 end;
 {$ENDREGION}
