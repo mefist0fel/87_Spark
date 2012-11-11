@@ -10,6 +10,7 @@ uses
   QEngine.Core,
   QEngine.Camera,
   QEngine.Texture,
+  QEngine.Font,
   Strope.Math;
 
 type
@@ -73,7 +74,9 @@ type
       FSystems: TList<TStarSystem>;
       FCurrentSystem: TStarSystem;
       FSelectedSystem: TStarSystem;
+      FInfoSystem: TStarSystem;
 
+      FSmallFont: TQuadFont;
       FStarMarker: TQuadTexture;
       FMarkerLine: TQuadTexture;
       FMarkerArrow: TQuadTexture;
@@ -87,6 +90,8 @@ type
       procedure GenerateSystems(const ASector: TVectorI);
       procedure GenerateMissingSectors(const ASector: TVectorI);
       procedure CheckNeedSectors;
+      procedure EnterToSystem;
+      procedure TransitionToSelected;
 
       procedure DrawSystemMarker(ASystem: TStarSystem);
     private
@@ -125,8 +130,10 @@ uses
 const
   SECTOR_SIZE = 2048;
   SYSTEMS_IN_SECTOR = 120;
-  SYSTEM_SIZE = 4;
+  SYSTEM_SIZE = 12;
   TRANSITION_TIME = 1.2;
+
+  SystemSize: TVectorF = (X: SYSTEM_SIZE; Y: SYSTEM_SIZE);
 
 {$REGION '  TStarSystem  '}
 constructor TStarSystem.Create;
@@ -256,6 +263,8 @@ begin
   FCurrentSystem := nil;
   FSelectedSystem := nil;
 
+  FSmallFont :=
+    (TheResourceManager.GetResource('Font', 'Quad_14') as TFontExResource).Font;
   FStarMarker :=
     (TheResourceManager.GetResource('Image', 'SimpleStarMarker') as TTextureExResource).Texture;
   FMarkerLine :=
@@ -357,6 +366,23 @@ begin
     GenerateMissingSectors(FCurrentSystem.Sector);
 end;
 
+procedure TStarMap.EnterToSystem;
+begin
+  TheSceneManager.MakeCurrent('Spark');
+  TheSceneManager.OnInitialize(FCurrentSystem);
+end;
+
+procedure TStarMap.TransitionToSelected;
+var
+  ASystem: TStarSystem;
+begin
+  CheckNeedSectors;
+  //ASystem := FCurrentSystem;
+  FCurrentSystem := FSelectedSystem;
+  //FSelectedSystem := ASystem;
+  FSelectedSystem := nil;
+end;
+
 procedure TStarMap.DrawSystemMarker(ASystem: TStarSystem);
 var
   ASize: Single;
@@ -367,13 +393,13 @@ begin
 
   if ASystem = FCurrentSystem then
   begin
-    ASize := 1.2;
+    ASize := 1.3;
     AColor := $FFFF8080;
   end;
 
   if ASystem = FSelectedSystem then
   begin
-    ASize := 1.2;
+    ASize := 1.3;
     AColor := $FFFFB080;
   end;
 
@@ -382,7 +408,7 @@ begin
     ASize := 1.2;
   end;
 
-  FStarMarker.Draw(ASystem.Position, Vec2F(20, 20) * ASize,
+  FStarMarker.Draw(ASystem.Position, SystemSize * ASize,
     0, AColor);
 end;
 
@@ -481,7 +507,10 @@ end;
 
 procedure TStarMap.OnInitialize(AParameter: TObject);
 begin
-  //nothing to do
+  if Assigned(FSelectedSystem) then
+    FSelectedSystem.FIsSelected := False;
+  FSelectedSystem := nil;
+  FInfoSystem := nil;
 end;
 
 procedure TStarMap.OnDraw(const ALayer: Integer);
@@ -506,7 +535,7 @@ begin
       FSelectedSystem.Position, 0.5);
     ASize := Vec2F(
       Distance(FCurrentSystem.Position, FSelectedSystem.Position),
-      SYSTEM_SIZE * 0.7);
+      SYSTEM_SIZE * 0.5);
     FMarkerLine.Draw(APosition, ASize, AAngle - 90, $FFB0B0B0);
   end;
 
@@ -521,11 +550,22 @@ begin
       DrawSystemMarker(ASystem);
     end;
   end;
+
+  if Assigned(FInfoSystem) then
+  begin
+    APosition := FInfoSystem.Position + SystemSize;
+    ASize := Vec2F(160, 100);
+
+    TheRender.RectangleEx(
+      APosition.X, APosition.Y,
+      APosition.X + ASize.X, APosition.Y + ASize.Y,
+      $A0606080, $A0606080, $A0202020, $A0202020);
+
+    FSmallFont.TextOut('Some info', APosition + SystemSize, 1.6);
+  end;
 end;
 
 procedure TStarMap.OnUpdate(const ADelta: Double);
-var
-  ASystem: TStarSystem;
 begin
   if FIsTransition then
   begin
@@ -533,10 +573,7 @@ begin
     if FTransitionTime > TRANSITION_TIME then
     begin
       FIsTransition := False;
-      CheckNeedSectors;
-      ASystem := FCurrentSystem;
-      FCurrentSystem := FSelectedSystem;
-      FSelectedSystem := ASystem;
+      TransitionToSelected;
     end;
   end;
 end;
@@ -547,6 +584,8 @@ var
   ASPosition, AWPosition: TVectorF;
   AShift: TVectorF;
 begin
+  Result := False;
+
   AWPosition := FCamera.GetWorldPos(AMousePosition);
   for ASystem in FSystems do
   begin
@@ -566,6 +605,11 @@ begin
       else
         ASystem.FIsFocused := False;
   end;
+
+  if Assigned(FInfoSystem) and
+    (Distance(AWPosition, FInfoSystem.Position) > SYSTEM_SIZE * 3)
+  then
+    FInfoSystem := nil;
 end;
 
 function TStarMap.OnMouseButtonUp(AButton: TMouseButton;
@@ -575,17 +619,21 @@ var
   ASPosition, AWPosition: TVectorF;
   AShift: TVectorF;
 begin
+  Result := False;
   if FIsTransition then
     Exit;
 
   AWPosition := FCamera.GetWorldPos(AMousePosition);
+  if FCurrentSystem.IsContains(AWPosition) and (AButton = mbLeft) then
+  begin
+    EnterToSystem;
+    Exit;
+  end;
+
   for ASystem in FSystems do
   begin
     if ChessDistation(ASystem.Sector, FCurrentSystem.Sector) > 1 then
       Continue;
-    if ASystem = FCurrentSystem then
-      Continue;
-
     ASPosition := FCamera.GetScreenPos(ASystem.Position);
     if (ASPosition.X > -2 * SYSTEM_SIZE) and (ASPosition.Y > -2 * SYSTEM_SIZE) and
       (ASPosition.X < FCamera.Resolution.X + 2 * SYSTEM_SIZE) and
@@ -593,11 +641,28 @@ begin
     then
       if ASystem.IsContains(AWPosition) then
       begin
-        ASystem.FIsSelected := True;
-        if Assigned(FSelectedSystem) then
-          FSelectedSystem.FIsSelected := False;
-        FSelectedSystem := ASystem;
-        Break;
+        if (AButton = mbLeft) and (ASystem <> FCurrentSystem) then
+        begin
+          if ASystem = FSelectedSystem then
+          begin
+            FIsTransition := True;
+            FTransitionTime := 0;
+          end
+          else
+          begin
+            ASystem.FIsSelected := True;
+            if Assigned(FSelectedSystem) then
+              FSelectedSystem.FIsSelected := False;
+            FSelectedSystem := ASystem;
+          end;
+          Break;
+        end;
+
+        if AButton = mbRight then
+        begin
+          FInfoSystem := ASystem;
+          Break;
+        end;
       end;
   end;
 end;
@@ -610,8 +675,7 @@ begin
 
   if AKey = KB_ENTER then
   begin
-    TheSceneManager.MakeCurrent('Spark');
-    TheSceneManager.OnInitialize(FCurrentSystem);
+    EnterToSystem;
   end;
 
   if AKey = KB_T then

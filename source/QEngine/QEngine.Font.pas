@@ -40,12 +40,14 @@ type
       function TextWidth(const AText: string; AScale: Single = 1): Single; overload;
 
       procedure TextOut(const AText: string;
-        const APosition: TVectorF; AScale: Single; Color: Cardinal = $FFFFFFFF); overload;
+        const APosition: TVectorF; AScale: Single = 1;
+        Color: Cardinal = $FFFFFFFF); overload;
       procedure TextOutAligned(const AText: string;
-        const APosition: TVectorF; AScale: Single;
+        const APosition: TVectorF; AScale: Single = 1;
         Color: Cardinal = $FFFFFFFF; Align: TqfAlign = qfaLeft); overload;
       procedure TextOutCentered(const AText: string;
-        const APosition: TVectorF; AScale: Single; Color: Cardinal = $FFFFFFFF); overload;
+        const APosition: TVectorF; AScale: Single = 1;
+        Color: Cardinal = $FFFFFFFF); overload;
 
       property IsLoaded: Boolean read GetIsLoaded;
       property Kerning: Single read GetKerning write SetKerning;
@@ -182,20 +184,20 @@ begin
 end;
 
 procedure TQuadFont.TextOut(const AText: string; const APosition: TVector2F;
-  AScale: Single; Color: Cardinal = $FFFFFFFF);
+  AScale: Single = 1; Color: Cardinal = $FFFFFFFF);
 begin
   TextOut(APosition.X, APosition.Y, AScale, PAnsiChar(AnsiString(AText)), Color);
 end;
 
 procedure TQuadFont.TextOutAligned(const AText: string; const APosition: TVector2F;
-  AScale: Single; Color: Cardinal = $FFFFFFFF; Align: TqfAlign = qfaLeft);
+  AScale: Single = 1; Color: Cardinal = $FFFFFFFF; Align: TqfAlign = qfaLeft);
 begin
   TextOutAligned(APosition.X, APosition.Y, AScale,
     PAnsiChar(AnsiString(AText)), Color, Align);
 end;
 
 procedure TQuadFont.TextOutCentered(const AText: string; const APosition: TVector2F;
-  AScale: Single; Color: Cardinal = $FFFFFFFF);
+  AScale: Single = 1; Color: Cardinal = $FFFFFFFF);
 begin
   TextOutCentered(APosition.X, APosition.Y, AScale,
     PAnsiChar(AnsiString(AText)), Color);
