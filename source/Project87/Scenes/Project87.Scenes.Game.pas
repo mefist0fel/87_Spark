@@ -19,6 +19,7 @@ type
       FObjectManager: TObjectManager;
       FResource: TResources;
       FStartAnimation: Single;
+      FSystemResult: TStarSystemResult;
     public
       constructor Create(const AName: string);
       destructor Destroy; override;
@@ -51,6 +52,7 @@ constructor TGameScene.Create(const AName: string);
 begin
   inherited Create(AName);
 
+  FSystemResult := TStarSystemResult.Create(0.5, 0.5);
   FObjectManager := TObjectManager.GetInstance;
   FResource := TResources.Create;
   FMainCamera := TheEngine.CreateCamera;
@@ -88,7 +90,6 @@ begin
     TBigEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), UnitSide);
   for I := 0 to 20 do
     TSmallEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), UnitSide);
-
 //  for I := 0 to 400 do
 //    TFluid.CreateFluid(Vec2F(Random(5000) - 2500, Random(5000) - 2500), TFluidType(Random(4)));
 end;
@@ -106,11 +107,6 @@ begin
     end;
   end;
 
-  if TheControlState.Keyboard.IsKeyPressed[KB_ESC] then
-  begin
-    TheApplication.Stop;
-    Exit;
-  end;
   FObjectManager.OnUpdate(ADelta);
 end;
 
@@ -126,10 +122,10 @@ end;
 function TGameScene.OnKeyUp(AKey: Word): Boolean;
 begin
   Result := False;
-  if AKey = KB_BACKSPACE then
+  if (AKey = KB_BACKSPACE) or (AKey = KB_ESC) then
   begin
     TheSceneManager.MakeCurrent('StarMap');
-    TheSceneManager.OnInitialize;
+    TheSceneManager.OnInitialize(FSystemResult);
   end;
 end;
 {$ENDREGION}
