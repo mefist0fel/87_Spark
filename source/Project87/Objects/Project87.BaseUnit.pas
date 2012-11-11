@@ -9,11 +9,11 @@ uses
 
 type
   TUnitSide = ( //ship races
-    usNeutral,
-    usHero,
-    usRed,
-    usGreen,
-    usBlue
+    usNeutral = 0,
+    usHero    = 1,
+    usRed     = 2,
+    usGreen   = 3,
+    usBlue    = 4
   );
 
   TBaseUnit = class (TPhysicalObject)
@@ -38,6 +38,7 @@ uses
   Project87.Resources,
   Project87.Asteroid,
   Project87.BaseEnemy,
+  Project87.Fluid,
   Project87.Hero;
 
 {$REGION '  TBaseUnit  '}
@@ -98,9 +99,8 @@ end;
 
 procedure TBaseUnit.Kill;
 begin
-  //Вообще возможен более сложный сценарий, например установить другой флаг.
-  //Такой, что объект уже не колайдится, но на его месте ещё рисуется взрыв.
   FIsDead := True;
+  TFluid.EmmitFluids(Random(10) + 2, FPosition, TFluidType(Random(4)));
 end;
 {$ENDREGION}
 

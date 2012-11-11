@@ -13,7 +13,7 @@ const
 
 type
   TBaseEnemy = class (TBaseUnit)
-    private
+    protected
       FColor: Cardinal;
     public
       constructor CreateUnit(const APosition: TVector2F; AAngle: Single; ASide: TUnitSide); override;

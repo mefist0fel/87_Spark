@@ -12,6 +12,7 @@ type
     public
       HeroTexture: TQuadTexture;
       AsteroidTexture: TQuadTexture;
+      FluidTexture: TQuadTexture;
       Font: TQuadFont;
 
       constructor Create;
@@ -34,6 +35,9 @@ begin
   AsteroidTexture := TheEngine.CreateTexture;
   AsteroidTexture.LoadFromFile('..\data\gfx\asteroid.png', 0);
 
+  FluidTexture := TheEngine.CreateTexture;
+  FluidTexture.LoadFromFile('..\data\gfx\fluid.png', 0);
+
   Font := TheEngine.CreateFont;
   Font.LoadFromFile('..\data\fnt\droid_sans_bold_28.png', '..\data\fnt\droid_sans_bold_28.qef');
 end;
@@ -42,6 +46,7 @@ destructor TResources.Destroy;
 begin
   HeroTexture.Free;
   AsteroidTexture.Free;
+  FluidTexture.Free;
   Font.Free;
 
   TheResources := nil;

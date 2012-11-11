@@ -33,6 +33,7 @@ constructor TBullet.CreateBullet(const APosition, AVelocity: TVector2F; AAngle, 
 begin
   inherited Create;
   FDamage := ADamage;
+  FPreviosPosition := APosition;
   FPosition := APosition;
   FVelocity := AVelocity;
   FAngle := AAngle;
@@ -43,7 +44,6 @@ procedure TBullet.OnDraw;
 begin
   if FIsDead then
     Exit;
-
   TheResources.AsteroidTexture.Draw(FPosition, TVector2F.Create(4, 24), FAngle, $FFFFFFFF);
 end;
 

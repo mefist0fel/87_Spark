@@ -66,7 +66,7 @@ end;
 
 procedure TStarMapScene.OnUpdate(const ADelta: Double);
 begin
-  FMap.OnUpdate(0);
+  FMap.OnUpdate(ADelta);
 end;
 
 procedure TStarMapScene.OnDestroy;

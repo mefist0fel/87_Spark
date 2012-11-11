@@ -6,13 +6,15 @@ uses
   QEngine.Camera,
   QGame.Scene,
   Strope.Math,
+  Project87.Fluid,
+  Project87.BaseUnit,
   Project87.Types.GameObject,
   Project87.Types.Weapon;
 
 type
-  THero = class (TPhysicalObject)
+  THero = class (TBaseUnit)
     private
-      FTowerAngle: Single;
+      FFluid: Array [0..FLUID_TYPE_COUNT] of Word;
       FNeedAngle: Single;
       FAngularSpeed: Single;
       FNeedCameraPosition: TVector2F;
@@ -21,18 +23,20 @@ type
       FNeedSpeed: Single;
       FSpeed: Single;
       FMessage: string;
-      FShowShieldTime: Single;
       FCannon: TCannon;
+      FScanner: TScanner;
       procedure Control(const  ADelta: Double);
       procedure UpdateParameters(const ADelta: Double);
       procedure CheckKeys;
       procedure CheckMouse;
     public
-      constructor CreateHero(const APosition: TVector2F);
+      constructor CreateUnit(const APosition: TVector2F; AAngle: Single; ASide: TUnitSide); override;
 
       procedure OnDraw; override;
       procedure OnUpdate(const  ADelta: Double); override;
       procedure OnCollide(OtherObject: TPhysicalObject); override;
+
+      procedure AddFluid(AType: TFluidType);
   end;
 
 implementation
@@ -48,12 +52,12 @@ uses
   Project87.Resources;
 
 {$REGION '  THero  '}
-constructor THero.CreateHero(const APosition: TVector2F);
+constructor THero.CreateUnit(const APosition: TVector2F; AAngle: Single; ASide: TUnitSide);
 begin
-  inherited Create;
+  inherited;
   FCannon := TCannon.Create(OPlayer, 0.1, 10);
+  FScanner := TScanner.Create;
   FAngularSpeed := 20;
-  FPosition := APosition;
   FRadius := 35;
   FHeroMaxSpeed := 40;
   FUseCollistion := True;
@@ -74,11 +78,13 @@ end;
 
 procedure THero.OnUpdate(const ADelta: Double);
 begin
+  inherited;
   CheckKeys;
   CheckMouse;
   UpdateParameters(ADelta);
   Control(ADelta);
   FCannon.OnUpdate(ADelta);
+  FScanner.OnUpdate(ADelta);
 end;
 
 procedure THero.Control(const ADelta: Double);
@@ -111,15 +117,13 @@ begin
   end;
 end;
 
+procedure THero.AddFluid(AType: TFluidType);
+begin
+  Inc(FFluid[(Word(AType))]);
+end;
+
 procedure THero.UpdateParameters(const ADelta: Double);
 begin
-  if (FShowShieldTime > 0) then
-  begin
-    FShowShieldTime := FShowShieldTime - ADelta;
-    if (FShowShieldTime < 0) then
-      FShowShieldTime := 0;
-  end;
-
   FAngle := RotateToAngle(FAngle, FNeedAngle, 220 * ADelta);
   FSpeed := FSpeed * (1 - ADelta * 50) + FNeedSpeed * (ADelta * 50);
   FVelocity := FVelocity + GetRotatedVector(FAngle, FSpeed);
@@ -131,6 +135,8 @@ procedure THero.CheckMouse;
 begin
   if TheMouseState.IsButtonPressed[mbLeft] then
     FCannon.Fire(FPosition, FTowerAngle);
+  if TheMouseState.IsButtonPressed[mbMiddle] then
+    FScanner.Fire(FPosition, FTowerAngle);
 end;
 
 procedure THero.CheckKeys;

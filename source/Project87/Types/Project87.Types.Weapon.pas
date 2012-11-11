@@ -4,7 +4,8 @@ interface
 
 uses
   Strope.Math,
-  Project87.Bullet;
+  Project87.Bullet,
+  Project87.ScannerWave;
 
 type
   TOwner = (OPlayer = 0, OEnemy = 1);
@@ -19,6 +20,16 @@ type
     FOwner: TOwner;
   public
     constructor Create(AOwner: TOwner; AReloadTime, ADamage: Single);
+    procedure OnUpdate(const ADelta: Double);
+    procedure Fire(APosition: TVector2F; AAngle: Single);
+  end;
+
+  TScanner = class
+  private
+    FReloadTime: Single;
+    FReloadTimer: Single;
+  public
+    constructor Create();
     procedure OnUpdate(const ADelta: Double);
     procedure Fire(APosition: TVector2F; AAngle: Single);
   end;
@@ -50,6 +61,32 @@ begin
   begin
     FReloadTimer := FReloadTime;
     TBullet.CreateBullet(APosition, GetRotatedVector(AAngle, 1600), AAngle, FDamage, FLife);
+  end;
+end;
+{$ENDREGION}
+
+{$REGION '  TScanner  '}
+constructor TScanner.Create;
+begin
+  FReloadTime := 0.05;
+end;
+
+procedure TScanner.OnUpdate(const ADelta: Double);
+begin
+  if (FReloadTimer > 0) then
+  begin
+    FReloadTimer := FReloadTimer - ADelta;
+    if (FReloadTimer < 0) then
+      FReloadTimer := 0;
+  end;
+end;
+
+procedure TScanner.Fire(APosition: TVector2F; AAngle: Single);
+begin
+  if (FReloadTimer = 0) then
+  begin
+    FReloadTimer := FReloadTime;
+    TScannerWave.CreateWave(APosition, GetRotatedVector(AAngle, 1600), AAngle, 0.5);
   end;
 end;
 {$ENDREGION}

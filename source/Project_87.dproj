@@ -91,6 +91,9 @@
 			<DCCReference Include="Project87\Objects\Project87.Bullet.pas"/>
 			<DCCReference Include="Project87\Types\Project87.Types.Weapon.pas"/>
 			<DCCReference Include="Project87\Objects\Project87.BaseUnit.pas"/>
+			<DCCReference Include="Project87\Objects\Project87.BigEnemy.pas"/>
+			<DCCReference Include="Project87\Objects\Project87.SmallEnemy.pas"/>
+			<DCCReference Include="Project87\Objects\Project87.ScannerWave.pas"/>
 			<DCCReference Include="Project87\Scenes\Project87.Scenes.StarMapScene.pas"/>
 			<DCCReference Include="Project87\Types\Project87.Types.StarMap.pas"/>
 			<DCCReference Include="Project87\Types\Project87.Types.SimpleGUI.pas"/>

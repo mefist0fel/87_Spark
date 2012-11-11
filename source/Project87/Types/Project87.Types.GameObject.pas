@@ -252,10 +252,12 @@ var
   GameObject: TGameObject;
 begin
   for PhysicalObject in FPhysicalObjects do
-    PhysicalObject.OnDraw;
+    if not PhysicalObject.FIsDead then
+      PhysicalObject.OnDraw;
 
   for GameObject in FGameObjects do
-    GameObject.OnDraw;
+    if not GameObject.FIsDead then
+      GameObject.OnDraw;
 end;
 
 procedure TObjectManager.OnUpdate(const ADelta: Double);
@@ -264,20 +266,24 @@ var
   GameObject: TGameObject;
 begin
   for PhysicalObject in FPhysicalObjects do
-    PhysicalObject.OnUpdate(ADelta);
+    if not PhysicalObject.FIsDead then
+      PhysicalObject.OnUpdate(ADelta);
 
   CheckCollisions();
 
   for PhysicalObject in FPhysicalObjects do
-    PhysicalObject.Move(ADelta);
+    if not PhysicalObject.FIsDead then
+      PhysicalObject.Move(ADelta);
 
   for GameObject in FGameObjects do
-    GameObject.OnUpdate(ADelta);
+    if not GameObject.FIsDead then
+      GameObject.OnUpdate(ADelta);
 
   CheckFastCollisions();
 
   for GameObject in FGameObjects do
-    GameObject.Move(ADelta);
+    if not GameObject.FIsDead then
+      GameObject.Move(ADelta);
 
   CheckDeadObjects;
 end;
@@ -290,6 +296,7 @@ var
 begin
   for GameObject in FPhysicalObjects do
     for OtherObject in FPhysicalObjects do
+      if ((not GameObject.FIsDead) and (not OtherObject.FIsDead)) then
       if (GameObject <> OtherObject) then
         if (Distance(GameObject.FPosition, OtherObject.FPosition) <
           GameObject.FRadius + OtherObject.FRadius)
@@ -348,10 +355,11 @@ begin
   for GameObject in FGameObjects do
     if (GameObject <> nil) then
       for I := 0 to FastListCount - 1 do
-        if LineVsCircle(GameObject.FPosition, GameObject.FPreviosPosition,
-            FastList[I].FPosition, FastList[I].FRadius)
-        then
-          GameObject.OnCollide(FastList[I]);
+        if not GameObject.FIsDead then
+          if LineVsCircle(GameObject.FPosition, GameObject.FPreviosPosition,
+              FastList[I].FPosition, FastList[I].FRadius)
+          then
+            GameObject.OnCollide(FastList[I]);
 end;
 
 procedure TObjectManager.CheckDeadObjects;
