@@ -21,6 +21,16 @@ type
 
   TLifeFractions = set of TLifeFraction;
 
+  TStarSystemResult = class sealed
+    strict private
+      FEnemies: Single;
+      FResources: Single;
+    public
+      constructor Create(AEnemies, AResources: Single);
+      property Enemies: Single read FEnemies;
+      property Resources: Single read FResources;
+  end;
+
   TStarSystem = class sealed
     strict private
       FId: TObjectId;
@@ -142,6 +152,14 @@ const
   BACK_TO_MAP_TIME = 0.8;
 
   SystemSize: TVectorF = (X: SYSTEM_SIZE; Y: SYSTEM_SIZE);
+
+{$REGION '  TStarSystemResult  '}
+constructor TStarSystemResult.Create(AEnemies, AResources: Single);
+begin
+  FResources := AResources;
+  FEnemies := AEnemies;
+end;
+{$ENDREGION}
 
 {$REGION '  TStarSystem  '}
 constructor TStarSystem.Create;

@@ -9,6 +9,7 @@ uses
   QGame.Scene,
   Strope.Math,
   Project87.Types.GameObject,
+  Project87.Types.Starmap,
   Project87.Resources;
 
 type
