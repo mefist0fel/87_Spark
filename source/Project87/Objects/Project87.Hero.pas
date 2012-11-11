@@ -59,7 +59,7 @@ uses
 constructor THero.CreateUnit(const APosition: TVector2F; AAngle: Single; ASide: TUnitSide);
 begin
   inherited;
-  FCannon := TCannon.Create(OPlayer, 0.1, 10);
+  FCannon := TCannon.Create(OPlayer, 0.1, 20);
   FScanner := TScanner.Create;
   FAngularSpeed := 20;
   FRadius := 35;
@@ -146,7 +146,9 @@ procedure THero.CheckMouse;
 begin
   if TheMouseState.IsButtonPressed[mbLeft] then
     FCannon.Fire(FPosition, FTowerAngle);
-  if TheMouseState.IsButtonPressed[mbMiddle] then
+//  if TheMouseState.IsButtonPressed[mbMiddle] then
+//    FScanner.Fire(FPosition, FTowerAngle);
+  if TheMouseState.IsButtonPressed[mbRight] then
     FScanner.Fire(FPosition, FTowerAngle);
 end;
 
