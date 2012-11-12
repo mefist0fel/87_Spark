@@ -133,11 +133,11 @@ begin
   FFont.TextOut(FloatToStr(FHero.Life), FGUICamera.GetWorldPos(Vec2F(10, 10)));
   FFont.TextOut(IntToStr(FHero.Fluid[0]), FGUICamera.GetWorldPos(Vec2F(10, 38)),
     1, $FFFFFF00);
-  FFont.TextOut(IntToStr(FHero.Fluid[1]), FGUICamera.GetWorldPos(Vec2F(10, 63)),
+  FFont.TextOut(IntToStr(FHero.Fluid[3]), FGUICamera.GetWorldPos(Vec2F(10, 63)),
     1, $FF0000FF);
   FFont.TextOut(IntToStr(FHero.Fluid[2]), FGUICamera.GetWorldPos(Vec2F(10, 88)),
     1, $FFFF0000);
-  FFont.TextOut(IntToStr(FHero.Fluid[3]), FGUICamera.GetWorldPos(Vec2F(10, 113)),
+  FFont.TextOut(IntToStr(FHero.Fluid[1]), FGUICamera.GetWorldPos(Vec2F(10, 113)),
     1, $FF00FF00);
 
   //Передавай камеру как-нибудь по другому в апдейт.

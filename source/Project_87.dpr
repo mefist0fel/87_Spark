@@ -51,7 +51,7 @@ uses
   Project87.Types.SystemGenerator in 'Project87\Types\Project87.Types.SystemGenerator.pas';
 
 begin
-  ReportMemoryLeaksOnShutdown := True;
+  //ReportMemoryLeaksOnShutdown := True;
   try
     try
       InitializeApplication;
