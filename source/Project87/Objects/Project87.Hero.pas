@@ -84,7 +84,7 @@ begin
   TheResources.HeroTexture.Draw(FPosition, Vec2F(10, 20), FTowerAngle, $FFFFFFFF);
   ShieldAlpha := Trunc(FShowShieldTime * $52);
   TheResources.AsteroidTexture.Draw(FPosition, Vec2F(70, 70), FTowerAngle, ShieldAlpha * $1000000 + $FFFFFF);
-  TheResources.Font.TextOut(FMessage, FPosition, 1);
+  TheResources.Font.TextOut(FMessage, FPosition, 1 * TheEngine.Camera.Scale.x);
 end;
 
 procedure THero.OnUpdate(const ADelta: Double);
@@ -109,7 +109,7 @@ begin
   if DistanceToCamera < 1 then
     DistanceToCamera := 1;
 
-  FNeedCameraPosition := (MousePosition - FPosition) * (0.5 / DistanceToCamera) + FPosition;
+  FNeedCameraPosition := {(MousePosition - FPosition) * (0.5 / DistanceToCamera) + }FPosition;
   TheEngine.Camera.Position := TheEngine.Camera.Position * (1 - ADelta * 20) +
     FNeedCameraPosition * (ADelta * 20);
 end;

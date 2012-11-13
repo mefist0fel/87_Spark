@@ -23,6 +23,7 @@ type
       FObjectManager: TObjectManager;
       FResource: TResources;
       FStartAnimation: Single;
+      FShowMap: Single;
       FSystemResult: TStarSystemResult;
       FHero: THero;
       FFont: TQuadFont;
@@ -51,6 +52,7 @@ uses
   Project87.BaseEnemy,
   Project87.BigEnemy,
   Project87.SmallEnemy,
+  Project87.Types.SystemGenerator,
   QApplication.Application;
 
 {$REGION '  TGameScene  '}
@@ -82,12 +84,14 @@ var
 begin
   TheEngine.Camera := FMainCamera;
   FStartAnimation := 1;
+  FShowMap := 1;
 
   TObjectManager.GetInstance.ClearObjects();
 
   FHero := THero.CreateUnit(ZeroVectorF, Random(360), usHero);
+  TSystemGenerator.GenerateSystem;
 
-  for I := 0 to 100 do
+{  for I := 0 to 100 do
     TAsteroid.CreateAsteroid(
       Vec2F(Random(5000) - 2500, Random(5000) - 2500),
       Random(360), 20 + Random(100),
@@ -98,7 +102,7 @@ begin
   for I := 0 to 10 do
     TBigEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), UnitSide);
   for I := 0 to 20 do
-    TSmallEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), UnitSide);
+    TSmallEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), UnitSide);  }
 //  for I := 0 to 400 do
 //    TFluid.CreateFluid(Vec2F(Random(5000) - 2500, Random(5000) - 2500), TFluidType(Random(4)));
 end;
@@ -117,16 +121,37 @@ begin
       FMainCamera.Scale := Vec2F(1, 1);
     end;
   end;
+  //Map
+  if (TheControlState.Keyboard.IsKeyPressed[KB_TAB]) then
+  begin
+    if (FShowMap > 0.1) then
+    begin
+      FShowMap := FShowMap * 0.85;
+      if FShowMap < 0.1 then
+        FShowMap := 0.1;
+      FMainCamera.Scale := Vec2F(FShowMap, FShowMap);
+    end;
+  end else
+  if (FShowMap < 1) then
+  begin
+    FShowMap := FShowMap * 1.1;
+    if FShowMap > 1 then
+      FShowMap := 1;
+    FMainCamera.Scale := Vec2F(FShowMap, FShowMap);
+  end;
 
   FObjectManager.OnUpdate(ADelta);
 end;
 
 procedure TGameScene.OnDraw(const ALayer: Integer);
+var
+  I: Integer;
 begin
   TheRender.Clear($FF000000);
 
   TheEngine.Camera := FMainCamera;
   TheRender.SetBlendMode(qbmSrcAlpha);
+
   FObjectManager.OnDraw;
 
   TheEngine.Camera := FGUICamera;

@@ -43,6 +43,7 @@ constructor TFluid.CreateFluid(const APosition: TVector2F; AType: TFluidType = f
 begin
   inherited Create;
   FType := AType;
+  FPreviosPosition := APosition;
   FPosition := APosition;
 end;
 
