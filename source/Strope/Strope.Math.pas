@@ -58,10 +58,9 @@ type
 
       function Length(): Single;
       function LengthSqr(): Single;
-
-      function Normalized(): TVector2F;
       function Normalize(): TVector2F;
-
+      function Distance(const AVector: TVector2F): Single;
+      function Clip(ALength: Single): TVector2F;
       function Angle(const AVector: TVector2F): Single;
 
       function InterpolateTo(const AVector: TVector2F; AProgress: Single;
@@ -514,29 +513,41 @@ begin
   Result := Sqr(X) + Sqr(Y);
 end;
 
-function TVector2F.Normalized(): TVector2F;
-var
-  ALength: Single;
-begin
-  ALength := Self.Length;
-  Result.Create(Self.X / ALength, Self.Y / ALength);
-end;
-
 function TVector2F.Normalize(): TVector2F;
 var
   ALength: Single;
 begin
   ALength := Self.Length;
   Result.Create(Self.X / ALength, Self.Y / ALength);
-  Self := Result;
+end;
+
+function TVector2F.Distance(const AVector: TVector2F): Single;
+begin
+  Result := Sqrt(Sqr(Self.X - AVector.X) + Sqr(Self.Y - AVector.Y));
+end;
+
+function TVector2F.Clip(ALength: Single): TVector2F;
+var
+  AVectorLength: Single;
+begin
+  AVectorLength := Self.Length;
+  if AVectorLength > ALength then
+    Result.Create(Self.X / ALength, Self.Y / ALength)
+  else
+    Result := Self;
 end;
 
 function TVector2F.Angle(const AVector: TVector2F): Single;
+var
+  S, C: Single;
 begin
-  if (ZeroVectorF = AVector) or (ZeroVectorF = Self) then
-    Exit(0);
-
-  Result := ArcCos(Self * AVector / (Self.Length * AVector.Length));
+  C := (AVector.Y - Self.Y) / Self.Distance(AVector);
+  C := Clamp(C, 1, -1);
+  S := ArcCos(C) * 180 / Pi;
+  if (Self.X - AVector.X) > 0 then
+    S := RoundAngle(360 - S);
+  S := RoundAngle(180 - S);
+  Result:= S;
 end;
 
 function TVector2F.InterpolateTo(const AVector: TVector2F; AProgress: Single;

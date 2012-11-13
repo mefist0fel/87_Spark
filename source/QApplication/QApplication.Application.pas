@@ -146,6 +146,7 @@ type
       property Resolution: TVectorI read FResolution;
       ///<summary>Среднее количество обновлений (и кадров) за последнюю секунду.</summary>
       property FPS: Single read GetFPS;
+      property IsFullscreen: Boolean read FIsFullscreen;
   end;
 
 var

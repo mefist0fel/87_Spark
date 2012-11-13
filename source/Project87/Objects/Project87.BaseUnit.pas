@@ -25,7 +25,8 @@ type
 
       function GetSideColor(ASide: TUnitSide): Cardinal;
     public
-      constructor CreateUnit(const APosition: TVector2F; AAngle: Single; ASide: TUnitSide); virtual;
+      constructor CreateUnit(const APosition: TVector2F; AAngle: Single;
+        ASide: TUnitSide); virtual;
 
       procedure OnUpdate(const ADelta: Double); override;
       procedure OnCollide(OtherObject: TPhysicalObject); override;
@@ -45,9 +46,11 @@ uses
   Project87.Hero;
 
 {$REGION '  TBaseUnit  '}
-constructor TBaseUnit.CreateUnit(const APosition: TVector2F; AAngle: Single; ASide: TUnitSide);
+constructor TBaseUnit.CreateUnit(const APosition: TVector2F; AAngle: Single;
+  ASide: TUnitSide);
 begin
   inherited Create;
+
   FPosition := APosition;
   FAngle := AAngle;
   FUseCollistion := True;
@@ -58,13 +61,13 @@ end;
 
 function TBaseUnit.GetSideColor(ASide: TUnitSide): Cardinal;
 begin
-  Result := $ffffffff;
+  Result := $FFFFFFFF;
   case ASide of
     usNeutral: ;
-    usHero: Result := $ffffffff;
-    usRed: Result := $ffff2222;
-    usGreen: Result := $ff22ff22;
-    usBlue: Result := $ff2222ff;
+    usHero: Result := $FFFFFFFF;
+    usRed: Result := $FFFF2222;
+    usGreen: Result := $FF22FF22;
+    usBlue: Result := $FF2222FF;
   end;
 end;
 
@@ -73,10 +76,11 @@ begin
   if FIsDead then
     Exit;
 
-  if (OtherObject is TAsteroid) or (OtherObject is THero) or (OtherObject is TBaseEnemy) then
-  begin
+  if (OtherObject is TAsteroid) or
+    (OtherObject is THero) or
+    (OtherObject is TBaseEnemy)
+  then
     FShowShieldTime := 0.7;
-  end;
 end;
 
 procedure TBaseUnit.OnUpdate(const ADelta: Double);

@@ -58,7 +58,6 @@ constructor TGameScene.Create(const AName: string);
 begin
   inherited Create(AName);
 
-  FSystemResult := TStarSystemResult.Create(0.5, 0.5);
   FObjectManager := TObjectManager.GetInstance;
   FResource := TResources.Create;
   FMainCamera := TheEngine.CreateCamera;
@@ -79,9 +78,17 @@ procedure TGameScene.OnInitialize(AParameter: TObject);
 var
   I: Word;
   UnitSide: TUnitSide ;
+  AEnemies: array [0..LIFEFRACTION_COUNT - 1] of Single;
+  AResources: array [0..FLUID_TYPE_COUNT - 1] of Single;
 begin
   TheEngine.Camera := FMainCamera;
   FStartAnimation := 1;
+
+  for I := 0 to LIFEFRACTION_COUNT - 1 do
+    AEnemies[I] := 0.5;
+  for I := 0 to FLUID_TYPE_COUNT - 1 do
+    AResources[I] := 0.5;
+  FSystemResult := TStarSystemResult.Create(AEnemies, AResources);
 
   TObjectManager.GetInstance.ClearObjects();
 
@@ -151,6 +158,8 @@ begin
   begin
     TheSceneManager.MakeCurrent('StarMap');
     TheSceneManager.OnInitialize(FSystemResult);
+    //Потому что внутри я его чистю!
+    FSystemResult := nil;
   end;
 end;
 {$ENDREGION}

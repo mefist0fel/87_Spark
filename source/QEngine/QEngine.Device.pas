@@ -3,16 +3,22 @@ unit QEngine.Device;
 interface
 
 uses
+  Generics.Collections,
   Windows,
   QuadEngine,
   QCore.Types,
-  QEngine.Types;
+  QEngine.Types,
+  Strope.Math;
 
 type
   TQuadDevice = class sealed (TBaseObject, IQuadDevice)
     strict private
       FEngine: IQuadEngine;
       FDevice: IQuadDevice;
+
+      function GetIsResolutionSupported(AWidth, AHeight: Word): Boolean; stdcall;
+      procedure GetSupportedScreenResolution(index: Integer;
+        out Resolution: TCoord); stdcall;
     public
       constructor Create(AEngine: IQuadEngine);
 
@@ -28,13 +34,12 @@ type
       function CreateTexture(out pQuadTexture: IQuadTexture): HResult; stdcall;
       function CreateTimer(out pQuadTimer: IQuadTimer): HResult; stdcall;
       function CreateRender(out pQuadRender: IQuadRender): HResult; stdcall;
-      function GetIsResolutionSupported(AWidth, AHeight: Word): Boolean; stdcall;
       function GetLastError: PAnsiChar; stdcall;
       function GetMonitorsCount: Byte; stdcall;
-      procedure GetSupportedScreenResolution(index: Integer;
-        out Resolution: TCoord); stdcall;
       procedure SetActiveMonitor(AMonitorIndex: Byte); stdcall;
       procedure SetOnErrorCallBack(Proc: TOnErrorFunction); stdcall;
+
+      function GetResolutionsList(): TList<TVectorI>;
 
       property Device: IQuadDevice read FDevice;
   end;
@@ -140,6 +145,24 @@ end;
 function TQuadDevice.GetMonitorsCount;
 begin
   Result := FDevice.GetMonitorsCount;
+end;
+
+function TQuadDevice.GetResolutionsList: TList<TVectorI>;
+var
+  AResolution: TCoord;
+  AIndex: Integer;
+begin
+  Result := TList<TVectorI>.Create;
+  AIndex := 0;
+  while True do
+  begin
+    FDevice.GetSupportedScreenResolution(AIndex, AResolution);
+    if AResolution.X <> -1 then
+      Result.Add(Vec2I(AResolution.X, AResolution.Y))
+    else
+      Break;
+    Inc(AIndex);
+  end;
 end;
 
 procedure TQuadDevice.GetSupportedScreenResolution(

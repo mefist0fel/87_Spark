@@ -76,13 +76,13 @@ end;
 
 function TWidget.OnMouseMove(const AMousePosition: TVector2F): Boolean;
 begin
-
+  Result := False;
 end;
 
 function TWidget.OnMouseButtonUp(AButton: TMouseButton;
   const AMousePosition: TVectorF): Boolean;
 begin
-
+  Result := False;
 end;
 {$ENDREGION}
 

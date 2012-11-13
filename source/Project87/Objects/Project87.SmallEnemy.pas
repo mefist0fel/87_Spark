@@ -39,13 +39,16 @@ end;
 procedure TSmallEnemy.OnDraw;
 var
   ShieldAlpha: Byte;
-  Position: TVectorF;
 begin
   TheResources.HeroTexture.Draw(FPosition, Vec2F(10, 20), FAngle, FColor);
   ShieldAlpha := Trunc(FShowShieldTime * $52);
   if FLife < MAX_LIFE then
-    TheRender.Rectangle(FPosition.X - 10, FPosition.Y - 53, FPosition.X - 50 + FLife / MAX_LIFE * 100, FPosition.Y - 50, $FF00FF00);
-  TheResources.AsteroidTexture.Draw(FPosition, Vec2F(30, 30), FTowerAngle, ShieldAlpha * $1000000 + FColor - $FF000000);
+    TheRender.Rectangle(
+      FPosition.X - 10, FPosition.Y - 53,
+      FPosition.X - 50 + FLife / MAX_LIFE * 100, FPosition.Y - 50,
+      $FF00FF00);
+  TheResources.AsteroidTexture.Draw(FPosition, Vec2F(30, 30),
+    FTowerAngle, ShieldAlpha * $1000000 + FColor - $FF000000);
 end;
 {$ENDREGION}
 

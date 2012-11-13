@@ -18,8 +18,9 @@ type
     private class var FInstance: TSystemGenerator;
     private
       FNoise: TNoise;
-      procedure GenerateNoise;
+
       constructor Create();
+      procedure GenerateNoise;
     public
       class procedure GenerateSystem();
   end;
@@ -27,6 +28,11 @@ type
 implementation
 
 {$REGION '  TSystemGenerator  '}
+constructor TSystemGenerator.Create();
+begin
+  GenerateNoise;
+end;
+
 procedure TSystemGenerator.GenerateNoise;
 var
   I, J: Word;
@@ -45,11 +51,6 @@ begin
       FNoise.Values[Number] := FNoise.Values[I];
       FNoise.Values[I] := Temp;
     end;
-end;
-
-constructor TSystemGenerator.Create();
-begin
-  GenerateNoise;
 end;
 
 class procedure TSystemGenerator.GenerateSystem();

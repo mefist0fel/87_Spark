@@ -12,7 +12,8 @@ type
       FDamage: Single;
       FLife: Single;
     public
-      constructor CreateBullet(const APosition, AVelocity: TVector2F; AAngle, ADamage, ALife: Single);
+      constructor CreateBullet(const APosition, AVelocity: TVector2F;
+        AAngle, ADamage, ALife: Single);
 
       procedure OnDraw; override;
       procedure OnUpdate(const  ADelta: Double); override;
@@ -29,9 +30,11 @@ uses
   Project87.Resources;
 
 {$REGION '  TBullet  '}
-constructor TBullet.CreateBullet(const APosition, AVelocity: TVector2F; AAngle, ADamage, ALife: Single);
+constructor TBullet.CreateBullet(const APosition, AVelocity: TVector2F;
+  AAngle, ADamage, ALife: Single);
 begin
   inherited Create;
+
   FDamage := ADamage;
   FPreviosPosition := APosition;
   FPosition := APosition;
@@ -44,7 +47,8 @@ procedure TBullet.OnDraw;
 begin
   if FIsDead then
     Exit;
-  TheResources.AsteroidTexture.Draw(FPosition, TVector2F.Create(4, 24), FAngle, $FFFFFFFF);
+
+  TheResources.AsteroidTexture.Draw(FPosition, Vec2F(4, 24), FAngle, $FFFFFFFF);
 end;
 
 procedure TBullet.OnUpdate(const  ADelta: Double);

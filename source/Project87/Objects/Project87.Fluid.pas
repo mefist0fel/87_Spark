@@ -8,27 +8,31 @@ uses
 
 const
   FRICTION = 2.5;
-  FLUID_TYPE_COUNT = 3;
+  FLUID_TYPE_COUNT = 4;
 
 type
   TFluidType = (
     fYellow = 0,
-    fBlue   = 1,
-    fRed    = 2,
-    fGreen  = 3
+    fBlue = 1,
+    fRed = 2,
+    fGreen = 3
   );
 
   TFluid = class (TGameObject)
     private
       FType: TFluidType;
     public
-      constructor CreateFluid(const APosition: TVector2F; AType: TFluidType = fYellow); overload;
-      constructor CreateFluid(const APosition, AVelocity: TVector2F; AType: TFluidType = fYellow); overload;
+      constructor CreateFluid(const APosition: TVector2F;
+        AType: TFluidType = fYellow); overload;
+      constructor CreateFluid(const APosition, AVelocity: TVector2F;
+        AType: TFluidType = fYellow); overload;
 
       procedure OnDraw; override;
       procedure OnUpdate(const  ADelta: Double); override;
       procedure OnCollide(OtherObject: TPhysicalObject); override;
-    public class procedure EmmitFluids(Count: Byte; APosition: TVector2F; AType: TFluidType = fYellow);
+
+      class procedure EmmitFluids(Count: Byte; APosition: TVector2F;
+        AType: TFluidType = fYellow);
   end;
 
 implementation
@@ -39,16 +43,20 @@ uses
   Project87.Resources;
 
 {$REGION '  TFluid  '}
-constructor TFluid.CreateFluid(const APosition: TVector2F; AType: TFluidType = fYellow);
+constructor TFluid.CreateFluid(const APosition: TVector2F;
+  AType: TFluidType = fYellow);
 begin
   inherited Create;
+
   FType := AType;
   FPosition := APosition;
 end;
 
-constructor TFluid.CreateFluid(const APosition, AVelocity: TVector2F; AType: TFluidType = fYellow);
+constructor TFluid.CreateFluid(const APosition, AVelocity: TVector2F;
+  AType: TFluidType = fYellow);
 begin
   inherited Create;
+
   FType := AType;
   FPosition := APosition;
   FVelocity := AVelocity;
@@ -57,10 +65,10 @@ end;
 procedure TFluid.OnDraw;
 begin
   case FType of
-    fYellow: TheResources.FluidTexture.Draw(FPosition, TVector2F.Create(8, 8), FAngle, $FFFFFF00);
-    fBlue: TheResources.FluidTexture.Draw(FPosition, TVector2F.Create(8, 8), FAngle, $FF00FF00);
-    fRed: TheResources.FluidTexture.Draw(FPosition, TVector2F.Create(8, 8), FAngle, $FFFF0000);
-    fGreen: TheResources.FluidTexture.Draw(FPosition, TVector2F.Create(8, 8), FAngle, $FF0000FF);
+    fYellow: TheResources.FluidTexture.Draw(FPosition, Vec2F(8, 8), FAngle, $FFFFFF00);
+    fBlue: TheResources.FluidTexture.Draw(FPosition, Vec2F(8, 8), FAngle, $FF00FF00);
+    fRed: TheResources.FluidTexture.Draw(FPosition, Vec2F(8, 8), FAngle, $FFFF0000);
+    fGreen: TheResources.FluidTexture.Draw(FPosition, Vec2F(8, 8), FAngle, $FF0000FF);
   end;
 end;
 
@@ -78,7 +86,8 @@ begin
   end;
 end;
 
-class procedure TFluid.EmmitFluids(Count: Byte; APosition: TVector2F; AType: TFluidType = fYellow);
+class procedure TFluid.EmmitFluids(Count: Byte; APosition: TVector2F;
+  AType: TFluidType = fYellow);
 var
   I: Byte;
   Fluid: TFluid;

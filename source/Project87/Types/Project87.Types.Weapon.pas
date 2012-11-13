@@ -8,30 +8,32 @@ uses
   Project87.ScannerWave;
 
 type
-  TOwner = (OPlayer = 0, OEnemy = 1);
+  TOwner = (oPlayer = 0, oEnemy = 1);
 
   TCannon = class
-  private
-    // bullets parameters
-    FDamage: Single;
-    FReloadTime: Single;
-    FReloadTimer: Single;
-    FLife: Single;
-    FOwner: TOwner;
-  public
-    constructor Create(AOwner: TOwner; AReloadTime, ADamage: Single);
-    procedure OnUpdate(const ADelta: Double);
-    procedure Fire(APosition: TVector2F; AAngle: Single);
+    private
+      // bullets parameters
+      FDamage: Single;
+      FReloadTime: Single;
+      FReloadTimer: Single;
+      FLife: Single;
+      FOwner: TOwner;
+    public
+      constructor Create(AOwner: TOwner; AReloadTime, ADamage: Single);
+
+      procedure OnUpdate(const ADelta: Double);
+      procedure Fire(APosition: TVector2F; AAngle: Single);
   end;
 
   TScanner = class
-  private
-    FReloadTime: Single;
-    FReloadTimer: Single;
-  public
-    constructor Create();
-    procedure OnUpdate(const ADelta: Double);
-    procedure Fire(APosition: TVector2F; AAngle: Single);
+    private
+      FReloadTime: Single;
+      FReloadTimer: Single;
+    public
+      constructor Create();
+
+      procedure OnUpdate(const ADelta: Double);
+      procedure Fire(APosition: TVector2F; AAngle: Single);
   end;
 
 implementation
