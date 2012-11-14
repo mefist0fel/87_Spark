@@ -123,7 +123,8 @@ type
       FStar: TQuadTexture;
       FUnavailableBuffer: IQuadTexture;
       FUnavailableShader: IQuadShader;
-      FUnRadius: Single;
+      FUnRadius, FNeedUnRadius: Single;
+      FUnRatio: array [0..1] of Single;
 
       FIsTransition: Boolean;
       FIsBack: Boolean;
@@ -149,6 +150,7 @@ type
       function IsOnScreen(ASystem: TStarSystem): Boolean;
       procedure PrepareUnavailableBuffer;
       procedure DrawSystem(ASystem: TStarSystem);
+      procedure DrawConstrain;
       procedure DrawSystemInfo;
       procedure DrawCurtain;
 
@@ -253,7 +255,7 @@ constructor TStarSystem.Create;
 begin
   FId := TStarMap.GetNewId;
   FIsInfoHided := True;
-  FEnemyAngle := 0;
+  FEnemyAngle := Random(360);
 end;
 
 procedure TStarSystem.Generate(const ASector: TVectorI);
@@ -283,11 +285,11 @@ begin
   FConfiguration := TSystemConfiguration(Random(3));
 
   FFractions := [TLifeFraction(Random(3))];
-  if Random(10) = 0 then
+  if (Random(10) = 0) or (Random(10) = 3) or (Random(10) = 6) then
     Include(FFractions, TLifeFraction(lfRed));
-  if Random(10) = 4 then
+  if (Random(10) = 1) or (Random(10) = 4) or (Random(10) = 7) then
     Include(FFractions, TLifeFraction(lfGreen));
-  if Random(10) = 7 then
+  if (Random(10) = 2) or (Random(10) = 5) or (Random(10) = 8) then
     Include(FFractions, TLifeFraction(lfRed));
 end;
 
@@ -390,7 +392,7 @@ begin
     if TLifeFraction(I) in FFractions then
     begin
       if FIsOpened then
-        FEnemySize[FEnemyCount] := Clamp(FEnemies[I], 1, 0)
+        FEnemySize[FEnemyCount] := FEnemies[I]
       else
         FEnemySize[FEnemyCount] := 1;
 
@@ -624,6 +626,8 @@ begin
 end;
 
 procedure TStarMap.SetupShaders;
+var
+  AMin: Single;
 begin
   TheDevice.CreateShader(FInfoShader);
   FInfoShader.LoadPixelShader('..\data\shd\systeminfo.bin');
@@ -657,7 +661,14 @@ begin
   TheDevice.CreateShader(FUnavailableShader);
   FUnavailableShader.LoadPixelShader('..\data\shd\unavailable.bin');
   FUnavailableShader.BindVariableToPS(1, @FUnRadius, 1);
-  FUnRadius := 0.4;
+  FUnavailableShader.BindVariableToPS(2, @FUnRatio, 1);
+
+  FNeedUnRadius := MAX_DISTANCE / 768;
+  FUnRadius := FNeedUnRadius;
+
+  AMin := Min(FCamera.Resolution.X, FCamera.Resolution.Y);
+  FUnRatio[0] := FCamera.Resolution.X / AMin;
+  FUnRatio[1] := FCamera.Resolution.Y / AMin;
 end;
 
 function TStarMap.GetSelectedSystem;
@@ -969,6 +980,16 @@ begin
   FStar.Draw(ASystem.Position, SystemSize, 0, AColor);
 end;
 
+procedure TStarMap.DrawConstrain;
+begin
+  FUnRadius := FNeedUnRadius * FCamera.Scale.X;
+  FUnavailableShader.SetShaderState(True);
+    TheEngine.Camera := nil;
+    FUnavailableBuffer.Draw(0, 0, $10FF6060);
+  FUnavailableShader.SetShaderState(False);
+  TheEngine.Camera := FCamera;
+end;
+
 procedure TStarMap.DrawSystemInfo;
 var
   ASystem: TStarSystem;
@@ -1001,21 +1022,14 @@ var
   AAngle: Single;
   AAlpha: Single;
 begin
-  PrepareCamera;
-
   TheRender.SetBlendMode(qbmSrcAlpha);
-  TheResources.AsteroidTexture.Draw(FCamera.Position,
-    Vec2F(MAX_DISTANCE, MAX_DISTANCE) * 2, 0, $30FF4040);
+  PrepareCamera;
   for ASystem in FSystems do
     if IsOnScreen(ASystem) then
       DrawSystem(ASystem);
+  DrawConstrain;
   DrawSystemInfo;
   DrawCurtain;
-
-  FUnavailableShader.SetShaderState(True);
-    TheEngine.Camera := nil;
-    FUnavailableBuffer.Draw(0, 0, $10FF6060);
-  FUnavailableShader.SetShaderState(False);
 end;
 
 procedure TStarMap.OnUpdate(const ADelta: Double);
