@@ -76,7 +76,7 @@ begin
   if (OtherObject is TAsteroid) then
   begin
     CollideVector := (OtherObject.Position - FPosition);
-    TAsteroid(OtherObject).Hit(GetAngle(CollideVector), Random(2) + 1);
+    TAsteroid(OtherObject).Hit(GetAngle(CollideVector), 1);
     FIsDead := True;
   end;
 end;

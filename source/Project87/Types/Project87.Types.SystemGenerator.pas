@@ -2,6 +2,9 @@ unit Project87.Types.SystemGenerator;
 
 interface
 
+uses
+  Project87.Types.StarMap;
+
 const
   MAX_NOISE_VALUES = $FF;
 
@@ -11,12 +14,12 @@ type
   private
     FGenerator: Cardinal;
     constructor Create;
-    procedure GenerateAsteroids(FType: Byte);
+    procedure GenerateAsteroids(FType: TSystemConfiguration);
   public
     function PRandom: Integer; overload;
     function PRandom(AMax: Integer): Integer; overload;
     function PRandom(AMin, AMax: Integer): Integer; overload;
-    class procedure GenerateSystem;
+    class procedure GenerateSystem(AParameter: TStarSystem);
   end;
 
 implementation
@@ -57,7 +60,7 @@ begin
   Result := PRandom mod AMax + AMin;
 end;
 
-procedure TSystemGenerator.GenerateAsteroids(FType: Byte);
+procedure TSystemGenerator.GenerateAsteroids(FType: TSystemConfiguration);
 var
   I, J: Integer;
   ASize: Single;
@@ -65,26 +68,7 @@ var
 begin
   ASize := 500 * 10;
   case FType of
-    0:
-    begin
-      for I := 0 to 50 do
-      TAsteroid.CreateAsteroid(
-        GetRotatedVector(PRandom(3600) / 10, ASize - PRandom(1000) / 1000 * ASize * 0.05),
-        PRandom(360), 20 + PRandom(100),
-        TFluidType(PRandom(4)));
-      for I := 0 to 4 do
-      TAsteroid.CreateAsteroid(
-        GetRotatedVector(PRandom(3600) / 10, PRandom(1000) / 1000 * ASize * 0.4),
-        PRandom(360), 200 + PRandom(300),
-        TFluidType(PRandom(4)));
-      for I := 0 to 15 do
-      TAsteroid.CreateAsteroid(
-        GetRotatedVector(PRandom(3600) / 10, PRandom(1000) / 1000 * ASize * 0.8),
-        PRandom(360), 20 + PRandom(200),
-        TFluidType(PRandom(4)));
-      TObjectManager.GetInstance.SolveCollisions(10);
-    end;
-    1:
+    scDischarged:
     begin
       for I := 0 to 150 do
       TAsteroid.CreateAsteroid(
@@ -92,7 +76,7 @@ begin
         PRandom(360), 20 + PRandom(100),
         TFluidType(PRandom(4)));
     end;
-    2:
+    scCompact:
     begin
       for I := -20 to 20 do
         for J := -3 to 3 do
@@ -104,35 +88,54 @@ begin
                 PRandom(360), 20 + PRandom(100),
                 TFluidType(PRandom(4)));
           end;
-      {for I := 0 to 150 do
+      TObjectManager.GetInstance.SolveCollisions(10);
+    end;
+    scPlanet: //like a planetar system
+    begin
+      for I := 0 to 50 do
       TAsteroid.CreateAsteroid(
-        GetRotatedVector(PRandom(3600) / 10, ASize - PRandom(1000) / 1000 * PRandom(1000) / 1000 * ASize),
+        GetRotatedVector(PRandom(3600) / 10, ASize - PRandom(1000) / 1000 * ASize * 0.05),
         PRandom(360), 20 + PRandom(100),
         TFluidType(PRandom(4)));
       for I := 0 to 4 do
       TAsteroid.CreateAsteroid(
         GetRotatedVector(PRandom(3600) / 10, PRandom(1000) / 1000 * ASize * 0.4),
-        PRandom(360), 200 + PRandom(300),
+        PRandom(360), 100 + PRandom(200),
         TFluidType(PRandom(4)));
       for I := 0 to 15 do
       TAsteroid.CreateAsteroid(
         GetRotatedVector(PRandom(3600) / 10, PRandom(1000) / 1000 * ASize * 0.8),
         PRandom(360), 20 + PRandom(200),
-        TFluidType(PRandom(4)));                      }
+        TFluidType(PRandom(4)));
       TObjectManager.GetInstance.SolveCollisions(10);
     end;
   end;
 end;
 
-class procedure TSystemGenerator.GenerateSystem;
+class procedure TSystemGenerator.GenerateSystem(AParameter: TStarSystem);
 begin
   if (FInstance = nil) then
     FInstance := Create();
+  if AParameter <> nil then
   with FInstance do
   begin
-    FGenerator := 1;
-    GenerateAsteroids(2);
+    FGenerator := AParameter.Seed;
+    GenerateAsteroids(AParameter.Configuration);
+ { for I := 0 to 400 do
+    TFluid.CreateFluid(Vec2F(Random(5000) - 2500, Random(5000) - 2500), TFluidType(Random(4)));   }
   end;
+{  for I := 0 to 100 do
+    TAsteroid.CreateAsteroid(
+      Vec2F(Random(5000) - 2500, Random(5000) - 2500),
+      Random(360), 20 + Random(100),
+      TFluidType(Random(4)));
+  UnitSide := TUnitSide(Random(3) + 2);
+  for I := 0 to 40 do
+    TBaseEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), UnitSide);
+  for I := 0 to 10 do
+    TBigEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), UnitSide);
+  for I := 0 to 20 do
+    TSmallEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), UnitSide);  }
 end;
 {$ENDREGION}
 

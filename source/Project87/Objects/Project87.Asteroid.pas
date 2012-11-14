@@ -20,9 +20,8 @@ type
   end;
 
   TAsteroid = class (TPhysicalObject)
+    class var FResources: TScannedResources;
     private
-      class var FResources: TScannedResources;
-
       FFluids: Word;
       FType: TFluidType;
       FShowFluids: Single;
