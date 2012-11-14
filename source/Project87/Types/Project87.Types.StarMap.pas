@@ -969,15 +969,23 @@ end;
 procedure TStarMap.DrawSystem(ASystem: TStarSystem);
 var
   AColor: Cardinal;
+  ASize: Single;
 begin
   AColor := $FFFFFFFF;
+  ASize := 1;
   if ASystem = FCurrentSystem then
+  begin
     AColor := $FFFF8080;
+    ASize := 1.3;
+  end;
   if ASystem = FSelectedSystem then
+  begin
     AColor := $FFFFB080;
+    ASize := 1.3;
+  end;
   if not CheckDistance(FCamera.Position, ASystem.Position, MAX_DISTANCE) then
-    AColor := $FF808080;
-  FStar.Draw(ASystem.Position, SystemSize, 0, AColor);
+    AColor := $FF707070;
+  FStar.Draw(ASystem.Position, SystemSize * ASize, 0, AColor);
 end;
 
 procedure TStarMap.DrawConstrain;
@@ -985,7 +993,7 @@ begin
   FUnRadius := FNeedUnRadius * FCamera.Scale.X;
   FUnavailableShader.SetShaderState(True);
     TheEngine.Camera := nil;
-    FUnavailableBuffer.Draw(0, 0, $10FF6060);
+    FUnavailableBuffer.Draw(0, 0, $18FF6060);
   FUnavailableShader.SetShaderState(False);
   TheEngine.Camera := FCamera;
 end;

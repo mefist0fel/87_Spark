@@ -23,12 +23,12 @@ var
 begin
   Randomize;
 
-  CreateEngine(TVectorI.Create(1024, 768), TVectorI.Create(1280, 720));
-  //CreateEngine(TVectorI.Create(1024, 768), GetDesktopResolution);
+  //CreateEngine(TVectorI.Create(1024, 768), TVectorI.Create(1280, 720));
+  CreateEngine(TVectorI.Create(1024, 768), GetDesktopResolution);
 
   TheApplication := TQApplication.Create;
   AParameters := TQApplicationParameters.Create(
-    TProject87Game.Create, TheEngine.CurrentResolution, False, 16);
+    TProject87Game.Create, TheEngine.CurrentResolution, True, 16);
   TheApplication.OnInitialize(AParameters);
 end;
 
