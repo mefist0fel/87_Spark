@@ -79,8 +79,8 @@ begin
     AGfxDir + 'starmap_elements\marker_focused.png', 0);
   ResourceManager.AddResource(ATextureEx);
 
-  ATextureEx := TTextureExResource.CreateAndLoad('Image', 'MarkerLine',
-    AGfxDir + 'starmap_elements\marker_line.png', 0);
+  ATextureEx := TTextureExResource.CreateAndLoad('Image', 'Unavailable',
+    AGfxDir + 'starmap_elements\unavailable.png', 0);
   ResourceManager.AddResource(ATextureEx);
 
   ATextureEx := TTextureExResource.CreateAndLoad('Image', 'SystemInfo',

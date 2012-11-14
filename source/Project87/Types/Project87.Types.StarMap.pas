@@ -121,7 +121,9 @@ type
       FInfoSystem: TStarSystem;
 
       FStar: TQuadTexture;
-      FMarkerLine: TQuadTexture;
+      FUnavailableBuffer: IQuadTexture;
+      FUnavailableShader: IQuadShader;
+      FUnRadius: Single;
 
       FIsTransition: Boolean;
       FIsBack: Boolean;
@@ -129,7 +131,7 @@ type
       FTime: Single;
       FCamera: IQuadCamera;
 
-      procedure SetupShader;
+      procedure SetupShaders;
       procedure FillFirst;
       function ChessDistation(const A, B: TVectorI): Integer;
       function IsHaveAllNeighbors(const ASector: TVectorI): Boolean;
@@ -145,6 +147,7 @@ type
       procedure PrepareCamera;
 
       function IsOnScreen(ASystem: TStarSystem): Boolean;
+      procedure PrepareUnavailableBuffer;
       procedure DrawSystem(ASystem: TStarSystem);
       procedure DrawSystemInfo;
       procedure DrawCurtain;
@@ -590,10 +593,13 @@ begin
   FSelectedSystem := nil;
   FInfoSystem := nil;
 
+  FIsTransition := False;
+  FIsEnter := False;
+  FIsBack := False;
+  FCamera := TheEngine.CreateCamera;
+
   FStar :=
     (TheResourceManager.GetResource('Image', 'SimpleStarMarker') as TTextureExResource).Texture;
-  FMarkerLine :=
-    (TheResourceManager.GetResource('Image', 'MarkerLine') as TTextureExResource).Texture;
   FMarkerType :=
     (TheResourceManager.GetResource('Image', 'SystemInfo') as TTextureExResource).Texture;
   FMarkerContour :=
@@ -601,12 +607,8 @@ begin
   FMarkerEnemy :=
     (TheResourceManager.GetResource('Image', 'SystemEnemy') as TTextureExResource).Texture;
 
-  SetupShader;
-
-  FIsTransition := False;
-  FIsEnter := False;
-  FIsBack := False;
-  FCamera := TheEngine.CreateCamera;
+  SetupShaders;
+  PrepareUnavailableBuffer;
 end;
 
 destructor TStarMap.Destroy;
@@ -621,7 +623,7 @@ begin
   inherited;
 end;
 
-procedure TStarMap.SetupShader;
+procedure TStarMap.SetupShaders;
 begin
   TheDevice.CreateShader(FInfoShader);
   FInfoShader.LoadPixelShader('..\data\shd\systeminfo.bin');
@@ -651,6 +653,11 @@ begin
   FColorR[1] := 0.3;
   FColorR[2] := 0.2;
   FColorR[3] := 1;
+
+  TheDevice.CreateShader(FUnavailableShader);
+  FUnavailableShader.LoadPixelShader('..\data\shd\unavailable.bin');
+  FUnavailableShader.BindVariableToPS(1, @FUnRadius, 1);
+  FUnRadius := 0.4;
 end;
 
 function TStarMap.GetSelectedSystem;
@@ -921,6 +928,31 @@ begin
     (APosition.Y < FCamera.Resolution.Y + 2 * SYSTEM_SIZE);
 end;
 
+procedure TStarMap.PrepareUnavailableBuffer;
+var
+  ATexture: TQuadTexture;
+  I, J: Integer;
+begin
+  FUnavailableBuffer := nil;
+  TheRender.CreateRenderTexture(
+    Trunc(FCamera.Resolution.X), Trunc(FCamera.Resolution.Y),
+    FUnavailableBuffer, 0);
+
+  ATexture :=
+    (TheResourceManager.GetResource('Image', 'Unavailable') as TTextureExResource).Texture;
+
+  TheRender.BeginRender;
+    TheEngine.Camera := nil;
+    TheRender.RenderToTexture(True, FUnavailableBuffer);
+    for I := 0 to Trunc(FCamera.Resolution.X) div Trunc(ATexture.SpriteSize.X) + 1 do
+      for J := 0 to Trunc(FCamera.Resolution.Y) div Trunc(ATexture.SpriteSize.Y) + 1 do
+        ATexture.DrawByLeftTop(
+          Vec2F(ATexture.SpriteSize.X * I, ATexture.SpriteSize.Y * J),
+          0, $FFFFFFFF);
+    TheRender.RenderToTexture(False, FUnavailableBuffer);
+  TheRender.EndRender;
+end;
+
 procedure TStarMap.DrawSystem(ASystem: TStarSystem);
 var
   AColor: Cardinal;
@@ -977,6 +1009,11 @@ begin
       DrawSystem(ASystem);
   DrawSystemInfo;
   DrawCurtain;
+
+  FUnavailableShader.SetShaderState(True);
+    TheEngine.Camera := nil;
+    FUnavailableBuffer.Draw(0, 0, $10FF6060);
+  FUnavailableShader.SetShaderState(False);
 end;
 
 procedure TStarMap.OnUpdate(const ADelta: Double);
