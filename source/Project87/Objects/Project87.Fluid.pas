@@ -49,6 +49,7 @@ begin
   inherited Create;
 
   FType := AType;
+  FPreviosPosition := APosition;
   FPosition := APosition;
 end;
 
@@ -63,13 +64,17 @@ begin
 end;
 
 procedure TFluid.OnDraw;
+var
+  Color: Cardinal;
 begin
+  Color := $FFFFFFFF;
   case FType of
-    fYellow: TheResources.FluidTexture.Draw(FPosition, Vec2F(8, 8), FAngle, $FFFFFF00);
-    fBlue: TheResources.FluidTexture.Draw(FPosition, Vec2F(8, 8), FAngle, $FF00FF00);
-    fRed: TheResources.FluidTexture.Draw(FPosition, Vec2F(8, 8), FAngle, $FFFF0000);
-    fGreen: TheResources.FluidTexture.Draw(FPosition, Vec2F(8, 8), FAngle, $FF0000FF);
+    fYellow: Color := $FFFFFF00;
+    fBlue:   Color := $FF00FF00;
+    fRed:    Color := $FFFF0000;
+    fGreen:  Color := $FF0000FF;
   end;
+  TheResources.FluidTexture.Draw(FPosition, Vec2F(8, 8), FAngle, Color);
 end;
 
 procedure TFluid.OnUpdate(const  ADelta: Double);
