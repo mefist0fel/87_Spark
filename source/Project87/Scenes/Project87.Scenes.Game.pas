@@ -85,9 +85,9 @@ begin
   FStartAnimation := 1;
 
   for I := 0 to LIFEFRACTION_COUNT - 1 do
-    AEnemies[I] := 0.5;
+    AEnemies[I] := 0.15;
   for I := 0 to FLUID_TYPE_COUNT - 1 do
-    AResources[I] := 0.5;
+    AResources[I] := 0.27;
   FSystemResult := TStarSystemResult.Create(AEnemies, AResources);
 
   TObjectManager.GetInstance.ClearObjects();
