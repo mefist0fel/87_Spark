@@ -52,6 +52,7 @@ const
 var
   AFontEx: TFontExResource;
   ATextureEx: TTextureExResource;
+  ASceneParameter: TStarMapSceneParameters;
 begin
   //Создавать сцены и загружать основные ресурсы тут
   AFontEx := TFontExResource.CreateAndLoad('Font', 'Droid_28',
@@ -82,8 +83,12 @@ begin
     AGfxDir + 'starmap_elements\marker_line.png', 0);
   ResourceManager.AddResource(ATextureEx);
 
-  ATextureEx := TTextureExResource.CreateAndLoad('Image', 'MarkerArrow',
-    AGfxDir + 'starmap_elements\marker_arrow.png', 0);
+  ATextureEx := TTextureExResource.CreateAndLoad('Image', 'SystemInfo',
+    AGfxDir + 'starmap_elements\system.png', 0);
+  ResourceManager.AddResource(ATextureEx);
+
+  ATextureEx := TTextureExResource.CreateAndLoad('Image', 'SystemEdge',
+    AGfxDir + 'starmap_elements\edge.png', 0);
   ResourceManager.AddResource(ATextureEx);
 
   SceneManager.AddScene(TIntroScene.Create('Intro'));
@@ -91,9 +96,11 @@ begin
   SceneManager.AddScene(TStarMapScene.Create('StarMap'));
   SceneManager.AddScene(TGameScene.Create('Spark'));
   //SceneManager.MakeCurrent('Intro');
- // SceneManager.MakeCurrent('Intro');
-  SceneManager.MakeCurrent('Spark');
-  SceneManager.OnInitialize;
+  SceneManager.MakeCurrent('StarMap');
+  //SceneManager.MakeCurrent('Spark');
+
+  ASceneParameter := TStarMapSceneParameters.Create(False);
+  SceneManager.OnInitialize(ASceneParameter);
 end;
 {$ENDREGION}
 

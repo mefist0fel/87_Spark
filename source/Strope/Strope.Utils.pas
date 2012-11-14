@@ -5,14 +5,14 @@ interface
 uses
   Strope.Math;
 
-function GetDesktopResolution: TVector2I;
+function GetDesktopResolution: TVectorI;
 
 implementation
 
 uses
   Windows;
 
-function GetDesktopResolution: TVector2I;
+function GetDesktopResolution: TVectorI;
 begin
   Result := Vec2I(GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN));
 end;

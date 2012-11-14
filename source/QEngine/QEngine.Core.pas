@@ -41,7 +41,9 @@ type
       function CreateFont(): TQuadFont;
 
       property QuadDevice: IQuadDevice read GetDevice;
+      property QuadDeviceEx: TQuadDevice read FQuadDevice;
       property QuadRender: IQuadRender read GetRender;
+      property QyadRenderEx: TQuadRender read FQuadRender;
       ///<summary>Камера, которую учитывает движок при отрисовке.</summary>
       property Camera: IQuadCamera read GetCamera write SetCamera;
       ///<summary>Размер экрана по-умолчанию, к которому корректирует
@@ -105,10 +107,22 @@ type
       function GetResolution(): TVectorF;
       function GetDefaultResolution(): TVectorF;
 
-      function GetScreenPos(const APosition: TVectorF; AIsUseCorrection: Boolean = True): TVectorF;
-      function GetScreenSize(const ASize: TVectorF; AIsUseCorrection: Boolean = True): TVectorF;
-      function GetWorldPos(const APosition: TVectorF; AIsUseCorrection: Boolean = True): TVectorF;
-      function GetWorldSize(const ASize: TVectorF; AIsUseCorrection: Boolean = True): TVectorF;
+      function GetScreenPos(const APosition: TVectorF;
+        AIsUseCorrection: Boolean = True): TVectorF; overload;
+      function GetScreenPos(X, Y: Single;
+        AIsUseCorrection: Boolean = True): TVectorF; overload;
+      function GetScreenSize(const ASize: TVectorF;
+        AIsUseCorrection: Boolean = True): TVectorF; overload;
+      function GetScreenSize(Width, Height: Single;
+        AIsUseCorrection: Boolean = True): TVectorF; overload;
+      function GetWorldPos(const APosition: TVectorF;
+        AIsUseCorrection: Boolean = True): TVectorF; overload;
+      function GetWorldPos(X, Y: Single;
+        AIsUseCorrection: Boolean = True): TVectorF; overload;
+      function GetWorldSize(const ASize: TVectorF;
+        AIsUseCorrection: Boolean = True): TVectorF; overload;
+      function GetWorldSize(Width, Height: Single;
+        AIsUseCorrection: Boolean = True): TVectorF; overload;
     public
       constructor Create(const ADefaultResolution, ACurrentResolution: TVectorI);
 
@@ -300,6 +314,30 @@ end;
 procedure TQuadCamera.SetUseCorrection(AUseCorrection: Boolean);
 begin
   FUseCorrection := AUseCorrection;
+end;
+
+function TQuadCamera.GetScreenPos(X, Y: Single;
+  AIsUseCorrection: Boolean): TVectorF;
+begin
+  GetScreenPos(Vec2F(X, Y), AIsUseCorrection);
+end;
+
+function TQuadCamera.GetScreenSize(Width, Height: Single;
+  AIsUseCorrection: Boolean): TVectorF;
+begin
+  GetScreenSize(Vec2F(Width, Height), AIsUseCorrection);
+end;
+
+function TQuadCamera.GetWorldPos(X, Y: Single;
+  AIsUseCorrection: Boolean): TVectorF;
+begin
+  GetWorldPos(Vec2F(X, Y), AIsUseCorrection);
+end;
+
+function TQuadCamera.GetWorldSize(Width, Height: Single;
+  AIsUseCorrection: Boolean): TVectorF;
+begin
+  GetWorldSize(Vec2F(Width, Height), AIsUseCorrection);
 end;
 {$ENDREGION}
 

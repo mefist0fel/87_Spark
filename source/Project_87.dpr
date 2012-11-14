@@ -1,7 +1,5 @@
 program Project_87;
 
-{$DEFINE AUTOREFCOUNT}
-
 uses
   SysUtils,
   Strope.Math in 'Strope\Strope.Math.pas',

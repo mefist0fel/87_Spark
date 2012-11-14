@@ -9,6 +9,15 @@ uses
   Project87.Types.StarMap;
 
 type
+  TStarMapSceneParameters = class sealed
+    strict private
+      FIsNewGame: Boolean;
+    public
+      constructor Create(AIsNewGame: Boolean);
+
+      property IsNewGame: Boolean read FIsNewGame;
+  end;
+
   TStarMapScene = class sealed (TScene)
     strict private
       FMap: TStarMap;
@@ -34,14 +43,22 @@ uses
   QEngine.Core,
   QApplication.Application;
 
+{$REGION '  TStarMapSceneParameters  '}
+constructor TStarMapSceneParameters.Create(AIsNewGame: Boolean);
+begin
+  FIsNewGame := AIsNewGame;
+end;
+{$ENDREGION}
+
 {$REGION '  TStarMapScene  '}
+const
+  STARMAP_FILE = '..\data\map\starmap.map';
+
 constructor TStarMapScene.Create(const AName: string);
 begin
   inherited Create(AName);
 
   FMap := TStarMap.Create;
-  FMap.LoadFromFile('..\data\map\starmap.map');
-  //FMap.FillFirst;
 end;
 
 destructor TStarMapScene.Destroy;
@@ -53,6 +70,25 @@ end;
 
 procedure TStarMapScene.OnInitialize(AParameter: TObject);
 begin
+  if not Assigned(AParameter) then
+  begin
+    FMap.Clear;
+    FMap.LoadFromFile(STARMAP_FILE);
+    FMap.BackToMap;
+    Exit;
+  end;
+
+  if AParameter is TStarMapSceneParameters then
+  begin
+    FMap.Clear;
+    if (AParameter as TStarMapSceneParameters).IsNewGame then
+      FMap.OnInitialize
+    else
+      FMap.LoadFromFile(STARMAP_FILE);
+    FMap.BackToMap;
+    Exit;
+  end;
+
   if AParameter is TStarSystemResult then
     FMap.BackToMap(AParameter as TStarSystemResult)
   else
@@ -75,22 +111,26 @@ end;
 
 procedure TStarMapScene.OnDestroy;
 begin
-  FMap.SaveToFile('..\data\map\starmap.map');
+  FMap.SaveToFile(STARMAP_FILE);
 end;
 
 function TStarMapScene.OnMouseMove(const AMousePosition: TVectorF): Boolean;
 begin
+  Result := True;
   FMap.OnMouseMove(AMousePosition);
 end;
 
 function TStarMapScene.OnMouseButtonUp(AButton: TMouseButton;
   const AMousePosition: TVectorF): Boolean;
 begin
+  Result := True;
   FMap.OnMouseButtonUp(AButton, AMousePosition);
 end;
 
 function TStarMapScene.OnKeyUp(AKey: TKeyButton): Boolean;
 begin
+  Result := True;
+
   if AKey = KB_ESC then
   begin
     TheApplication.Stop;

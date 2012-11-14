@@ -16,7 +16,8 @@ type
     protected
       FColor: Cardinal;
     public
-      constructor CreateUnit(const APosition: TVector2F; AAngle: Single; ASide: TUnitSide); override;
+      constructor CreateUnit(const APosition: TVector2F; AAngle: Single;
+        ASide: TUnitSide); override;
 
       procedure OnDraw; override;
 //      procedure OnUpdate(const ADelta: Double); override;
@@ -33,7 +34,8 @@ uses
   QEngine.Texture;
 
 {$REGION '  TBaseEnemy  '}
-constructor TBaseEnemy.CreateUnit(const APosition: TVector2F; AAngle: Single; ASide: TUnitSide);
+constructor TBaseEnemy.CreateUnit(const APosition: TVector2F; AAngle: Single;
+  ASide: TUnitSide);
 begin
   inherited;
   FRadius := 35;
@@ -53,8 +55,13 @@ begin
   TheResources.HeroTexture.Draw(FPosition, Vec2F(10, 20), FTowerAngle, FColor);
   ShieldAlpha := Trunc(FShowShieldTime * $52);
   if FLife < MAX_LIFE then
-    TheRender.Rectangle(FPosition.X - 35, FPosition.Y - 43, FPosition.X - 35 + FLife / MAX_LIFE * 70, FPosition.Y - 40, $FF00FF00);
-  TheResources.AsteroidTexture.Draw(FPosition, Vec2F(70, 70), FTowerAngle, ShieldAlpha * $1000000 + FColor - $FF000000);
+    TheRender.Rectangle(
+      FPosition.X - 35, FPosition.Y - 43,
+      FPosition.X - 35 + FLife / MAX_LIFE * 70, FPosition.Y - 40,
+      $FF00FF00);
+  TheResources.AsteroidTexture.Draw(
+    FPosition, Vec2F(70, 70), FTowerAngle,
+    ShieldAlpha * $1000000 + FColor - $FF000000);
 end;
 
 procedure TBaseEnemy.OnCollide(OtherObject: TPhysicalObject);
@@ -62,12 +69,15 @@ begin
   if FIsDead then
     Exit;
 
-  if (OtherObject is TAsteroid) or (OtherObject is THero) or (OtherObject is TBaseEnemy) then
+  if (OtherObject is TAsteroid) or
+    (OtherObject is THero) or
+    (OtherObject is TBaseEnemy)
+  then
   begin
     FShowShieldTime := 0.7;
   end;
 end;
-//
+
 //procedure TBaseEnemy.OnUpdate(const ADelta: Double);
 //begin
 //  inherited;

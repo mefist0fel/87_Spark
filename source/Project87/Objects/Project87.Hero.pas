@@ -14,7 +14,7 @@ uses
 type
   THero = class (TBaseUnit)
     private
-      FFluid: array [0..FLUID_TYPE_COUNT] of Word;
+      FFluid: array [0..FLUID_TYPE_COUNT - 1] of Word;
       FNeedAngle: Single;
       FAngularSpeed: Single;
       FNeedCameraPosition: TVector2F;
@@ -71,9 +71,9 @@ end;
 
 function THero.GetFluid(AIndex: Integer): Word;
 begin
-  if (AIndex < 0) or (AIndex > FLUID_TYPE_COUNT) then
+  if (AIndex < 0) or (AIndex >= FLUID_TYPE_COUNT) then
     Exit(0);
-  Exit(FFluid[AIndex]);
+  Result := FFluid[AIndex];
 end;
 
 procedure THero.OnDraw;

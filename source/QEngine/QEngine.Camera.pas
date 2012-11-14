@@ -30,14 +30,20 @@ type
     ///<remarks>Установка флага AIsUseCorrection приводит к тому, что будут
     /// возвращаться координаты на экране по умолчанию, то есть для прямоугольника экрана
     /// вписанного в прямоугольник текущего экрана. </remarks>
-    function GetScreenPos(const APosition: TVectorF; AIsUseCorrection: Boolean = True): TVectorF;
+    function GetScreenPos(const APosition: TVectorF;
+      AIsUseCorrection: Boolean = True): TVectorF; overload;
+    function GetScreenPos(X, Y: Single;
+      AIsUseCorrection: Boolean = True): TVectorF; overload;
 
     ///<summary>Преобразует глобальный размер в экранный.</summary>
     ///<param name="ASize">Глобальные размер некоторой области.</param>
     ///<param name="AIsUseCorrection">Флаг, указвающий на то, будет ли учитыватся коррекция
     /// разрешения при расчёте координат.</param>
     ///<returns>Экранный размер учитывающие масштаб камеры.</returns>
-    function GetScreenSize(const ASize: TVectorF; AIsUseCorrection: Boolean = True): TVectorF;
+    function GetScreenSize(const ASize: TVectorF;
+      AIsUseCorrection: Boolean = True): TVectorF; overload;
+    function GetScreenSize(Width, Height: Single;
+      AIsUseCoorection: Boolean = True): TVectorF; overload;
 
     ///<summary>Преобразует экранные координаты в глобальные.</summary>
     ///<param name="APosition">Экранные координаты некоторой точки</param>
@@ -50,14 +56,20 @@ type
     /// точке (0, 0) текущего экрана, она будет расположена там, где находится
     /// левый верхний угол прямоугольника разрешения по умолчанию
     /// вписанного в прямоугольник текущего экрана. </remarks>
-    function GetWorldPos(const APosition: TVectorF; AIsUseCorrection: Boolean = True): TVectorF;
+    function GetWorldPos(const APosition: TVectorF;
+      AIsUseCorrection: Boolean = True): TVectorF; overload;
+    function GetWorldPos(X, Y: Single;
+      AIsUseCorrection: Boolean = True): TVectorF; overload;
 
     ///<summary>Преобразует экранный размер в глобальный.</summary>
     ///<param name="ASize">Экранный размер некоторой области.</param>
     ///<param name="AIsUseCorrection">Флаг, указвающий на то, будет ли учитыватся коррекция
     /// разрешения при расчёте координат.</param>
     ///<returns>Глобальный размер учитывающий масштаб камеры.</returns>
-    function GetWorldSize(const ASize: TVectorF; AIsUseCorrection: Boolean = True): TVectorF;
+    function GetWorldSize(const ASize: TVectorF;
+      AIsUseCorrection: Boolean = True): TVectorF; overload;
+    function GetWorldSize(Width, Height: Single;
+      AIsUseCorrection: Boolean = True): TVectorF; overload;
 
     ///<summary>Позиция камеры, соответствующая центру экрана.</remarks>
     property Position: TVectorF read GetPosition write SetPosition;

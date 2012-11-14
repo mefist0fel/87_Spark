@@ -39,7 +39,8 @@ implementation
 
 uses
   SysUtils,
-  QCore.Input;
+  QCore.Input,
+  QApplication.Application;
 
 {$REGION '  TWindow  '}
 function WindowProcess(
@@ -109,7 +110,7 @@ end;
 
 function TWindow.WndProc(Msg: Cardinal; WParam, LParam: Integer): Boolean;
 var
-  X, Y: Integer;
+  APosition: TPoint;
 begin
   Result := False;
   case Msg of
@@ -152,51 +153,93 @@ begin
     {$REGION '  Mouse input  '}
     WM_MOUSEMOVE:
       begin
-        X := LParam and $0000FFFF;
-        Y := (LParam and $FFFF0000) shr 16;
-        FOwner.OnMouseMove(TVectorF.Create(X, Y));
+        GetCursorPos(APosition);
+        ScreenToClient(Handle, APosition);
+        //Бред, но почему так вечно?!!
+        if TheApplication.IsFullscreen then
+        begin
+          APosition.X := APosition.X + FBorderSizeX;
+          APosition.Y := APosition.Y + FCaptionSize + FBorderSizeY;
+        end;
+        FOwner.OnMouseMove(Vec2F(APosition.X, APosition.Y));
         Exit(True);
       end;
     WM_LBUTTONDOWN:
       begin
-        X := LParam and $0000FFFF;
-        Y := (LParam and $FFFF0000) shr 16;
-        FOwner.OnMouseButtonDown(mbLeft, TVectorF.Create(X, Y));
+        GetCursorPos(APosition);
+        ScreenToClient(Handle, APosition);
+        //Бред, но почему так вечно?!!
+        if TheApplication.IsFullscreen then
+        begin
+          APosition.X := APosition.X + FBorderSizeX;
+          APosition.Y := APosition.Y + FCaptionSize + FBorderSizeY;
+        end;
+        FOwner.OnMouseButtonDown(mbLeft, Vec2F(APosition.X, APosition.Y));
         Exit(True);
       end;
     WM_LBUTTONUP:
       begin
-        X := LParam and $0000FFFF;
-        Y := (LParam and $FFFF0000) shr 16;
-        FOwner.OnMouseButtonUp(mbLeft, TVectorF.Create(X, Y));
+        GetCursorPos(APosition);
+        ScreenToClient(Handle, APosition);
+        //Бред, но почему так вечно?!!
+        if TheApplication.IsFullscreen then
+        begin
+          APosition.X := APosition.X + FBorderSizeX;
+          APosition.Y := APosition.Y + FCaptionSize + FBorderSizeY;
+        end;
+        FOwner.OnMouseButtonUp(mbLeft, Vec2F(APosition.X, APosition.Y));
         Exit(True);
       end;
     WM_RBUTTONDOWN:
       begin
-        X := LParam and $0000FFFF;
-        Y := (LParam and $FFFF0000) shr 16;
-        FOwner.OnMouseButtonDown(mbRight, TVectorF.Create(X, Y));
+        GetCursorPos(APosition);
+        ScreenToClient(Handle, APosition);
+        //Бред, но почему так вечно?!!
+        if TheApplication.IsFullscreen then
+        begin
+          APosition.X := APosition.X + FBorderSizeX;
+          APosition.Y := APosition.Y + FCaptionSize + FBorderSizeY;
+        end;
+        FOwner.OnMouseButtonDown(mbRight, Vec2F(APosition.X, APosition.Y));
         Exit(True);
       end;
     WM_RBUTTONUP:
       begin
-        X := LParam and $0000FFFF;
-        Y := (LParam and $FFFF0000) shr 16;
-        FOwner.OnMouseButtonUp(mbRight, TVectorF.Create(X, Y));
+        GetCursorPos(APosition);
+        ScreenToClient(Handle, APosition);
+        //Бред, но почему так вечно?!!
+        if TheApplication.IsFullscreen then
+        begin
+          APosition.X := APosition.X + FBorderSizeX;
+          APosition.Y := APosition.Y + FCaptionSize + FBorderSizeY;
+        end;
+        FOwner.OnMouseButtonUp(mbRight, Vec2F(APosition.X, APosition.Y));
         Exit(True);
       end;
     WM_MBUTTONDOWN:
       begin
-        X := LParam and $0000FFFF;
-        Y := (LParam and $FFFF0000) shr 16;
-        FOwner.OnMouseButtonDown(mbMiddle, TVectorF.Create(X, Y));
+        GetCursorPos(APosition);
+        ScreenToClient(Handle, APosition);
+        //Бред, но почему так вечно?!!
+        if TheApplication.IsFullscreen then
+        begin
+          APosition.X := APosition.X + FBorderSizeX;
+          APosition.Y := APosition.Y + FCaptionSize + FBorderSizeY;
+        end;
+        FOwner.OnMouseButtonDown(mbMiddle, Vec2F(APosition.X, APosition.Y));
         Exit(True);
       end;
     WM_MBUTTONUP:
       begin
-        X := LParam and $0000FFFF;
-        Y := (LParam and $FFFF0000) shr 16;
-        FOwner.OnMouseButtonUp(mbMiddle, TVectorF.Create(X, Y));
+        GetCursorPos(APosition);
+        ScreenToClient(Handle, APosition);
+        //Бред, но почему так вечно?!!
+        if TheApplication.IsFullscreen then
+        begin
+          APosition.X := APosition.X + FBorderSizeX;
+          APosition.Y := APosition.Y + FCaptionSize + FBorderSizeY;
+        end;
+        FOwner.OnMouseButtonUp(mbMiddle, Vec2F(APosition.X, APosition.Y));
         Exit(True);
       end;
     WM_MOUSEWHEEL:
