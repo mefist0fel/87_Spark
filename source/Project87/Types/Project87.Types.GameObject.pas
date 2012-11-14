@@ -89,6 +89,7 @@ type
 
       class function GetInstance: TObjectManager;
 
+      procedure SolveCollisions(ACount: Word);
       procedure OnDraw;
       procedure OnUpdate(const ADelta: Double);
       procedure ClearObjects;
@@ -287,6 +288,23 @@ begin
       GameObject.Move(ADelta);
 
   CheckDeadObjects;
+end;
+
+procedure TObjectManager.SolveCollisions(ACount: Word);
+var
+  I: Word;
+  PhysicalObject: TPhysicalObject;
+begin
+  for i := 0  to ACount do
+  begin
+    CheckCollisions();
+    for PhysicalObject in FPhysicalObjects do
+      if not PhysicalObject.FIsDead then
+      begin
+        PhysicalObject.FPosition := PhysicalObject.FPosition + PhysicalObject.FCorrection;
+        PhysicalObject.FCorrection := ZeroVectorF;
+      end;
+  end;
 end;
 
 procedure TObjectManager.CheckCollisions;

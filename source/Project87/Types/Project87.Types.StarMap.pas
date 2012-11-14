@@ -856,6 +856,8 @@ procedure TStarMap.BackToMap;
 var
   I: Integer;
 begin
+  if FCurrentSystem = nil then
+    Clear;
   if Assigned(AResult) then
   begin
     FCurrentSystem.IsOpened := True;

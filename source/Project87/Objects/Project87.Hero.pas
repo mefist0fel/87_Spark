@@ -11,6 +11,9 @@ uses
   Project87.Types.GameObject,
   Project87.Types.Weapon;
 
+const
+  IN_SYSTEM_JUMP_SPEED = 500;
+
 type
   THero = class (TBaseUnit)
     private
@@ -38,6 +41,7 @@ type
       procedure OnUpdate(const  ADelta: Double); override;
       procedure OnCollide(OtherObject: TPhysicalObject); override;
 
+      procedure FlyInSystem(APosition: TVector2F; AAngle: Single);
       procedure AddFluid(AType: TFluidType);
 
       property Fluid[AIndex: Integer]: Word read GetFluid;
@@ -84,7 +88,7 @@ begin
   TheResources.HeroTexture.Draw(FPosition, Vec2F(10, 20), FTowerAngle, $FFFFFFFF);
   ShieldAlpha := Trunc(FShowShieldTime * $52);
   TheResources.AsteroidTexture.Draw(FPosition, Vec2F(70, 70), FTowerAngle, ShieldAlpha * $1000000 + $FFFFFF);
-  TheResources.Font.TextOut(FMessage, FPosition, 1);
+  TheResources.Font.TextOut(FMessage, FPosition, 1 * TheEngine.Camera.Scale.x);
 end;
 
 procedure THero.OnUpdate(const ADelta: Double);
@@ -109,7 +113,7 @@ begin
   if DistanceToCamera < 1 then
     DistanceToCamera := 1;
 
-  FNeedCameraPosition := (MousePosition - FPosition) * (0.5 / DistanceToCamera) + FPosition;
+  FNeedCameraPosition := {(MousePosition - FPosition) * (0.5 / DistanceToCamera) + }FPosition;
   TheEngine.Camera.Position := TheEngine.Camera.Position * (1 - ADelta * 20) +
     FNeedCameraPosition * (ADelta * 20);
 end;
@@ -126,6 +130,13 @@ begin
     FMessage := 'Enemy';
     FShowShieldTime := 0.7;
   end;
+end;
+
+procedure THero.FlyInSystem(APosition: TVector2F; AAngle: Single);
+begin
+  FPosition := APosition;
+  FAngle := AAngle;
+  FVelocity := GetRotatedVector(FAngle, IN_SYSTEM_JUMP_SPEED);
 end;
 
 procedure THero.AddFluid(AType: TFluidType);

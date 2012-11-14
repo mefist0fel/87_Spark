@@ -23,9 +23,12 @@ type
       FObjectManager: TObjectManager;
       FResource: TResources;
       FStartAnimation: Single;
+      FShowMap: Single;
       FSystemResult: TStarSystemResult;
       FHero: THero;
       FFont: TQuadFont;
+      procedure UpdateStartAnimation(const ADelta: Double);
+      procedure ShowLocalMap;
     public
       constructor Create(const AName: string);
       destructor Destroy; override;
@@ -51,6 +54,7 @@ uses
   Project87.BaseEnemy,
   Project87.BigEnemy,
   Project87.SmallEnemy,
+  Project87.Types.SystemGenerator,
   QApplication.Application;
 
 {$REGION '  TGameScene  '}
@@ -77,12 +81,13 @@ end;
 procedure TGameScene.OnInitialize(AParameter: TObject);
 var
   I: Word;
-  UnitSide: TUnitSide ;
   AEnemies: array [0..LIFEFRACTION_COUNT - 1] of Single;
   AResources: array [0..FLUID_TYPE_COUNT - 1] of Single;
+  UnitSide: TUnitSide ;
 begin
   TheEngine.Camera := FMainCamera;
   FStartAnimation := 1;
+  FShowMap := 1;
 
   for I := 0 to LIFEFRACTION_COUNT - 1 do
     AEnemies[I] := 0.15;
@@ -93,47 +98,26 @@ begin
   TObjectManager.GetInstance.ClearObjects();
 
   FHero := THero.CreateUnit(ZeroVectorF, Random(360), usHero);
-
-  for I := 0 to 100 do
-    TAsteroid.CreateAsteroid(
-      Vec2F(Random(5000) - 2500, Random(5000) - 2500),
-      Random(360), 20 + Random(100),
-      TFluidType(Random(4)));
-  UnitSide := TUnitSide(Random(3) + 2);
-  for I := 0 to 40 do
-    TBaseEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), UnitSide);
-  for I := 0 to 10 do
-    TBigEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), UnitSide);
-  for I := 0 to 20 do
-    TSmallEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), UnitSide);
-//  for I := 0 to 400 do
-//    TFluid.CreateFluid(Vec2F(Random(5000) - 2500, Random(5000) - 2500), TFluidType(Random(4)));
+  if (AParameter is TStarSystem) then
+    TSystemGenerator.GenerateSystem(FHero, TStarSystem(AParameter));
 end;
 
 procedure TGameScene.OnUpdate(const ADelta: Double);
 begin
-  if (FStartAnimation > 0) then
-  begin
-    FStartAnimation := FStartAnimation - ADelta * 2;
-    FMainCamera.Scale := Vec2F(
-      1 - FStartAnimation * FStartAnimation * 0.8,
-      1 - FStartAnimation * FStartAnimation * 0.8);
-    if (FStartAnimation <= 0) then
-    begin
-      FStartAnimation := 0;
-      FMainCamera.Scale := Vec2F(1, 1);
-    end;
-  end;
-
+  UpdateStartAnimation(ADelta);
+  ShowLocalMap();
   FObjectManager.OnUpdate(ADelta);
 end;
 
 procedure TGameScene.OnDraw(const ALayer: Integer);
+var
+  I: Integer;
 begin
   TheRender.Clear($FF000000);
 
   TheEngine.Camera := FMainCamera;
   TheRender.SetBlendMode(qbmSrcAlpha);
+
   FObjectManager.OnDraw;
 
   TheEngine.Camera := FGUICamera;
@@ -158,8 +142,44 @@ begin
   begin
     TheSceneManager.MakeCurrent('StarMap');
     TheSceneManager.OnInitialize(FSystemResult);
-    //Потому что внутри я его чистю!
     FSystemResult := nil;
+  end;
+end;
+
+procedure TGameScene.UpdateStartAnimation(const ADelta: Double);
+begin
+  if (FStartAnimation > 0) then
+  begin
+    FStartAnimation := FStartAnimation - ADelta * 2;
+    FMainCamera.Scale := Vec2F(
+      1 - FStartAnimation * FStartAnimation * 0.8,
+      1 - FStartAnimation * FStartAnimation * 0.8);
+    if (FStartAnimation <= 0) then
+    begin
+      FStartAnimation := 0;
+      FMainCamera.Scale := Vec2F(1, 1);
+    end;
+  end;
+end;
+
+procedure TGameScene.ShowLocalMap;
+begin
+  if (TheControlState.Keyboard.IsKeyPressed[KB_TAB]) then
+  begin
+    if (FShowMap > 0.1) then
+    begin
+      FShowMap := FShowMap * 0.85;
+      if FShowMap < 0.1 then
+        FShowMap := 0.1;
+      FMainCamera.Scale := Vec2F(FShowMap, FShowMap);
+    end;
+  end else
+  if (FShowMap < 1) then
+  begin
+    FShowMap := FShowMap * 1.1;
+    if FShowMap > 1 then
+      FShowMap := 1;
+    FMainCamera.Scale := Vec2F(FShowMap, FShowMap);
   end;
 end;
 {$ENDREGION}
