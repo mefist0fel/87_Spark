@@ -11,6 +11,9 @@ uses
   Project87.Types.GameObject,
   Project87.Types.Weapon;
 
+const
+  IN_SYSTEM_JUMP_SPEED = 500;
+
 type
   THero = class (TBaseUnit)
     private
@@ -38,6 +41,7 @@ type
       procedure OnUpdate(const  ADelta: Double); override;
       procedure OnCollide(OtherObject: TPhysicalObject); override;
 
+      procedure FlyInSystem(APosition: TVector2F; AAngle: Single);
       procedure AddFluid(AType: TFluidType);
 
       property Fluid[AIndex: Integer]: Word read GetFluid;
@@ -126,6 +130,13 @@ begin
     FMessage := 'Enemy';
     FShowShieldTime := 0.7;
   end;
+end;
+
+procedure THero.FlyInSystem(APosition: TVector2F; AAngle: Single);
+begin
+  FPosition := APosition;
+  FAngle := AAngle;
+  FVelocity := GetRotatedVector(FAngle, IN_SYSTEM_JUMP_SPEED);
 end;
 
 procedure THero.AddFluid(AType: TFluidType);

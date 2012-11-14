@@ -57,11 +57,16 @@ type
       FLifeSeed: Integer;
 
       FIsInfoHided: Boolean;
+      FSizeFactor: Single;
       FRadius, FResourcesRadius, FNeedRadius: Single;
+      FEnemyRadius, FNeedEnemyRadius: Single;
+      FEnemySize: array [0..LIFEFRACTION_COUNT - 1] of Single;
+      FEnemyColor: array [0..LIFEFRACTION_COUNT - 1] of Cardinal;
+      FEnemyCount: Integer;
       FAngles: array [0..3] of Single;
       FNeedAngles: array [0..3] of Single;
       FIsShow, FIsHide: Boolean;
-      FAlpha: Single;
+      FAlpha, FEnemyAngle: Single;
       FTime: Single;
     private
       FEnemies: array [0..LIFEFRACTION_COUNT - 1] of Single;
@@ -74,6 +79,9 @@ type
       procedure SaveToStream(AStream: TFileStream);
       function IsContains(const APoint: TVectorF): Boolean;
 
+      procedure CheckSize;
+      procedure CheckEnemies;
+      procedure CheckResources;
       procedure ShowInfo;
       procedure HideInfo;
 
@@ -85,7 +93,7 @@ type
 
       property IsOpened: Boolean read FIsOpened write FIsOpened;
       property IsInfoHided: Boolean read FIsInfoHided;
-      property Radius: Single read FRadius;
+      property SizeFactor: Single read FSizeFactor;
     public
       property Id: TObjectId read FId;
       property Sector: TVectorI read FSector;
@@ -143,6 +151,7 @@ type
     private
       FMarkerType: TQuadTexture;
       FMarkerContour: TQuadTexture;
+      FMarkerEnemy: TQuadTexture;
       FNeedDraw: TList<TStarSystem>;
 
       FInfoShader: IQuadShader;
@@ -193,14 +202,16 @@ const
   SYSTEMS_IN_SECTOR = 180;
   SYSTEM_SIZE = 12;
   MAX_DISTANCE = 320;
-  TRANSITION_TIME = 1.2;
-  BACK_TO_MAP_TIME = 0.6;
-  ENTER_TO_SYSTEM_TIME = 0.6;
+  TRANSITION_TIME = 0.6;
+  BACK_TO_MAP_TIME = 0.55;
+  ENTER_TO_SYSTEM_TIME = 0.55;
   SystemSize: TVectorF = (X: SYSTEM_SIZE; Y: SYSTEM_SIZE);
 
-  SYSTEM_INFO_SIZE = 5.5;
+  SYSTEM_INFO_SIZE = 5;
   SHOW_INFO_TIME = 0.6;
   HIDE_INFO_TIME = 0.45;
+  ENEMY_ROTATION_SPEED = 40;
+  ENEMY_SIZE = 20;
 
 {$REGION '  TStarSystemResult  '}
 constructor TStarSystemResult.Create(AEnemies, AResources: array of Single);
@@ -233,6 +244,7 @@ constructor TStarSystem.Create;
 begin
   FId := TStarMap.GetNewId;
   FIsInfoHided := True;
+  FEnemyAngle := 0;
 end;
 
 procedure TStarSystem.Generate(const ASector: TVectorI);
@@ -351,15 +363,64 @@ begin
   Result := Distance(FPosition, APoint) < 2 * SYSTEM_SIZE;
 end;
 
+procedure TStarSystem.CheckSize;
+begin
+  case FSize of
+    ssSmall: FSizeFactor := 0.7;
+    ssMedium: FSizeFactor := 1;
+    ssBig: FSizeFactor := 1.3;
+  end;
+end;
+
+procedure TStarSystem.CheckEnemies;
+var
+  I: Integer;
+begin
+  FEnemyCount := 0;
+  for I := 0 to LIFEFRACTION_COUNT - 1 do
+    if TLifeFraction(I) in FFractions then
+    begin
+      if FIsOpened then
+        FEnemySize[FEnemyCount] := Clamp(FEnemies[I], 1, 0.1)
+      else
+        FEnemySize[FEnemyCount] := 1;
+
+      case I of
+        0: FEnemyColor[FEnemyCount] := $FF0000;
+        1: FEnemyColor[FEnemyCount] := $FF00;
+        2: FEnemyColor[FEnemyCount] := $FF;
+      end;
+      Inc(FEnemyCount);
+    end;
+end;
+
+procedure TStarSystem.CheckResources;
+begin
+  if FIsOpened then
+  begin
+    FNeedAngles[0] := 2 * Pi * FResources[0] / 4;
+    FNeedAngles[1] := FNeedAngles[0] + 2 * Pi * FResources[1] / 4;
+    FNeedAngles[2] := FNeedAngles[1] + 2 * Pi * FResources[2] / 4;
+    FNeedAngles[3] := FNeedAngles[2] + 2 * Pi * FResources[3] / 4;
+  end
+  else
+  begin
+    FNeedAngles[0] := 0;
+    FNeedAngles[1] := 0;
+    FNeedAngles[2] := 0;
+    FNeedAngles[3] := 0;
+  end;
+end;
+
 procedure TStarSystem.ShowInfo;
 begin
   FIsInfoHided := False;
   FIsShow := True;
+  CheckEnemies;
+  CheckSize;
   FNeedRadius := 0.5;
-  FNeedAngles[0] := 2 * Pi * FResources[0] / 4;
-  FNeedAngles[1] := FNeedAngles[0] + 2 * Pi * FResources[1] / 4;
-  FNeedAngles[2] := FNeedAngles[1] + 2 * Pi * FResources[2] / 4;
-  FNeedAngles[3] := FNeedAngles[2] + 2 * Pi * FResources[3] / 4;
+  FNeedEnemyRadius := SYSTEM_SIZE * SYSTEM_INFO_SIZE * 1.25;
+  CheckResources;
   if FIsHide then
   begin
     FIsHide := False;
@@ -372,11 +433,11 @@ end;
 procedure TStarSystem.HideInfo;
 begin
   FIsHide := True;
+  CheckEnemies;
+  CheckSize;
   FNeedRadius := 0.5;
-  FNeedAngles[0] := 2 * Pi * FResources[0] / 4;
-  FNeedAngles[1] := FNeedAngles[0] + 2 * Pi * FResources[1] / 4;
-  FNeedAngles[2] := FNeedAngles[1] + 2 * Pi * FResources[2] / 4;
-  FNeedAngles[3] := FNeedAngles[2] + 2 * Pi * FResources[3] / 4;
+  FNeedEnemyRadius := SYSTEM_SIZE * SYSTEM_INFO_SIZE * 1.25;
+  CheckResources;
   if FIsShow then
   begin
     FIsShow := False;
@@ -389,6 +450,7 @@ end;
 procedure TStarSystem.Draw(AOwner: TStarMap);
 var
   I: Integer;
+  AVector: TVectorF;
 begin
   AOwner.FInfoRadius[0] := FResourcesRadius;
   AOwner.FInfoRadius[1] := FRadius;
@@ -397,16 +459,27 @@ begin
 
   AOwner.FInfoShader.SetShaderState(True);
     AOwner.FMarkerType.Draw(
-      FPosition, SystemSize * SYSTEM_INFO_SIZE * 2,
+      FPosition, SystemSize * SYSTEM_INFO_SIZE * 2 * FSizeFactor,
       0, D3DCOLOR_COLORVALUE(1, 1, 1, FAlpha));
   AOwner.FInfoShader.SetShaderState(False);
 
   AOwner.FMarkerContour.Draw(
-    FPosition, SystemSize * SYSTEM_INFO_SIZE * 4 * FRadius * 0.93,
-    0, D3DCOLOR_COLORVALUE(1, 1, 1, FAlpha * 0.1));
+    FPosition, SystemSize * SYSTEM_INFO_SIZE * 4 * FRadius * 0.92 * FSizeFactor,
+    0, D3DCOLOR_COLORVALUE(0.1, 0.1, 0.1, FAlpha));
   AOwner.FMarkerContour.Draw(
-    FPosition, SystemSize * SYSTEM_INFO_SIZE * 4 * FRadius * 1.04,
+    FPosition, SystemSize * SYSTEM_INFO_SIZE * 4 * FRadius * 1.03 * FSizeFactor,
+    0, D3DCOLOR_COLORVALUE(0.1, 0.1, 0.1, FAlpha));
+
+  AOwner.FMarkerContour.Draw(
+    FPosition, Vec2F(FEnemyRadius, FEnemyRadius) * 2.05 * FSizeFactor,
     0, D3DCOLOR_COLORVALUE(1, 1, 1, FAlpha * 0.1));
+  for I := 0 to FEnemyCount - 1 do
+  begin
+    AVector := GetRotatedVector(FEnemyAngle + I * 360 / FEnemyCount, FEnemyRadius * FSizeFactor);
+    AOwner.FMarkerEnemy.Draw(FPosition + AVector,
+      Vec2F(ENEMY_SIZE, ENEMY_SIZE) * FAlpha * FEnemySize[I] * FSizeFactor,
+      0, FEnemyColor[I] + D3DCOLOR_COLORVALUE(0, 0, 0, FAlpha));
+  end;
 end;
 
 procedure TStarSystem.Update(ADelta: Double);
@@ -414,12 +487,16 @@ var
   I: Integer;
   AProgress: Single;
 begin
+  FEnemyAngle := FEnemyAngle + ENEMY_ROTATION_SPEED * ADelta;
+  FEnemyAngle := RoundAngle(FEnemyAngle);
+
   if FIsShow then
   begin
     FTime := FTime + ADelta;
     AProgress := FTime / SHOW_INFO_TIME;
     FAlpha := InterpolateValue(0, 1, AProgress, itLinear);
     FRadius := InterpolateValue(0, FNeedRadius, AProgress, itHermit01);
+    FEnemyRadius := InterpolateValue(0, FNeedEnemyRadius, AProgress, itHermit01);
     FResourcesRadius := FRadius * 0.9;
     for I := 0 to 3 do
       FAngles[I] := InterpolateValue(0, FNeedAngles[I], AProgress, itHermit01);
@@ -440,6 +517,7 @@ begin
     AProgress := FTime / HIDE_INFO_TIME;
     FAlpha := InterpolateValue(1, 0, AProgress, itLinear);
     FRadius := InterpolateValue(FNeedRadius, 0, AProgress, itHermit01);
+    FEnemyRadius := InterpolateValue(FNeedEnemyRadius, 0, AProgress, itHermit01);
     FResourcesRadius := FRadius * 0.9;
     for I := 0 to 3 do
       FAngles[I] := InterpolateValue(FNeedAngles[I], 0, AProgress, itHermit01);
@@ -489,6 +567,8 @@ begin
     (TheResourceManager.GetResource('Image', 'SystemInfo') as TTextureExResource).Texture;
   FMarkerContour :=
     (TheResourceManager.GetResource('Image', 'SystemEdge') as TTextureExResource).Texture;
+  FMarkerEnemy :=
+    (TheResourceManager.GetResource('Image', 'SystemEnemy') as TTextureExResource).Texture;
 
   SetupShader;
 
@@ -522,23 +602,23 @@ begin
   FInfoShader.BindVariableToPS(6, @FColorR, 1);
 
   FColorY[0] := 1;
-  FColorY[1] := 1;
-  FColorY[2] := 0;
+  FColorY[1] := 0.9;
+  FColorY[2] := 0.2;
   FColorY[3] := 1;
 
-  FColorG[0] := 0;
+  FColorG[0] := 0.2;
   FColorG[1] := 1;
-  FColorG[2] := 0;
+  FColorG[2] := 0.2;
   FColorG[3] := 1;
 
-  FColorB[0] := 0;
-  FColorB[1] := 0;
+  FColorB[0] := 0.1;
+  FColorB[1] := 0.4;
   FColorB[2] := 1;
   FColorB[3] := 1;
 
   FColorR[0] := 1;
-  FColorR[1] := 0;
-  FColorR[2] := 0;
+  FColorR[1] := 0.3;
+  FColorR[2] := 0.2;
   FColorR[3] := 1;
 end;
 
@@ -952,7 +1032,7 @@ begin
   end;
 
   if Assigned(FInfoSystem) and
-    (FInfoSystem.Position.Distance(AWPosition) > SYSTEM_SIZE * SYSTEM_INFO_SIZE)
+    (FInfoSystem.Position.Distance(AWPosition) > SYSTEM_SIZE * SYSTEM_INFO_SIZE * FInfoSystem.SizeFactor)
   then
   begin
     FInfoSystem.HideInfo;
@@ -986,6 +1066,10 @@ begin
 
     if FInfoSystem = FSelectedSystem then
     begin
+      FInfoSystem.HideInfo;
+      FNeedDraw.Add(FInfoSystem);
+      FInfoSystem := nil;
+
       FIsTransition := True;
       FTime := 0;
     end

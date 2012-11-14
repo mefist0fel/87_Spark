@@ -27,6 +27,7 @@ type
       FShowFluids: Single;
 
       procedure GenerateScannedResources;
+      procedure ShowFluidsInAsteroid;
     public
       constructor CreateAsteroid(const APosition: TVector2F;
         AAngle, ARadius: Single; AType: TFluidType);
@@ -51,8 +52,8 @@ begin
 
   if not FResources.Generated then
     GenerateScannedResources;
-  //“ы же в курсе, раземеетс€, что Random(n) возвращает числа от 0 до n - 1
-  FFluids := Random(MAX_RESOURCES) * Random(2) * Random(2);
+  //TODO
+    FFluids := Random(50) * Random(2) * Random(2);
   FPosition := APosition;
   FAngle := AAngle;
   FRadius := ARadius;
@@ -71,28 +72,9 @@ begin
 end;
 
 procedure TAsteroid.OnDraw;
-var
-  Alpha, I: Word;
-  Color: Cardinal;
 begin
   TheResources.AsteroidTexture.Draw(FPosition, Vec2F(FRadius, FRadius) * 2, FAngle, $FFFFFFFF);
-  if (FShowFluids > 0) and (FFluids > 0) then
-  begin
-    Alpha := Trunc(FShowFluids * $120);
-    if Alpha > $FF then
-      Alpha := $FF;
-
-    case FType of
-      fYellow: Color := $FFFF00;
-      fBlue:   Color := $00FF00;
-      fRed:    Color := $FF0000;
-      fGreen:  Color := $0000FF;
-    else Color := $0000FF;
-    end;
-    for I := 0 to FFluids - 1 do
-      TheResources.FluidTexture.Draw(
-        FPosition + FResources.Position[I], Vec2F(8, 8), 0, Alpha * $1000000 + Color);
-  end;
+  ShowFluidsInAsteroid;
 end;
 
 procedure TAsteroid.OnUpdate(const ADelta: Double);
@@ -126,6 +108,29 @@ begin
       FPosition + GetRotatedVector(AAngle, FRadius),
       GetRotatedVector(AAngle + Random(10) - 5, Random(200) + 50),
       FType);
+end;
+
+procedure TAsteroid.ShowFluidsInAsteroid;
+var
+  Alpha, I: Word;
+  Color: Cardinal;
+begin
+  if (FShowFluids > 0) and (FFluids > 0) then
+  begin
+    Alpha := Trunc(FShowFluids * $120);
+    if Alpha > $FF then
+      Alpha := $FF;
+    case FType of
+      fYellow: Color := $FFFF00;
+      fBlue:   Color := $00FF00;
+      fRed:    Color := $FF0000;
+      fGreen:  Color := $0000FF;
+    else Color := $0000FF;
+    end;
+    for I := 0 to FFluids - 1 do
+      TheResources.FluidTexture.Draw(
+        FPosition + FResources.Position[I], Vec2F(8, 8), 0, Alpha * $1000000 + Color);
+  end;
 end;
 {$ENDREGION}
 

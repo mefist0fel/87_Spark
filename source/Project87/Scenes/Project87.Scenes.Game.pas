@@ -59,10 +59,6 @@ uses
 
 {$REGION '  TGameScene  '}
 constructor TGameScene.Create(const AName: string);
-var
-  I: Word;
-  AEnemies: array [0..LIFEFRACTION_COUNT - 1] of Single;
-  AResources: array [0..FLUID_TYPE_COUNT - 1] of Single;
 begin
   inherited Create(AName);
 
@@ -85,17 +81,25 @@ end;
 procedure TGameScene.OnInitialize(AParameter: TObject);
 var
   I: Word;
+  AEnemies: array [0..LIFEFRACTION_COUNT - 1] of Single;
+  AResources: array [0..FLUID_TYPE_COUNT - 1] of Single;
   UnitSide: TUnitSide ;
 begin
   TheEngine.Camera := FMainCamera;
   FStartAnimation := 1;
   FShowMap := 1;
 
+  for I := 0 to LIFEFRACTION_COUNT - 1 do
+    AEnemies[I] := 0.15;
+  for I := 0 to FLUID_TYPE_COUNT - 1 do
+    AResources[I] := 0.27;
+  FSystemResult := TStarSystemResult.Create(AEnemies, AResources);
+
   TObjectManager.GetInstance.ClearObjects();
 
   FHero := THero.CreateUnit(ZeroVectorF, Random(360), usHero);
   if (AParameter is TStarSystem) then
-    TSystemGenerator.GenerateSystem(TStarSystem(AParameter));
+    TSystemGenerator.GenerateSystem(FHero, TStarSystem(AParameter));
 end;
 
 procedure TGameScene.OnUpdate(const ADelta: Double);
