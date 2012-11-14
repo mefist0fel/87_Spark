@@ -85,6 +85,7 @@ type
       procedure ShowInfo;
       procedure HideInfo;
 
+      function GetEdgeColor(AOwner: TStarMap): Cardinal;
       procedure Draw(AOwner: TStarMap);
       procedure Update(ADelta: Double);
 
@@ -144,10 +145,12 @@ type
       procedure PrepareCamera;
 
       function IsOnScreen(ASystem: TStarSystem): Boolean;
-      procedure DrawMarkerLine;
       procedure DrawSystem(ASystem: TStarSystem);
       procedure DrawSystemInfo;
       procedure DrawCurtain;
+
+      function GetSelectedSystem(): TStarSystem;
+      function GetCurrentSystem(): TStarSystem;
     private
       FMarkerType: TQuadTexture;
       FMarkerContour: TQuadTexture;
@@ -164,6 +167,9 @@ type
 
       class procedure TakeId(Id: TObjectId);
       class function GetNewId(): TObjectId;
+
+      property SelectedSystem: TStarSystem read GetSelectedSystem;
+      property CurrentSystem: TStarSystem read GetCurrentSystem;
     public
       class constructor CreateClass;
 
@@ -203,14 +209,14 @@ const
   SYSTEM_SIZE = 12;
   MAX_DISTANCE = 320;
   TRANSITION_TIME = 0.6;
-  BACK_TO_MAP_TIME = 0.55;
-  ENTER_TO_SYSTEM_TIME = 0.55;
+  BACK_TO_MAP_TIME = 0.6;
+  ENTER_TO_SYSTEM_TIME = 0.6;
   SystemSize: TVectorF = (X: SYSTEM_SIZE; Y: SYSTEM_SIZE);
 
-  SYSTEM_INFO_SIZE = 5;
-  SHOW_INFO_TIME = 0.6;
-  HIDE_INFO_TIME = 0.45;
-  ENEMY_ROTATION_SPEED = 40;
+  SYSTEM_INFO_SIZE = 4.5;
+  SHOW_INFO_TIME = 0.4;
+  HIDE_INFO_TIME = 0.25;
+  ENEMY_ROTATION_SPEED = 45;
   ENEMY_SIZE = 20;
 
 {$REGION '  TStarSystemResult  '}
@@ -381,14 +387,14 @@ begin
     if TLifeFraction(I) in FFractions then
     begin
       if FIsOpened then
-        FEnemySize[FEnemyCount] := Clamp(FEnemies[I], 1, 0.1)
+        FEnemySize[FEnemyCount] := Clamp(FEnemies[I], 1, 0)
       else
         FEnemySize[FEnemyCount] := 1;
 
       case I of
-        0: FEnemyColor[FEnemyCount] := $FF0000;
-        1: FEnemyColor[FEnemyCount] := $FF00;
-        2: FEnemyColor[FEnemyCount] := $FF;
+        0: FEnemyColor[FEnemyCount] := $FF4020;
+        1: FEnemyColor[FEnemyCount] := $20FF30;
+        2: FEnemyColor[FEnemyCount] := $2040FF;
       end;
       Inc(FEnemyCount);
     end;
@@ -447,11 +453,22 @@ begin
     FTime := 0;
 end;
 
+function TStarSystem.GetEdgeColor;
+begin
+  Result := $404040;
+  if Self = AOwner.SelectedSystem then
+    Result := $806020;
+  if Self = AOwner.CurrentSystem then
+    Result := $602020;
+end;
+
 procedure TStarSystem.Draw(AOwner: TStarMap);
 var
-  I: Integer;
+  I, J: Integer;
   AVector: TVectorF;
+  AColor: Cardinal;
 begin
+  AColor := GetEdgeColor(AOwner);
   AOwner.FInfoRadius[0] := FResourcesRadius;
   AOwner.FInfoRadius[1] := FRadius;
   for I := 0 to 3 do
@@ -464,20 +481,34 @@ begin
   AOwner.FInfoShader.SetShaderState(False);
 
   AOwner.FMarkerContour.Draw(
-    FPosition, SystemSize * SYSTEM_INFO_SIZE * 4 * FRadius * 0.92 * FSizeFactor,
+    FPosition, SystemSize * SYSTEM_INFO_SIZE * 4 * FRadius * 0.88 * FSizeFactor,
     0, D3DCOLOR_COLORVALUE(0.1, 0.1, 0.1, FAlpha));
   AOwner.FMarkerContour.Draw(
-    FPosition, SystemSize * SYSTEM_INFO_SIZE * 4 * FRadius * 1.03 * FSizeFactor,
-    0, D3DCOLOR_COLORVALUE(0.1, 0.1, 0.1, FAlpha));
+    FPosition, SystemSize * SYSTEM_INFO_SIZE * 4 * FRadius * 1.025 * FSizeFactor,
+    0, AColor + D3DCOLOR_COLORVALUE(0, 0, 0, FAlpha));
 
   AOwner.FMarkerContour.Draw(
     FPosition, Vec2F(FEnemyRadius, FEnemyRadius) * 2.05 * FSizeFactor,
-    0, D3DCOLOR_COLORVALUE(1, 1, 1, FAlpha * 0.1));
+    0, AColor + D3DCOLOR_COLORVALUE(0, 0, 0, FAlpha * 0.4));
   for I := 0 to FEnemyCount - 1 do
   begin
+    for J := 1 to 7 do
+    begin
+      if (FEnemySize[I] - J / 8) >= 0 then
+        AColor := FEnemyColor[I] + D3DCOLOR_COLORVALUE(0, 0, 0, FAlpha)
+      else
+        AColor := D3DCOLOR_COLORVALUE(0.5, 0.5, 0.5, FAlpha);
+      AVector := GetRotatedVector(
+        FEnemyAngle + I * 360 / FEnemyCount - 0 - J * 12 * FAlpha,
+        FEnemyRadius * FSizeFactor);
+      AOwner.FMarkerEnemy.Draw(FPosition + AVector,
+          Vec2F(ENEMY_SIZE, ENEMY_SIZE) * FAlpha * (0.7 - 0.4 * J / 8) * FSizeFactor,
+          0, AColor)
+    end;
+
     AVector := GetRotatedVector(FEnemyAngle + I * 360 / FEnemyCount, FEnemyRadius * FSizeFactor);
     AOwner.FMarkerEnemy.Draw(FPosition + AVector,
-      Vec2F(ENEMY_SIZE, ENEMY_SIZE) * FAlpha * FEnemySize[I] * FSizeFactor,
+      Vec2F(ENEMY_SIZE, ENEMY_SIZE) * FAlpha * 0.7 * FSizeFactor,
       0, FEnemyColor[I] + D3DCOLOR_COLORVALUE(0, 0, 0, FAlpha));
   end;
 end;
@@ -497,13 +528,13 @@ begin
     FAlpha := InterpolateValue(0, 1, AProgress, itLinear);
     FRadius := InterpolateValue(0, FNeedRadius, AProgress, itHermit01);
     FEnemyRadius := InterpolateValue(0, FNeedEnemyRadius, AProgress, itHermit01);
-    FResourcesRadius := FRadius * 0.9;
+    FResourcesRadius := FRadius * 0.86;
     for I := 0 to 3 do
       FAngles[I] := InterpolateValue(0, FNeedAngles[I], AProgress, itHermit01);
     if FTime > SHOW_INFO_TIME then
     begin
       FRadius := FNeedRadius;
-      FResourcesRadius := FRadius * 0.9;
+      FResourcesRadius := FRadius * 0.86;
       for I := 0 to 3 do
         FAngles[I] := FNeedAngles[I];
       FIsShow := False;
@@ -518,7 +549,7 @@ begin
     FAlpha := InterpolateValue(1, 0, AProgress, itLinear);
     FRadius := InterpolateValue(FNeedRadius, 0, AProgress, itHermit01);
     FEnemyRadius := InterpolateValue(FNeedEnemyRadius, 0, AProgress, itHermit01);
-    FResourcesRadius := FRadius * 0.9;
+    FResourcesRadius := FRadius * 0.86;
     for I := 0 to 3 do
       FAngles[I] := InterpolateValue(FNeedAngles[I], 0, AProgress, itHermit01);
     if FTime > HIDE_INFO_TIME then
@@ -620,6 +651,16 @@ begin
   FColorR[1] := 0.3;
   FColorR[2] := 0.2;
   FColorR[3] := 1;
+end;
+
+function TStarMap.GetSelectedSystem;
+begin
+  Result := FSelectedSystem;
+end;
+
+function TStarMap.GetCurrentSystem;
+begin
+  Result := FCurrentSystem;
 end;
 
 procedure TStarMap.Clear;
@@ -880,23 +921,6 @@ begin
     (APosition.Y < FCamera.Resolution.Y + 2 * SYSTEM_SIZE);
 end;
 
-procedure TStarMap.DrawMarkerLine;
-var
-  APosition, ASize: TVectorF;
-  AAngle: Single;
-begin
-  if Assigned(FSelectedSystem) then
-  begin
-    AAngle := FCurrentSystem.Position.Angle(FSelectedSystem.Position);
-    APosition := FCurrentSystem.Position.InterpolateTo(
-      FSelectedSystem.Position, 0.5);
-    ASize := Vec2F(
-      Distance(FCurrentSystem.Position, FSelectedSystem.Position),
-      SYSTEM_SIZE * 0.35);
-    FMarkerLine.Draw(APosition, ASize, AAngle - 90, $FFB0B0B0);
-  end;
-end;
-
 procedure TStarMap.DrawSystem(ASystem: TStarSystem);
 var
   AColor: Cardinal;
@@ -948,7 +972,6 @@ begin
   TheRender.SetBlendMode(qbmSrcAlpha);
   TheResources.AsteroidTexture.Draw(FCamera.Position,
     Vec2F(MAX_DISTANCE, MAX_DISTANCE) * 2, 0, $30FF4040);
-  DrawMarkerLine;
   for ASystem in FSystems do
     if IsOnScreen(ASystem) then
       DrawSystem(ASystem);
