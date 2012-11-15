@@ -1124,6 +1124,7 @@ var
   ASystem: TStarSystem;
 begin
   FEnergyCapacity := FEnergyCapacity + BASE_ENERGY_RECOVERY_IN_SECOND * ADelta;
+  FEnergyCapacity := Clamp(FEnergyCapacity, 1, 0);
 
   if FIsTransition then
   begin
