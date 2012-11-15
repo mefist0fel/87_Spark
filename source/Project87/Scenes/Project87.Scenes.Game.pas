@@ -83,7 +83,7 @@ procedure TGameScene.OnInitialize(AParameter: TObject);
 var
   I: Word;
   AEnemies: array [0..LIFEFRACTION_COUNT - 1] of Single;
-  AResources: array [0..FLUID_TYPE_COUNT - 1] of Single;
+  AResources: array [0..FLUID_TYPE_COUNT - 1] of Word;
   UnitSide: TUnitSide ;
 begin
   TheEngine.Camera := FMainCamera;
@@ -93,7 +93,7 @@ begin
   for I := 0 to LIFEFRACTION_COUNT - 1 do
     AEnemies[I] := 0.15;
   for I := 0 to FLUID_TYPE_COUNT - 1 do
-    AResources[I] := 0.27;
+    AResources[I] := 2;
   FSystemResult := TStarSystemResult.Create(AEnemies, AResources);
 
   TObjectManager.GetInstance.ClearObjects();

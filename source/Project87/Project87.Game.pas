@@ -83,7 +83,15 @@ begin
     AGfxDir + 'starmap_elements\unavailable.png', 0);
   ResourceManager.AddResource(ATextureEx);
 
-  ATextureEx := TTextureExResource.CreateAndLoad('Image', 'SystemInfo',
+  ATextureEx := TTextureExResource.CreateAndLoad('Image', 'SystemInfoCompact',
+    AGfxDir + 'starmap_elements\system_compact.png', 0);
+  ResourceManager.AddResource(ATextureEx);
+
+  ATextureEx := TTextureExResource.CreateAndLoad('Image', 'SystemInfoPlanet',
+    AGfxDir + 'starmap_elements\system_planet.png', 0);
+  ResourceManager.AddResource(ATextureEx);
+
+  ATextureEx := TTextureExResource.CreateAndLoad('Image', 'SystemInfoDischarged',
     AGfxDir + 'starmap_elements\system_discharged.png', 0);
   ResourceManager.AddResource(ATextureEx);
 

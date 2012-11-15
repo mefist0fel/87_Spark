@@ -29,15 +29,16 @@ type
   TStarSystemResult = class sealed
     strict private
       FEnemies: array [0..LIFEFRACTION_COUNT - 1] of Single;
-      FResources: array [0..FLUID_TYPE_COUNT - 1] of Single;
+      FResources: array [0..FLUID_TYPE_COUNT - 1] of Word;
 
       function GetEnemies(AIndex: Integer): Single;
-      function GetResources(AIndex: Integer): Single;
+      function GetResources(AIndex: Integer): Word;
     public
-      constructor Create(AEnemies, AResources: array of Single);
+      constructor Create(AEnemies: array of Single;
+        AResources: array of Word);
 
       property Enemies[AIndex: Integer]: Single read GetEnemies;
-      property Resources[AIndex: Integer]: Single read GetResources;
+      property Resources[AIndex: Integer]: Word read GetResources;
   end;
 
   TStarMap = class;
@@ -71,10 +72,12 @@ type
       FTime: Single;
     private
       FEnemies: array [0..LIFEFRACTION_COUNT - 1] of Single;
-      FResources: array [0..FLUID_TYPE_COUNT - 1] of Single;
+      FMaxResources: array [0..FLUID_TYPE_COUNT - 1] of Word;
+      FResources: array [0..FLUID_TYPE_COUNT - 1] of Word;
       
       constructor Create;
 
+      procedure GenerateResources;
       procedure Generate(const ASector: TVector2I);
       procedure LoadFromStream(AStream: TFileStream);
       procedure SaveToStream(AStream: TFileStream);
@@ -87,11 +90,12 @@ type
       procedure HideInfo;
 
       function GetEdgeColor(AOwner: TStarMap): Cardinal;
+      function GetTexture(AOwner: TStarMap): TQuadTexture;
       procedure Draw(AOwner: TStarMap);
       procedure Update(ADelta: Double);
 
       function GetEnemies(AIndex: Integer): Single;
-      function GetResources(AIndex: Integer): Single;
+      function GetResources(AIndex: Integer): Word;
 
       property IsOpened: Boolean read FIsOpened write FIsOpened;
       property IsInfoHided: Boolean read FIsInfoHided;
@@ -108,7 +112,7 @@ type
       property Seed: Integer read FSeed;
       property LifeSeed: Integer read FSeed;
       property Enemies[AIndex: Integer]: Single read GetEnemies;
-      property Resources[AIndex: Integer]: Single read GetResources;
+      property Resources[AIndex: Integer]: Word read GetResources;
   end;
 
   TStarMap = class sealed (TComponent)
@@ -158,7 +162,7 @@ type
       function GetSelectedSystem(): TStarSystem;
       function GetCurrentSystem(): TStarSystem;
     private
-      FMarkerType: TQuadTexture;
+      FMarkerType: array [0..2] of TQuadTexture;
       FMarkerContour: TQuadTexture;
       FMarkerEnemy: TQuadTexture;
       FNeedDraw: TList<TStarSystem>;
@@ -225,8 +229,11 @@ const
   ENEMY_ROTATION_SPEED = 45;
   ENEMY_SIZE = 20;
 
+  BASE_RESOURCES_IN_SYSTEM = 30;
+
 {$REGION '  TStarSystemResult  '}
-constructor TStarSystemResult.Create(AEnemies, AResources: array of Single);
+constructor TStarSystemResult.Create(AEnemies: array of Single;
+  AResources: array of Word);
 var
   I: Integer;
 begin
@@ -243,7 +250,7 @@ begin
   Result := FEnemies[AIndex];
 end;
 
-function TStarSystemResult.GetResources(AIndex: Integer): Single;
+function TStarSystemResult.GetResources(AIndex: Integer): Word;
 begin
   if (AIndex < 0) or (AIndex >= FLUID_TYPE_COUNT) then
     Exit(0);
@@ -257,6 +264,30 @@ begin
   FId := TStarMap.GetNewId;
   FIsInfoHided := True;
   FEnemyAngle := Random(360);
+end;
+
+procedure TStarSystem.GenerateResources;
+var
+  ASizeFactor: Single;
+  AResource: Word;
+begin
+  case FSize of
+    ssSmall: ASizeFactor := 0.36 * (1.7 - 1.4 * Random);
+    ssMedium: ASizeFactor := 1 * (1.7 - 1.4 * Random);
+    ssBig: ASizeFactor := 1.7 * (1.7 - 1.4 * Random);
+  end;
+  AResource := Trunc(BASE_RESOURCES_IN_SYSTEM * ASizeFactor * (1.4 - 0.8 * Random));
+  FMaxResources[3] := AResource;
+  FResources[3] := AResource;
+  AResource := Trunc(2 * BASE_RESOURCES_IN_SYSTEM * ASizeFactor * (1.4 - 0.8 * Random));
+  FMaxResources[2] := AResource;
+  FResources[2] := AResource;
+  AResource := Trunc(4 *BASE_RESOURCES_IN_SYSTEM * ASizeFactor * (1.4 - 0.8 * Random));
+  FMaxResources[1] := AResource;
+  FResources[1] := AResource;
+  AResource := Trunc(8 * BASE_RESOURCES_IN_SYSTEM * ASizeFactor * (1.4 - 0.8 * Random));
+  FMaxResources[0] := AResource;
+  FResources[0] := AResource;
 end;
 
 procedure TStarSystem.Generate(const ASector: TVectorI);
@@ -292,6 +323,8 @@ begin
     Include(FFractions, TLifeFraction(lfGreen));
   if (Random(10) = 2) or (Random(10) = 5) or (Random(10) = 8) then
     Include(FFractions, TLifeFraction(lfRed));
+
+  GenerateResources;
 end;
 
 function TStarSystem.GetEnemies(AIndex: Integer): Single;
@@ -301,7 +334,7 @@ begin
   Result := FEnemies[AIndex];
 end;
 
-function TStarSystem.GetResources(AIndex: Integer): Single;
+function TStarSystem.GetResources(AIndex: Integer): Word;
 begin
   if (AIndex < 0) or (AIndex >= FLUID_TYPE_COUNT) then
     Exit(0);
@@ -328,7 +361,10 @@ begin
   for I := 0 to LIFEFRACTION_COUNT - 1 do
     AStream.Read(FEnemies[I], SizeOf(FEnemies[I]));
   for I := 0 to FLUID_TYPE_COUNT - 1 do
+  begin
+    AStream.Read(FMaxResources[I], SizeOf(FMaxResources[I]));
     AStream.Read(FResources[I], SizeOf(FResources[I]));
+  end;
 
   FFractions := [];
   AStream.Read(ABooleanBuf, SizeOf(ABooleanBuf));
@@ -360,7 +396,10 @@ begin
   for I := 0 to LIFEFRACTION_COUNT - 1 do
     AStream.Write(FEnemies[I], SizeOf(FEnemies[I]));
   for I := 0 to FLUID_TYPE_COUNT - 1 do
+  begin
+    AStream.Write(FMaxResources[I], SizeOf(FMaxResources[I]));
     AStream.Write(FResources[I], SizeOf(FResources[I]));
+  end;
 
   ABooleanBuf := lfRed in FFractions;
   AStream.Write(ABooleanBuf, SizeOf(ABooleanBuf));
@@ -378,7 +417,7 @@ end;
 procedure TStarSystem.CheckSize;
 begin
   case FSize of
-    ssSmall: FSizeFactor := 0.7;
+    ssSmall: FSizeFactor := 0.75;
     ssMedium: FSizeFactor := 1;
     ssBig: FSizeFactor := 1.3;
   end;
@@ -407,13 +446,17 @@ begin
 end;
 
 procedure TStarSystem.CheckResources;
+var
+  AAllResources: Word;
 begin
   if FIsOpened then
   begin
-    FNeedAngles[0] := 2 * Pi * FResources[0] / 4;
-    FNeedAngles[1] := FNeedAngles[0] + 2 * Pi * FResources[1] / 4;
-    FNeedAngles[2] := FNeedAngles[1] + 2 * Pi * FResources[2] / 4;
-    FNeedAngles[3] := FNeedAngles[2] + 2 * Pi * FResources[3] / 4;
+    AAllResources := FMaxResources[0] + FMaxResources[1] +
+      FMaxResources[2] + FMaxResources[3];
+    FNeedAngles[0] := 2 * Pi * FResources[0] / AAllResources;
+    FNeedAngles[1] := FNeedAngles[0] + 2 * Pi * FResources[1] / AAllResources;
+    FNeedAngles[2] := FNeedAngles[1] + 2 * Pi * FResources[2] / AAllResources;
+    FNeedAngles[3] := FNeedAngles[2] + 2 * Pi * FResources[3] / AAllResources;
   end
   else
   begin
@@ -462,10 +505,18 @@ end;
 function TStarSystem.GetEdgeColor;
 begin
   Result := $404040;
-  if Self = AOwner.SelectedSystem then
-    Result := $806020;
   if Self = AOwner.CurrentSystem then
     Result := $602020;
+end;
+
+function TStarSystem.GetTexture(AOwner: TStarMap): TQuadTexture;
+begin
+  Result := AOwner.FMarkerType[0];
+  case FConfiguration of
+    scDischarged: Result := AOwner.FMarkerType[1];
+    scCompact: Result := AOwner.FMarkerType[0];
+    scPlanet: Result := AOwner.FMarkerType[2];
+  end;
 end;
 
 procedure TStarSystem.Draw(AOwner: TStarMap);
@@ -481,7 +532,7 @@ begin
     AOwner.FInfoAngles[I] := FAngles[I];
 
   AOwner.FInfoShader.SetShaderState(True);
-    AOwner.FMarkerType.Draw(
+    GetTexture(AOwner).Draw(
       FPosition, SystemSize * SYSTEM_INFO_SIZE * 2 * FSizeFactor,
       0, D3DCOLOR_COLORVALUE(1, 1, 1, FAlpha));
   AOwner.FInfoShader.SetShaderState(False);
@@ -603,12 +654,16 @@ begin
 
   FStar :=
     (TheResourceManager.GetResource('Image', 'SimpleStarMarker') as TTextureExResource).Texture;
-  FMarkerType :=
-    (TheResourceManager.GetResource('Image', 'SystemInfo') as TTextureExResource).Texture;
   FMarkerContour :=
     (TheResourceManager.GetResource('Image', 'SystemEdge') as TTextureExResource).Texture;
   FMarkerEnemy :=
     (TheResourceManager.GetResource('Image', 'SystemEnemy') as TTextureExResource).Texture;
+  FMarkerType[0] :=
+    (TheResourceManager.GetResource('Image', 'SystemInfoCompact') as TTextureExResource).Texture;
+  FMarkerType[1] :=
+    (TheResourceManager.GetResource('Image', 'SystemInfoDischarged') as TTextureExResource).Texture;
+  FMarkerType[2] :=
+    (TheResourceManager.GetResource('Image', 'SystemInfoPlanet') as TTextureExResource).Texture;
 
   SetupShaders;
   PrepareUnavailableBuffer;
