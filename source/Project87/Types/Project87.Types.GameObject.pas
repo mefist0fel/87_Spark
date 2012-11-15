@@ -301,7 +301,7 @@ begin
     for PhysicalObject in FPhysicalObjects do
       if not PhysicalObject.FIsDead then
       begin
-        PhysicalObject.FPosition := PhysicalObject.FPosition + PhysicalObject.FCorrection;
+        PhysicalObject.FPosition := PhysicalObject.FPosition + PhysicalObject.FCorrection * 1.1;
         PhysicalObject.FCorrection := ZeroVectorF;
       end;
   end;
@@ -337,7 +337,7 @@ begin
             OtherObject.FVelocity := OtherObject.FVelocity +
               GetRotatedVector(GetAngle(Connection), ProjectionLength);
 
-            GameObject.FCorrection :=
+            GameObject.FCorrection := GameObject.FCorrection +
               (GameObject.FPosition - OtherObject.FPosition).Normalize *
               (((GameObject.FRadius + OtherObject.FRadius) -
                 Distance(GameObject.FPosition, OtherObject.FPosition)) * 0.5);

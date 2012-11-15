@@ -70,7 +70,7 @@ begin
     Exit;
 
   if (OtherObject is TAsteroid) or
-    (OtherObject is THero) or
+    (OtherObject is THeroShip) or
     (OtherObject is TBaseEnemy)
   then
   begin

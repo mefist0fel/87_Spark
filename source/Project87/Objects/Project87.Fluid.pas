@@ -84,9 +84,9 @@ end;
 
 procedure TFluid.OnCollide(OtherObject: TPhysicalObject);
 begin
-  if (OtherObject is THero) then
+  if (OtherObject is THeroShip) then
   begin
-    THero(OtherObject).AddFluid(FType);
+    THero.GetInstance.AddFluid(FType);
     FIsDead := True;
   end;
 end;
