@@ -13,6 +13,7 @@ uses
   QEngine.Texture,
   QEngine.Font,
   Project87.Fluid,
+  Project87.Types.StarFon,
   Strope.Math;
 
 const
@@ -902,7 +903,6 @@ procedure TStarMap.PrepareCamera;
 var
   AScale: TVectorF;
 begin
-  TheEngine.Camera := FCamera;
   if FIsTransition then
     FCamera.Position := FCurrentSystem.Position.InterpolateTo(
       FSelectedSystem.Position, FTime / TRANSITION_TIME, itHermit01)
@@ -1030,9 +1030,17 @@ var
   APosition, ASize: TVectorF;
   AAngle: Single;
   AAlpha: Single;
+  ADelta: TVectorF;
 begin
   TheRender.SetBlendMode(qbmSrcAlpha);
+
+  ADelta := FCamera.Position;
   PrepareCamera;
+  ADelta := ADelta - FCamera.Position;
+  TStarFon.Instance.Shift(ADelta);
+  TStarFon.Instance.Draw;
+
+  TheEngine.Camera := FCamera;
   for ASystem in FSystems do
     if IsOnScreen(ASystem) then
       DrawSystem(ASystem);

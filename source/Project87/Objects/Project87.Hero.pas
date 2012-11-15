@@ -28,6 +28,8 @@ type
       FCannon: TCannon;
       FScanner: TScanner;
 
+      FOldPosition: TVectorF;
+
       procedure Control(const  ADelta: Double);
       procedure UpdateParameters(const ADelta: Double);
       procedure CheckKeys;
@@ -57,7 +59,8 @@ uses
   QApplication.Application,
   Project87.Asteroid,
   Project87.BaseEnemy,
-  Project87.Resources;
+  Project87.Resources,
+  Project87.Types.StarFon;
 
 {$REGION '  THero  '}
 constructor THero.CreateUnit(const APosition: TVector2F; AAngle: Single; ASide: TUnitSide);
@@ -71,6 +74,7 @@ begin
   FUseCollistion := True;
   FMass := 1;
   FMessage := '';
+  FOldPosition := FPosition;
 end;
 
 function THero.GetFluid(AIndex: Integer): Word;
@@ -92,6 +96,8 @@ begin
 end;
 
 procedure THero.OnUpdate(const ADelta: Double);
+var
+  AShift: TVectorF;
 begin
   inherited;
   CheckKeys;
@@ -100,6 +106,11 @@ begin
   Control(ADelta);
   FCannon.OnUpdate(ADelta);
   FScanner.OnUpdate(ADelta);
+
+  AShift := FOldPosition - Position;
+  FOldPosition := Position;
+  AShift := AShift * 0.06;
+  TStarFon.Instance.Shift(AShift);
 end;
 
 procedure THero.Control(const ADelta: Double);

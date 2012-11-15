@@ -55,7 +55,8 @@ uses
   Project87.BigEnemy,
   Project87.SmallEnemy,
   Project87.Types.SystemGenerator,
-  QApplication.Application;
+  QApplication.Application,
+  Project87.Types.StarFon;
 
 {$REGION '  TGameScene  '}
 constructor TGameScene.Create(const AName: string);
@@ -112,8 +113,15 @@ end;
 procedure TGameScene.OnDraw(const ALayer: Integer);
 var
   I: Integer;
+  ADelta: TVectorF;
 begin
-  TheRender.Clear($FF000000);
+  TheEngine.Camera := nil;
+  TheRender.Rectangle(0, 0,
+    TheEngine.CurrentResolution.X, TheEngine.CurrentResolution.Y,
+    $FF000000);
+
+  TheRender.SetBlendMode(qbmSrcAlpha);
+  TStarFon.Instance.Draw;
 
   TheEngine.Camera := FMainCamera;
   TheRender.SetBlendMode(qbmSrcAlpha);
@@ -173,14 +181,15 @@ begin
         FShowMap := 0.1;
       FMainCamera.Scale := Vec2F(FShowMap, FShowMap);
     end;
-  end else
-  if (FShowMap < 1) then
-  begin
-    FShowMap := FShowMap * 1.1;
-    if FShowMap > 1 then
-      FShowMap := 1;
-    FMainCamera.Scale := Vec2F(FShowMap, FShowMap);
-  end;
+  end
+  else
+    if (FShowMap < 1) then
+    begin
+      FShowMap := FShowMap * 1.1;
+      if FShowMap > 1 then
+        FShowMap := 1;
+      FMainCamera.Scale := Vec2F(FShowMap, FShowMap);
+    end;
 end;
 {$ENDREGION}
 
