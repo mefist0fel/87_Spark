@@ -133,6 +133,7 @@ type
       FStar: TQuadTexture;
       FUnavailableBuffer: IQuadTexture;
       FUnavailableShader: IQuadShader;
+      FUnCenter: array [0..1] of Single;
       FUnRadius, FNeedUnRadius: Single;
       FUnRatio: array [0..1] of Single;
 
@@ -161,7 +162,6 @@ type
       procedure PrepareCamera;
 
       function IsOnScreen(ASystem: TStarSystem): Boolean;
-      procedure PrepareUnavailableBuffer;
       procedure DrawSystem(ASystem: TStarSystem);
       procedure DrawConstrain;
       procedure DrawSystemInfo;
@@ -680,9 +680,10 @@ begin
     (TheResourceManager.GetResource('Image', 'SystemInfoDischarged') as TTextureExResource).Texture;
   FMarkerType[2] :=
     (TheResourceManager.GetResource('Image', 'SystemInfoPlanet') as TTextureExResource).Texture;
+  FUnavailableBuffer :=
+    (TheResourceManager.GetResource('Image', 'UnavailableBuffer') as TTextureResource).Texture;
 
   SetupShaders;
-  PrepareUnavailableBuffer;
 end;
 
 destructor TStarMap.Destroy;
@@ -713,34 +714,35 @@ begin
   FColorY[0] := 1;
   FColorY[1] := 0.9;
   FColorY[2] := 0.2;
-  FColorY[3] := 1;
+  FColorY[3] := 0.8;
 
   FColorG[0] := 0.2;
   FColorG[1] := 1;
   FColorG[2] := 0.2;
-  FColorG[3] := 1;
+  FColorG[3] := 0.8;
 
   FColorB[0] := 0.1;
   FColorB[1] := 0.4;
   FColorB[2] := 1;
-  FColorB[3] := 1;
+  FColorB[3] := 0.8;
 
   FColorR[0] := 1;
   FColorR[1] := 0.3;
   FColorR[2] := 0.2;
-  FColorR[3] := 1;
+  FColorR[3] := 0.8;
 
   TheDevice.CreateShader(FUnavailableShader);
   FUnavailableShader.LoadPixelShader('..\data\shd\unavailable.bin');
   FUnavailableShader.BindVariableToPS(1, @FUnRadius, 1);
   FUnavailableShader.BindVariableToPS(2, @FUnRatio, 1);
+  FUnavailableShader.BindVariableToPS(3, @FUnCenter, 1);
 
   FNeedUnRadius := MAX_DISTANCE / 768;
   FUnRadius := FNeedUnRadius;
-
-  AMin := Min(FCamera.Resolution.X, FCamera.Resolution.Y);
-  FUnRatio[0] := FCamera.Resolution.X / AMin;
-  FUnRatio[1] := FCamera.Resolution.Y / AMin;
+  FUnCenter[0] := 0.5;
+  FUnCenter[1] := 0.5;
+  FUnRatio[0] := FCamera.Resolution.X / FCamera.Resolution.Y;
+  FUnRatio[1] := 1;
 end;
 
 function TStarMap.GetCurrentSystem;
@@ -1015,31 +1017,6 @@ begin
   Result := (APosition.X > -2 * SYSTEM_SIZE) and (APosition.Y > -2 * SYSTEM_SIZE) and
     (APosition.X < FCamera.Resolution.X + 2 * SYSTEM_SIZE) and
     (APosition.Y < FCamera.Resolution.Y + 2 * SYSTEM_SIZE);
-end;
-
-procedure TStarMap.PrepareUnavailableBuffer;
-var
-  ATexture: TQuadTexture;
-  I, J: Integer;
-begin
-  FUnavailableBuffer := nil;
-  TheRender.CreateRenderTexture(
-    Trunc(FCamera.Resolution.X), Trunc(FCamera.Resolution.Y),
-    FUnavailableBuffer, 0);
-
-  ATexture :=
-    (TheResourceManager.GetResource('Image', 'Unavailable') as TTextureExResource).Texture;
-
-  TheRender.BeginRender;
-    TheEngine.Camera := nil;
-    TheRender.RenderToTexture(True, FUnavailableBuffer);
-    for I := 0 to Trunc(FCamera.Resolution.X) div Trunc(ATexture.SpriteSize.X) + 1 do
-      for J := 0 to Trunc(FCamera.Resolution.Y) div Trunc(ATexture.SpriteSize.Y) + 1 do
-        ATexture.DrawByLeftTop(
-          Vec2F(ATexture.SpriteSize.X * I, ATexture.SpriteSize.Y * J),
-          0, $FFFFFFFF);
-    TheRender.RenderToTexture(False, FUnavailableBuffer);
-  TheRender.EndRender;
 end;
 
 procedure TStarMap.DrawSystem(ASystem: TStarSystem);
