@@ -781,6 +781,7 @@ var
   ASystem, AOtherSystem: TStarSystem;
   AFlag: Boolean;
 begin
+  Randomize;
   FSectors.Add(ASector);
   for I := 0 to SYSTEMS_IN_SECTOR - 1 do
   begin

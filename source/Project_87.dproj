@@ -98,6 +98,7 @@
 			<DCCReference Include="Project87\Types\Project87.Types.StarMap.pas"/>
 			<DCCReference Include="Project87\Types\Project87.Types.SimpleGUI.pas"/>
 			<DCCReference Include="Project87\Types\Project87.Types.SystemGenerator.pas"/>
+			<DCCReference Include="Project87\Types\Project87.Types.StarFon.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>
