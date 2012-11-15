@@ -134,6 +134,7 @@ function Dot(const A, B: TVector2F): Single;
 
 {$REGION '  Collision Functions  '}
 function LineVsCircle( const LineA, LineB, CircleCenter: TVector2F; Radius: Single) : Boolean;
+function PointInBox( const Point, BoxTopLeft, BoxSize: TVector2F) : Boolean;
 {$ENDREGION}
 
 implementation
@@ -341,6 +342,15 @@ begin
       Result := a * c * 4 - Sqr(b)  < 0
     else
       Result := a + b + c < 0;
+end;
+
+function PointInBox( const Point, BoxTopLeft, BoxSize: TVector2F) : Boolean;
+begin
+  Result :=
+    (Point.X >= BoxTopLeft.X) and
+    (Point.X <= BoxTopLeft.X + BoxSize.X) and
+    (Point.Y >= BoxTopLeft.Y) and
+    (Point.Y <= BoxTopLeft.Y + BoxSize.Y);
 end;
 {$ENDREGION}
 

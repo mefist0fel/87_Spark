@@ -12,6 +12,7 @@ uses
 
 const
   MAX_RESOURCES = 100;
+  FLUID_POSITION_SCALE = 2;
 
 type
   TScannedResources = record
@@ -22,7 +23,9 @@ type
   TAsteroid = class (TPhysicalObject)
     class var FResources: TScannedResources;
     private
+      FMarkerPosition: TVectorF;
       FFluids: Word;
+      FMaxFluids: Word;
       FType: TFluidType;
       FShowFluids: Single;
 
@@ -36,12 +39,17 @@ type
       procedure OnUpdate(const ADelta: Double); override;
       procedure Scan;
       procedure Hit(AAngle: Single; ANumber: Integer);
+      property Fluids: Word read FFluids write FFluids;
+      property MaxFluids: Word read FMaxFluids;
   end;
 
 implementation
 
 uses
   SysUtils,
+  QEngine.Core,
+  QApplication.Application,
+  Project87.Hero,
   Project87.Resources;
 
 {$REGION '  TAsteroid  '}
@@ -52,14 +60,15 @@ begin
 
   if not FResources.Generated then
     GenerateScannedResources;
-  //TODO
-    FFluids := Random(50) * Random(2) * Random(2);
   FPosition := APosition;
   FAngle := AAngle;
   FRadius := ARadius;
   FUseCollistion := True;
   FType := AType;
   FMass := 10;
+  FMaxFluids := Trunc(ARadius / FLUID_POSITION_SCALE);
+  //TODO
+    FFluids := 20;// Random(50) * Random(2) * Random(2);
 end;
 
 procedure TAsteroid.GenerateScannedResources;
@@ -68,12 +77,39 @@ var
 begin
   FResources.Generated := True;
   for I := 0 to MAX_RESOURCES - 1 do
-    FResources.Position[I] := GetRotatedVector(Random(360), I * 2);
+    FResources.Position[I] := GetRotatedVector(Random(360), I * FLUID_POSITION_SCALE);
 end;
 
 procedure TAsteroid.OnDraw;
+var
+  ScreenSize: TVectorF;
+  NeedDrawMarker: Boolean;
 begin
   TheResources.AsteroidTexture.Draw(FPosition, Vec2F(FRadius, FRadius) * 2, FAngle, $FFFFFFFF);
+
+  //TODO - map markers
+  FMarkerPosition := TheEngine.Camera.GetScreenPos(FPosition, false);
+  ScreenSize := TheEngine.Camera.Resolution;
+  FMarkerPosition := (FPosition - TheEngine.Camera.Position);
+  if FMarkerPosition.LengthSqr < RADAR_DISTANCE * RADAR_DISTANCE then
+  begin
+    NeedDrawMarker := False;
+    if Abs(FMarkerPosition.X) - ScreenSize.X * 0.48 > 0 then
+    begin
+      FMarkerPosition := FMarkerPosition * (ScreenSize.X * 0.48 / Abs(FMarkerPosition.X));
+      NeedDrawMarker := True;
+    end;
+    if Abs(FMarkerPosition.Y) - ScreenSize.Y * 0.47 > 0 then
+    begin
+      FMarkerPosition := FMarkerPosition * (ScreenSize.Y * 0.47 / Abs(FMarkerPosition.Y));
+      NeedDrawMarker := True;
+    end;
+    if NeedDrawMarker then
+        begin
+          FMarkerPosition := FMarkerPosition + TheEngine.Camera.Position;
+          TheResources.AsteroidTexture.Draw(FMarkerPosition, Vec2F(10, 10), 0, $FFFFFFFF);
+        end;
+    end;
   ShowFluidsInAsteroid;
 end;
 

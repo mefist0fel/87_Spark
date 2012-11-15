@@ -25,7 +25,7 @@ type
       FStartAnimation: Single;
       FShowMap: Single;
       FSystemResult: TStarSystemResult;
-      FHero: THero;
+      FHero: THeroShip;
       FFont: TQuadFont;
       procedure UpdateStartAnimation(const ADelta: Double);
       procedure ShowLocalMap;
@@ -98,7 +98,7 @@ begin
 
   TObjectManager.GetInstance.ClearObjects();
 
-  FHero := THero.CreateUnit(ZeroVectorF, Random(360), usHero);
+  FHero := THeroShip.CreateUnit(ZeroVectorF, Random(360), usHero);
   if (AParameter is TStarSystem) then
     TSystemGenerator.GenerateSystem(FHero, TStarSystem(AParameter));
 end;

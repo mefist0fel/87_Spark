@@ -13,9 +13,10 @@ uses
 
 const
   IN_SYSTEM_JUMP_SPEED = 500;
+  RADAR_DISTANCE = 1500;
 
 type
-  THero = class (TBaseUnit)
+  THeroShip = class (TBaseUnit)
     private
       FFluid: array [0..FLUID_TYPE_COUNT - 1] of Word;
       FNeedAngle: Single;
@@ -63,7 +64,7 @@ uses
   Project87.Types.StarFon;
 
 {$REGION '  THero  '}
-constructor THero.CreateUnit(const APosition: TVector2F; AAngle: Single; ASide: TUnitSide);
+constructor THeroShip.CreateUnit(const APosition: TVector2F; AAngle: Single; ASide: TUnitSide);
 begin
   inherited;
   FCannon := TCannon.Create(OPlayer, 0.1, 20);
@@ -77,14 +78,14 @@ begin
   FOldPosition := FPosition;
 end;
 
-function THero.GetFluid(AIndex: Integer): Word;
+function THeroShip.GetFluid(AIndex: Integer): Word;
 begin
   if (AIndex < 0) or (AIndex >= FLUID_TYPE_COUNT) then
     Exit(0);
   Result := FFluid[AIndex];
 end;
 
-procedure THero.OnDraw;
+procedure THeroShip.OnDraw;
 var
   ShieldAlpha: Byte;
 begin
@@ -95,7 +96,7 @@ begin
   TheResources.Font.TextOut(FMessage, FPosition, 1 * TheEngine.Camera.Scale.x);
 end;
 
-procedure THero.OnUpdate(const ADelta: Double);
+procedure THeroShip.OnUpdate(const ADelta: Double);
 var
   AShift: TVectorF;
 begin
@@ -113,7 +114,7 @@ begin
   TStarFon.Instance.Shift(AShift);
 end;
 
-procedure THero.Control(const ADelta: Double);
+procedure THeroShip.Control(const ADelta: Double);
 var
   MousePosition: TVector2F;
   DistanceToCamera: Single;
@@ -129,7 +130,7 @@ begin
     FNeedCameraPosition * (ADelta * 20);
 end;
 
-procedure THero.OnCollide(OtherObject: TPhysicalObject);
+procedure THeroShip.OnCollide(OtherObject: TPhysicalObject);
 begin
   if (OtherObject is TAsteroid) then
   begin
@@ -143,19 +144,19 @@ begin
   end;
 end;
 
-procedure THero.FlyInSystem(APosition: TVector2F; AAngle: Single);
+procedure THeroShip.FlyInSystem(APosition: TVector2F; AAngle: Single);
 begin
   FPosition := APosition;
   FAngle := AAngle;
   FVelocity := GetRotatedVector(FAngle, IN_SYSTEM_JUMP_SPEED);
 end;
 
-procedure THero.AddFluid(AType: TFluidType);
+procedure THeroShip.AddFluid(AType: TFluidType);
 begin
   Inc(FFluid[(Word(AType))]);
 end;
 
-procedure THero.UpdateParameters(const ADelta: Double);
+procedure THeroShip.UpdateParameters(const ADelta: Double);
 begin
   FAngle := RotateToAngle(FAngle, FNeedAngle, 220 * ADelta);
   FSpeed := FSpeed * (1 - ADelta * 50) + FNeedSpeed * (ADelta * 50);
@@ -164,7 +165,7 @@ begin
     FVelocity := FVelocity * (600 / FVelocity.Length);
 end;
 
-procedure THero.CheckMouse;
+procedure THeroShip.CheckMouse;
 begin
   if TheMouseState.IsButtonPressed[mbLeft] then
     FCannon.Fire(FPosition, FTowerAngle);
@@ -174,7 +175,7 @@ begin
     FScanner.Fire(FPosition, FTowerAngle);
 end;
 
-procedure THero.CheckKeys;
+procedure THeroShip.CheckKeys;
 var
   NeedDirection: TVector2F;
 begin
