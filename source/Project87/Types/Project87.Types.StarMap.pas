@@ -18,6 +18,7 @@ uses
 
 const
   LIFEFRACTION_COUNT = 3;
+  BASE_ENERGY_RECOVERY_IN_SECOND = 0.005;
 
 type
   TSystemSize = (ssSmall = 0, ssMedium = 1, ssBig = 2);
@@ -225,7 +226,6 @@ const
   BACK_TO_MAP_TIME = 0.6;
   ENTER_TO_SYSTEM_TIME = 0.6;
   SystemSize: TVectorF = (X: SYSTEM_SIZE; Y: SYSTEM_SIZE);
-  BASE_ENERGY_RECOVERY_IN_SECOND = 0.01;
 
   SYSTEM_INFO_SIZE = 4.5;
   SHOW_INFO_TIME = 0.4;
