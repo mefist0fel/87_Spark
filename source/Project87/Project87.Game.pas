@@ -84,7 +84,7 @@ begin
   ResourceManager.AddResource(ATextureEx);
 
   ATextureEx := TTextureExResource.CreateAndLoad('Image', 'SystemInfo',
-    AGfxDir + 'starmap_elements\system.png', 0);
+    AGfxDir + 'starmap_elements\system_discharged.png', 0);
   ResourceManager.AddResource(ATextureEx);
 
   ATextureEx := TTextureExResource.CreateAndLoad('Image', 'SystemEdge',
