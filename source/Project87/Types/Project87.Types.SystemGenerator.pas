@@ -71,22 +71,24 @@ var
   SizeFactor: Single;
   Position: TVectorF;
 begin
+  SizeFactor := 1;
+  Count := -1;
   case ASystemSize of
     ssSmall:
-    begin
-      SizeFactor := 0.6;
-      Count := 90;
-    end;
+      begin
+        SizeFactor := 0.6;
+        Count := 90;
+      end;
     ssMedium:
-    begin
-      SizeFactor := 1;
-      Count := 180;
-    end;
+      begin
+        SizeFactor := 1;
+        Count := 180;
+      end;
     ssBig:
-    begin
-      SizeFactor := 1.3;
-      Count := 250;
-    end;
+      begin
+        SizeFactor := 1.3;
+        Count := 250;
+      end;
   end;
   SystemRadius := 3300 * SizeFactor;
   case ASystemType of
