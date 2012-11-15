@@ -117,7 +117,6 @@ end;
 procedure TGameScene.OnDraw(const ALayer: Integer);
 var
   I: Integer;
-  ADelta: TVectorF;
 begin
   TheEngine.Camera := nil;
   TheRender.Rectangle(0, 0,

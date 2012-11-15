@@ -74,7 +74,7 @@ begin
   begin
     FMap.Clear;
     FMap.LoadFromFile(STARMAP_FILE);
-    FMap.BackToMap;
+    FMap.BackToMap(1);
     Exit;
   end;
 
@@ -85,14 +85,14 @@ begin
       FMap.OnInitialize
     else
       FMap.LoadFromFile(STARMAP_FILE);
-    FMap.BackToMap;
+    FMap.BackToMap(1);
     Exit;
   end;
 
   if AParameter is TStarSystemResult then
-    FMap.BackToMap(AParameter as TStarSystemResult)
+    FMap.BackToMap(0.8, AParameter as TStarSystemResult)
   else
-    FMap.BackToMap;
+    FMap.BackToMap(1);
 end;
 
 procedure TStarMapScene.OnDraw(const ALayer: Integer);

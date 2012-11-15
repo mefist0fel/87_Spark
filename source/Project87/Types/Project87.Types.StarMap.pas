@@ -18,6 +18,7 @@ uses
 
 const
   LIFEFRACTION_COUNT = 3;
+  BASE_ENERGY_RECOVERY_IN_SECOND = 0.005;
 
 type
   TSystemSize = (ssSmall = 0, ssMedium = 1, ssBig = 2);
@@ -72,27 +73,29 @@ type
       FIsShow, FIsHide: Boolean;
       FAlpha, FEnemyAngle: Single;
       FTime: Single;
+
+      procedure GenerateResources;
+      procedure CheckSize;
+      procedure CheckEnemies;
+      procedure CheckResources;
+      function GetEdgeColor(AOwner: TStarMap): Cardinal;
+      function GetTexture(AOwner: TStarMap): TQuadTexture;
+      procedure DrawEnemies(AOwner: TStarMap);
     private
       FEnemies: TEnemies;
       FMaxResources: TResources;
       FResources: TResources;
-      
+
       constructor Create;
 
-      procedure GenerateResources;
       procedure Generate(const ASector: TVector2I);
       procedure LoadFromStream(AStream: TFileStream);
       procedure SaveToStream(AStream: TFileStream);
       function IsContains(const APoint: TVectorF): Boolean;
 
-      procedure CheckSize;
-      procedure CheckEnemies;
-      procedure CheckResources;
       procedure ShowInfo;
       procedure HideInfo;
 
-      function GetEdgeColor(AOwner: TStarMap): Cardinal;
-      function GetTexture(AOwner: TStarMap): TQuadTexture;
       procedure Draw(AOwner: TStarMap);
       procedure Update(ADelta: Double);
 
@@ -133,6 +136,8 @@ type
       FUnRadius, FNeedUnRadius: Single;
       FUnRatio: array [0..1] of Single;
 
+      FEnergyCapacity, FStartCapacity, FNeedCapacity: Single;
+
       FIsTransition: Boolean;
       FIsBack: Boolean;
       FIsEnter: Boolean;
@@ -147,6 +152,7 @@ type
       procedure GenerateMissingSectors(const ASector: TVectorI);
       procedure CheckNeedSectors;
       procedure EnterToSystem;
+      procedure BeginTransition;
       procedure TransitionToSelected;
       function CheckDistance(const A, B: TVectorF;
         AMaxDistance: Single): Boolean;
@@ -161,7 +167,6 @@ type
       procedure DrawSystemInfo;
       procedure DrawCurtain;
 
-      function GetSelectedSystem(): TStarSystem;
       function GetCurrentSystem(): TStarSystem;
     private
       FMarkerType: array [0..2] of TQuadTexture;
@@ -180,7 +185,6 @@ type
       class procedure TakeId(Id: TObjectId);
       class function GetNewId(): TObjectId;
 
-      property SelectedSystem: TStarSystem read GetSelectedSystem;
       property CurrentSystem: TStarSystem read GetCurrentSystem;
     public
       class constructor CreateClass;
@@ -189,11 +193,11 @@ type
       destructor Destroy; override;
 
       procedure Clear;
-      procedure BackToMap(AResult: TStarSystemResult = nil);
+      procedure BackToMap(AEnergyCapacity: Single; AResult: TStarSystemResult = nil);
       procedure LoadFromFile(const AFile: string);
       procedure SaveToFile(const AFile: string);
 
-      ///<summary>Производит вервичное заполнение мира
+      ///<summary>Производит первичное заполнение мира
       /// звёздными системами.</summary>
       procedure OnInitialize(AParameter: TObject = nil); override;
       procedure OnDraw(const ALayer: Integer); override;
@@ -273,6 +277,7 @@ var
   ASizeFactor: Single;
   AResource: Word;
 begin
+  ASizeFactor := 1;
   case FSize of
     ssSmall: ASizeFactor := 0.36 * (1.7 - 1.4 * Random);
     ssMedium: ASizeFactor := 1 * (1.7 - 1.4 * Random);
@@ -521,31 +526,13 @@ begin
   end;
 end;
 
-procedure TStarSystem.Draw(AOwner: TStarMap);
+procedure TStarSystem.DrawEnemies(AOwner: TStarMap);
 var
   I, J: Integer;
   AVector: TVectorF;
   AColor: Cardinal;
 begin
   AColor := GetEdgeColor(AOwner);
-  AOwner.FInfoRadius[0] := FResourcesRadius;
-  AOwner.FInfoRadius[1] := FRadius;
-  for I := 0 to 3 do
-    AOwner.FInfoAngles[I] := FAngles[I];
-
-  AOwner.FInfoShader.SetShaderState(True);
-    GetTexture(AOwner).Draw(
-      FPosition, SystemSize * SYSTEM_INFO_SIZE * 2 * FSizeFactor,
-      0, D3DCOLOR_COLORVALUE(1, 1, 1, FAlpha));
-  AOwner.FInfoShader.SetShaderState(False);
-
-  AOwner.FMarkerContour.Draw(
-    FPosition, SystemSize * SYSTEM_INFO_SIZE * 4 * FRadius * 0.88 * FSizeFactor,
-    0, D3DCOLOR_COLORVALUE(0.1, 0.1, 0.1, FAlpha));
-  AOwner.FMarkerContour.Draw(
-    FPosition, SystemSize * SYSTEM_INFO_SIZE * 4 * FRadius * 1.025 * FSizeFactor,
-    0, AColor + D3DCOLOR_COLORVALUE(0, 0, 0, FAlpha));
-
   AOwner.FMarkerContour.Draw(
     FPosition, Vec2F(FEnemyRadius, FEnemyRadius) * 2.05 * FSizeFactor,
     0, AColor + D3DCOLOR_COLORVALUE(0, 0, 0, FAlpha * 0.4));
@@ -570,6 +557,33 @@ begin
       Vec2F(ENEMY_SIZE, ENEMY_SIZE) * FAlpha * 0.7 * FSizeFactor,
       0, FEnemyColor[I] + D3DCOLOR_COLORVALUE(0, 0, 0, FAlpha));
   end;
+end;
+
+procedure TStarSystem.Draw(AOwner: TStarMap);
+var
+  I: Integer;
+  AColor: Cardinal;
+begin
+  AColor := GetEdgeColor(AOwner);
+  AOwner.FInfoRadius[0] := FResourcesRadius;
+  AOwner.FInfoRadius[1] := FRadius;
+  for I := 0 to 3 do
+    AOwner.FInfoAngles[I] := FAngles[I];
+
+  AOwner.FInfoShader.SetShaderState(True);
+    GetTexture(AOwner).Draw(
+      FPosition, SystemSize * SYSTEM_INFO_SIZE * 2 * FSizeFactor,
+      0, D3DCOLOR_COLORVALUE(1, 1, 1, FAlpha));
+  AOwner.FInfoShader.SetShaderState(False);
+
+  AOwner.FMarkerContour.Draw(
+    FPosition, SystemSize * SYSTEM_INFO_SIZE * 4 * FRadius * 0.88 * FSizeFactor,
+    0, D3DCOLOR_COLORVALUE(0.1, 0.1, 0.1, FAlpha));
+  AOwner.FMarkerContour.Draw(
+    FPosition, SystemSize * SYSTEM_INFO_SIZE * 4 * FRadius * 1.025 * FSizeFactor,
+    0, AColor + D3DCOLOR_COLORVALUE(0, 0, 0, FAlpha));
+
+  DrawEnemies(AOwner);
 end;
 
 procedure TStarSystem.Update(ADelta: Double);
@@ -729,11 +743,6 @@ begin
   FUnRatio[1] := FCamera.Resolution.Y / AMin;
 end;
 
-function TStarMap.GetSelectedSystem;
-begin
-  Result := FSelectedSystem;
-end;
-
 function TStarMap.GetCurrentSystem;
 begin
   Result := FCurrentSystem;
@@ -890,6 +899,14 @@ begin
     GenerateMissingSectors(FSelectedSystem.Sector);
 end;
 
+procedure TStarMap.BeginTransition;
+begin
+  FIsTransition := True;
+  FStartCapacity := FEnergyCapacity;
+  FNeedCapacity := Clamp(FEnergyCapacity - 0.15, 1, 0);
+  FTime := 0;
+end;
+
 procedure TStarMap.TransitionToSelected;
 begin
   CheckNeedSectors;
@@ -943,6 +960,7 @@ begin
   FInfoSystem := nil;
   FIsBack := True;
   FTime := 0;
+  FEnergyCapacity := AEnergyCapacity;
 end;
 
 procedure TStarMap.EnterToSystem;
@@ -1041,14 +1059,14 @@ begin
     AColor := $FFFFB080;
     ASize := 1.3;
   end;
-  if not CheckDistance(FCamera.Position, ASystem.Position, MAX_DISTANCE) then
+  if not CheckDistance(FCamera.Position, ASystem.Position, MAX_DISTANCE * FEnergyCapacity) then
     AColor := $FF707070;
   FStar.Draw(ASystem.Position, SystemSize * ASize, 0, AColor);
 end;
 
 procedure TStarMap.DrawConstrain;
 begin
-  FUnRadius := FNeedUnRadius * FCamera.Scale.X;
+  FUnRadius := FNeedUnRadius * FCamera.Scale.X * FEnergyCapacity;
   FUnavailableShader.SetShaderState(True);
     TheEngine.Camera := nil;
     FUnavailableBuffer.Draw(0, 0, $18FF6060);
@@ -1084,9 +1102,6 @@ end;
 procedure TStarMap.OnDraw(const ALayer: Integer);
 var
   ASystem: TStarSystem;
-  APosition, ASize: TVectorF;
-  AAngle: Single;
-  AAlpha: Single;
   ADelta: TVectorF;
 begin
   TheRender.SetBlendMode(qbmSrcAlpha);
@@ -1110,12 +1125,17 @@ procedure TStarMap.OnUpdate(const ADelta: Double);
 var
   ASystem: TStarSystem;
 begin
+  FEnergyCapacity := FEnergyCapacity + BASE_ENERGY_RECOVERY_IN_SECOND * ADelta;
+
   if FIsTransition then
   begin
     FTime := FTime + ADelta;
+    FEnergyCapacity := InterpolateValue(
+      FStartCapacity, FNeedCapacity, FTime / TRANSITION_TIME, itHermit01);
     if FTime > TRANSITION_TIME then
     begin
       FIsTransition := False;
+      FEnergyCapacity := FNeedCapacity;
       TransitionToSelected;
     end;
   end;
@@ -1150,7 +1170,7 @@ end;
 function TStarMap.OnMouseMove(const AMousePosition: TVectorF): Boolean;
 var
   ASystem: TStarSystem;
-  ASPosition, AWPosition: TVectorF;
+  AWPosition: TVectorF;
 begin
   Result := True;
   if FIsTransition or FIsBack or FIsEnter then
@@ -1164,7 +1184,7 @@ begin
 
     if IsOnScreen(ASystem) then
       if ASystem.IsContains(AWPosition) and
-        CheckDistance(ASystem.Position, FCurrentSystem.Position, MAX_DISTANCE) and
+        CheckDistance(ASystem.Position, FCurrentSystem.Position, MAX_DISTANCE * FEnergyCapacity) and
         (ASystem <> FInfoSystem)
       then
       begin
@@ -1192,8 +1212,7 @@ end;
 function TStarMap.OnMouseButtonUp(AButton: TMouseButton;
   const AMousePosition: TVectorF): Boolean;
 var
-  ASystem: TStarSystem;
-  ASPosition, AWPosition: TVectorF;
+  AWPosition: TVectorF;
 begin
   Result := True;
   if FIsTransition or FIsBack or FIsEnter then
@@ -1210,19 +1229,16 @@ begin
       FIsEnter := True;
       FTime := 0;
       Exit;
-    end;
-
-    if FInfoSystem = FSelectedSystem then
+    end
+    else
     begin
+      FSelectedSystem := FInfoSystem;
       FInfoSystem.HideInfo;
       FNeedDraw.Add(FInfoSystem);
       FInfoSystem := nil;
 
-      FIsTransition := True;
-      FTime := 0;
-    end
-    else
-      FSelectedSystem := FInfoSystem;
+      BeginTransition;
+    end;
   end;
 end;
 
@@ -1239,10 +1255,7 @@ begin
   end;
 
   if AKey = KB_SPACE then
-  begin
-    FIsTransition := True;
-    FTime := 0;
-  end;
+    BeginTransition;
 end;
 {$ENDREGION}
 
