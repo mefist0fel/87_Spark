@@ -25,11 +25,13 @@ type
   TSystemConfiguration = (scDischarged = 0, scCompact = 1, scPlanet = 2);
   TLifeFraction = (lfRed = 0, lfBlue = 1, lfGreen = 2);
   TLifeFractions = set of TLifeFraction;
+  TEnemies = array [0..LIFEFRACTION_COUNT - 1] of Single;
+  TResources = array [0..FLUID_TYPE_COUNT - 1] of Word;
 
   TStarSystemResult = class sealed
     strict private
-      FEnemies: array [0..LIFEFRACTION_COUNT - 1] of Single;
-      FResources: array [0..FLUID_TYPE_COUNT - 1] of Word;
+      FEnemies: TEnemies;
+      FResources: TResources;
 
       function GetEnemies(AIndex: Integer): Single;
       function GetResources(AIndex: Integer): Word;
@@ -71,9 +73,9 @@ type
       FAlpha, FEnemyAngle: Single;
       FTime: Single;
     private
-      FEnemies: array [0..LIFEFRACTION_COUNT - 1] of Single;
-      FMaxResources: array [0..FLUID_TYPE_COUNT - 1] of Word;
-      FResources: array [0..FLUID_TYPE_COUNT - 1] of Word;
+      FEnemies: TEnemies;
+      FMaxResources: TResources;
+      FResources: TResources;
       
       constructor Create;
 

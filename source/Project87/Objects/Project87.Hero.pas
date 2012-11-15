@@ -9,6 +9,7 @@ uses
   Project87.Fluid,
   Project87.BaseUnit,
   Project87.Types.GameObject,
+  Project87.Types.StarMap,
   Project87.Types.Weapon;
 
 const
@@ -16,16 +17,30 @@ const
   RADAR_DISTANCE = 1500;
 
 type
+//Hero parameters
+  THero = class
+    private class var FInstance: THero;
+    private
+      FLevel: Word;//:)
+      FFluid: TResources;
+
+      function GetFluid(AIndex: Integer): Word;
+      constructor Create;
+    public
+
+      class function GetInstance: THero;
+      procedure AddFluid(AType: TFluidType);
+      property Fluid[AIndex: Integer]: Word read GetFluid;
+  end;
+//Hero starship and all it physical parameters
   THeroShip = class (TBaseUnit)
     private
-      FFluid: array [0..FLUID_TYPE_COUNT - 1] of Word;
       FNeedAngle: Single;
       FAngularSpeed: Single;
       FNeedCameraPosition: TVector2F;
       FHeroMaxSpeed: Single;
       FNeedSpeed: Single;
       FSpeed: Single;
-      FMessage: string;
       FCannon: TCannon;
       FScanner: TScanner;
 
@@ -35,8 +50,6 @@ type
       procedure UpdateParameters(const ADelta: Double);
       procedure CheckKeys;
       procedure CheckMouse;
-
-      function GetFluid(AIndex: Integer): Word;
     public
       constructor CreateUnit(const APosition: TVector2F; AAngle: Single; ASide: TUnitSide); override;
 
@@ -45,9 +58,6 @@ type
       procedure OnCollide(OtherObject: TPhysicalObject); override;
 
       procedure FlyInSystem(APosition: TVector2F; AAngle: Single);
-      procedure AddFluid(AType: TFluidType);
-
-      property Fluid[AIndex: Integer]: Word read GetFluid;
   end;
 
 implementation
@@ -64,6 +74,32 @@ uses
   Project87.Types.StarFon;
 
 {$REGION '  THero  '}
+constructor THero.Create;
+begin
+
+end;
+
+class function THero.GetInstance: THero;
+begin
+  if FInstance = nil then
+    FInstance := THero.Create;
+  Result := FInstance;
+end;
+
+function THero.GetFluid(AIndex: Integer): Word;
+begin
+  if (AIndex < 0) or (AIndex >= FLUID_TYPE_COUNT) then
+    Exit(0);
+  Result := FFluid[AIndex];
+end;
+
+procedure THero.AddFluid(AType: TFluidType);
+begin
+  Inc(FFluid[(Word(AType))]);
+end;
+{$ENDREGION}
+
+{$REGION '  THero Ship  '}
 constructor THeroShip.CreateUnit(const APosition: TVector2F; AAngle: Single; ASide: TUnitSide);
 begin
   inherited;
@@ -74,15 +110,7 @@ begin
   FHeroMaxSpeed := 40;
   FUseCollistion := True;
   FMass := 1;
-  FMessage := '';
   FOldPosition := FPosition;
-end;
-
-function THeroShip.GetFluid(AIndex: Integer): Word;
-begin
-  if (AIndex < 0) or (AIndex >= FLUID_TYPE_COUNT) then
-    Exit(0);
-  Result := FFluid[AIndex];
 end;
 
 procedure THeroShip.OnDraw;
@@ -93,7 +121,6 @@ begin
   TheResources.HeroTexture.Draw(FPosition, Vec2F(10, 20), FTowerAngle, $FFFFFFFF);
   ShieldAlpha := Trunc(FShowShieldTime * $52);
   TheResources.AsteroidTexture.Draw(FPosition, Vec2F(70, 70), FTowerAngle, ShieldAlpha * $1000000 + $FFFFFF);
-  TheResources.Font.TextOut(FMessage, FPosition, 1 * TheEngine.Camera.Scale.x);
 end;
 
 procedure THeroShip.OnUpdate(const ADelta: Double);
@@ -134,12 +161,10 @@ procedure THeroShip.OnCollide(OtherObject: TPhysicalObject);
 begin
   if (OtherObject is TAsteroid) then
   begin
-    FMessage := 'Asteroid';
     FShowShieldTime := 0.7;
   end;
   if (OtherObject is TBaseEnemy) then
   begin
-    FMessage := 'Enemy';
     FShowShieldTime := 0.7;
   end;
 end;
@@ -149,11 +174,6 @@ begin
   FPosition := APosition;
   FAngle := AAngle;
   FVelocity := GetRotatedVector(FAngle, IN_SYSTEM_JUMP_SPEED);
-end;
-
-procedure THeroShip.AddFluid(AType: TFluidType);
-begin
-  Inc(FFluid[(Word(AType))]);
 end;
 
 procedure THeroShip.UpdateParameters(const ADelta: Double);
@@ -169,9 +189,7 @@ procedure THeroShip.CheckMouse;
 begin
   if TheMouseState.IsButtonPressed[mbLeft] then
     FCannon.Fire(FPosition, FTowerAngle);
-//  if TheMouseState.IsButtonPressed[mbMiddle] then
-//    FScanner.Fire(FPosition, FTowerAngle);
-  if TheMouseState.IsButtonPressed[mbRight] then
+  if TheMouseState.IsButtonPressed[mbMiddle] then
     FScanner.Fire(FPosition, FTowerAngle);
 end;
 

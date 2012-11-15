@@ -12,7 +12,7 @@ type
   private
     FGenerator: Cardinal;
     constructor Create;
-    function GenerateAsteroids(ASystemSize: TSystemSize; ASystemType: TSystemConfiguration): Single;
+    function GenerateAsteroids(AStarSystem: TStarSystem): Single;
   public
     function PRandom: Integer; overload;
     function PRandom(AMax: Integer): Integer; overload;
@@ -65,15 +65,15 @@ begin
   Result := PRandom(1000) / 1000;
 end;
 
-function TSystemGenerator.GenerateAsteroids(ASystemSize: TSystemSize; ASystemType: TSystemConfiguration): Single;
+function TSystemGenerator.GenerateAsteroids(AStarSystem: TStarSystem): Single;
 var
   I, J, L, Count: Integer;
   SystemRadius: Single;
   SizeFactor: Single;
-  Position: TVectorF;
   Asteroid: TList<TAsteroid>;
+  Resources: TResources;
 begin
-  case ASystemSize of
+  case AStarSystem.Size of
     ssSmall:
     begin
       SizeFactor := 0.6;
@@ -92,14 +92,14 @@ begin
   end;
   Asteroid := TList<TAsteroid>.Create();
   SystemRadius := 3300 * SizeFactor;
-  case ASystemType of
+  case AStarSystem.Configuration of
     scDischarged:
     begin
       for I := 0 to Count do
         Asteroid.Add(TAsteroid.CreateAsteroid(
           GetRotatedVector(PRandom(3600) / 10, SystemRadius - SRandom * SRandom * SystemRadius),
           PRandom(360), 20 + PRandom(120),
-          TFluidType(I mod (FLUID_TYPE_COUNT - 1))));
+          TFluidType(I mod (FLUID_TYPE_COUNT))));
     end;
     scCompact:
     begin
@@ -109,7 +109,7 @@ begin
         Asteroid.Add(TAsteroid.CreateAsteroid(
           GetRotatedVector(J * (360 / (I * 8)) + SRandom * (360 / I * 8), SystemRadius / L * (I - 0.4) + SRandom * 180 * SizeFactor),
           PRandom(360), 20 + PRandom(120),
-          TFluidType((I + J) mod (FLUID_TYPE_COUNT - 1))));
+          TFluidType((I + J) mod (FLUID_TYPE_COUNT))));
       TObjectManager.GetInstance.SolveCollisions(10);
     end;
     scPlanet: //like a planetar system
@@ -118,21 +118,40 @@ begin
       Asteroid.Add(TAsteroid.CreateAsteroid(
         GetRotatedVector(PRandom(3600) / 10, SystemRadius - SRandom * SystemRadius * 0.05),
         PRandom(360), 20 + PRandom(100),
-        TFluidType(PRandom(4))));
+        TFluidType(I mod (FLUID_TYPE_COUNT))));
       for I := 0 to trunc(4.8 * SizeFactor) do
       Asteroid.Add(TAsteroid.CreateAsteroid(
         GetRotatedVector(PRandom(3600) / 10, PRandom(1000) / 1000 * SystemRadius * 0.35),
         PRandom(360), 100 + PRandom(170) * SizeFactor,
-        TFluidType(PRandom(4))));
+        TFluidType(I mod (FLUID_TYPE_COUNT))));
       for I := 0 to count div 4 do
       Asteroid.Add(TAsteroid.CreateAsteroid(
         GetRotatedVector(PRandom(3600) / 10, PRandom(1000) / 1000 * SystemRadius * 0.8),
         PRandom(360), 20 + PRandom(80),
-        TFluidType(PRandom(4))));
+        TFluidType(I mod (FLUID_TYPE_COUNT))));
       TObjectManager.GetInstance.SolveCollisions(10);
     end;
   end;
- // for i := 0 to Asteroid.Count do
+  //Resource division
+  for J := 0 to FLUID_TYPE_COUNT - 1 do
+    Resources[J] := AStarSystem.Resources[J];
+  for J := 0 to FLUID_TYPE_COUNT - 1 do
+    for I := 0 to Asteroid.Count - 1 do
+      if Asteroid[i].FluidType = TFluidType(J) then
+      begin
+        if Resources[J] >= Asteroid[i].MaxFluids then
+        begin
+          Asteroid[i].Fluids := PRandom(Asteroid[i].MaxFluids);
+          Resources[J] := Resources[J] - Asteroid[i].Fluids;
+        end
+        else
+        begin
+          Asteroid[i].Fluids := Resources[J];
+          Resources[J] := Resources[J] - Asteroid[i].Fluids;
+        end;
+        if Resources[J] = 0 then
+          Break;
+      end;
 
   Asteroid.Free;
   Result := SystemRadius;
@@ -148,7 +167,7 @@ begin
   with FInstance do
   begin
     FGenerator := AParameter.Seed;
-    HeroStartDistance := GenerateAsteroids(AParameter.Size, AParameter.Configuration);//, AParameter.Resources);
+    HeroStartDistance := GenerateAsteroids(AParameter);
     Angle := PRandom(360);
     AHero.FlyInSystem(GetRotatedVector(Angle, -HeroStartDistance * 1.1), Angle);
   end;

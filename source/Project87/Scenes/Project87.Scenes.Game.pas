@@ -20,12 +20,14 @@ type
       FMainCamera: IQuadCamera;
       FGUICamera: IQuadCamera;
 
+      FHero: THero;
+
       FObjectManager: TObjectManager;
       FResource: TResources;
       FStartAnimation: Single;
       FShowMap: Single;
       FSystemResult: TStarSystemResult;
-      FHero: THeroShip;
+      FHeroShip: THeroShip;
       FFont: TQuadFont;
       procedure UpdateStartAnimation(const ADelta: Double);
       procedure ShowLocalMap;
@@ -68,6 +70,8 @@ begin
   FMainCamera := TheEngine.CreateCamera;
   FGUICamera := TheEngine.CreateCamera;
 
+  FHero := THero.GetInstance;
+
   FFont := (TheResourceManager.GetResource('Font', 'Quad_24') as TFontExResource).Font;
 end;
 
@@ -98,9 +102,9 @@ begin
 
   TObjectManager.GetInstance.ClearObjects();
 
-  FHero := THeroShip.CreateUnit(ZeroVectorF, Random(360), usHero);
+  FHeroShip := THeroShip.CreateUnit(ZeroVectorF, Random(360), usHero);
   if (AParameter is TStarSystem) then
-    TSystemGenerator.GenerateSystem(FHero, TStarSystem(AParameter));
+    TSystemGenerator.GenerateSystem(FHeroShip, TStarSystem(AParameter));
 end;
 
 procedure TGameScene.OnUpdate(const ADelta: Double);
@@ -129,14 +133,14 @@ begin
   FObjectManager.OnDraw;
 
   TheEngine.Camera := FGUICamera;
-  FFont.TextOut(FloatToStr(FHero.Life), FGUICamera.GetWorldPos(Vec2F(10, 10)));
+  FFont.TextOut(FloatToStr(FHeroShip.Life), FGUICamera.GetWorldPos(Vec2F(10, 10)));
   FFont.TextOut(IntToStr(FHero.Fluid[0]), FGUICamera.GetWorldPos(Vec2F(10, 38)),
     1, $FFFFFF00);
-  FFont.TextOut(IntToStr(FHero.Fluid[3]), FGUICamera.GetWorldPos(Vec2F(10, 63)),
+  FFont.TextOut(IntToStr(FHero.Fluid[1]), FGUICamera.GetWorldPos(Vec2F(10, 63)),
     1, $FF0000FF);
-  FFont.TextOut(IntToStr(FHero.Fluid[2]), FGUICamera.GetWorldPos(Vec2F(10, 88)),
+  FFont.TextOut(IntToStr(FHero.Fluid[3]), FGUICamera.GetWorldPos(Vec2F(10, 88)),
     1, $FFFF0000);
-  FFont.TextOut(IntToStr(FHero.Fluid[1]), FGUICamera.GetWorldPos(Vec2F(10, 113)),
+  FFont.TextOut(IntToStr(FHero.Fluid[2]), FGUICamera.GetWorldPos(Vec2F(10, 113)),
     1, $FF00FF00);
 
   //Передавай камеру как-нибудь по другому в апдейт.

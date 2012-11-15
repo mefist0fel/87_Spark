@@ -39,8 +39,9 @@ type
       procedure OnUpdate(const ADelta: Double); override;
       procedure Scan;
       procedure Hit(AAngle: Single; ANumber: Integer);
-      property Fluids: Word read FFluids write FFluids;
       property MaxFluids: Word read FMaxFluids;
+      property Fluids: Word read FFluids write FFluids;
+      property FluidType: TFluidType read FType;
   end;
 
 implementation
@@ -67,8 +68,6 @@ begin
   FType := AType;
   FMass := 10;
   FMaxFluids := Trunc(ARadius / FLUID_POSITION_SCALE);
-  //TODO
-    FFluids := 20;// Random(50) * Random(2) * Random(2);
 end;
 
 procedure TAsteroid.GenerateScannedResources;
