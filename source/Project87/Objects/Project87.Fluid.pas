@@ -13,9 +13,9 @@ const
 type
   TFluidType = (
     fYellow = 0,
-    fBlue = 1,
-    fRed = 2,
-    fGreen = 3
+    fGreen = 1,
+    fBlue = 2,
+    fRed = 3
   );
 
   TFluid = class (TGameObject)
