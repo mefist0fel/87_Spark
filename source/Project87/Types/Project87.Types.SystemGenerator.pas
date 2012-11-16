@@ -154,7 +154,7 @@ begin
         if Resources[J] = 0 then
           Break;
       end;
-
+  TObjectManager.GetInstance.CountObjects(TAsteroid);
   Asteroid.Free;
   Result := SystemRadius;
 end;

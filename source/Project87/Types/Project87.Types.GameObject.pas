@@ -89,6 +89,7 @@ type
 
       class function GetInstance: TObjectManager;
 
+      procedure CountObjects(AType: TClass);
       procedure SolveCollisions(ACount: Word);
       procedure OnDraw;
       procedure OnUpdate(const ADelta: Double);
@@ -305,6 +306,20 @@ begin
         PhysicalObject.FCorrection := ZeroVectorF;
       end;
   end;
+end;
+
+procedure TObjectManager.CountObjects(AType: TClass);
+var
+  I: Word;
+  PhysicalObject: TPhysicalObject;
+begin
+  I := 0;
+  for PhysicalObject in FPhysicalObjects do
+    if PhysicalObject is AType then
+    begin
+      Inc(I);
+    end;
+  TheApplication.Window.Caption := IntToStr(I);
 end;
 
 procedure TObjectManager.CheckCollisions;
