@@ -9,6 +9,8 @@ uses
 const
   FRICTION = 2.5;
   FLUID_TYPE_COUNT = 4;
+  FLUID_GET_RANGE = 180 * 180;
+  FLUID_AUTO_GET_SPEED = 35;
 
 type
   TFluidType = (
@@ -21,6 +23,8 @@ type
   TFluid = class (TGameObject)
     private
       FType: TFluidType;
+      FCounter: Byte;
+      FCanGetByHero: Boolean;
     public
       constructor CreateFluid(const APosition: TVector2F;
         AType: TFluidType = fYellow); overload;
@@ -47,7 +51,7 @@ constructor TFluid.CreateFluid(const APosition: TVector2F;
   AType: TFluidType = fYellow);
 begin
   inherited Create;
-
+  FCanGetByHero := False;
   FType := AType;
   FPreviosPosition := APosition;
   FPosition := APosition;
@@ -80,6 +84,15 @@ end;
 procedure TFluid.OnUpdate(const  ADelta: Double);
 begin
   FVelocity := FVelocity * (1 - ADelta * FRICTION);
+  Inc(FCounter);
+  if FCounter > 10 then
+  begin
+    FCounter := 0;
+    if (FPosition - THeroShip.GetInstance.Position).LengthSqr < FLUID_GET_RANGE then
+      FCanGetByHero := true;
+  end;
+  if FCanGetByHero then
+    FVelocity := FVelocity + GetRotatedVector(GetAngle(FPosition, THeroShip.GetInstance.Position), FLUID_AUTO_GET_SPEED);
 end;
 
 procedure TFluid.OnCollide(OtherObject: TPhysicalObject);

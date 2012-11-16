@@ -7,7 +7,8 @@ uses
   Strope.Math,
   Project87.BaseUnit,
   Project87.BaseEnemy,
-  Project87.Types.GameObject;
+  Project87.Types.GameObject,
+  Project87.Types.StarMap;
 
 const
   MAX_LIFE = 300;
@@ -17,7 +18,7 @@ type
     private
     public
       constructor CreateUnit(const APosition: TVector2F; AAngle: Single;
-        ASide: TUnitSide); override;
+        ASide: TLifeFraction); override;
 
       procedure OnDraw; override;
   end;
@@ -30,7 +31,7 @@ uses
 
 {$REGION '  TBaseEnemy  '}
 constructor TBigEnemy.CreateUnit(const APosition: TVector2F; AAngle: Single;
-  ASide: TUnitSide);
+  ASide: TLifeFraction);
 begin
   inherited;
 

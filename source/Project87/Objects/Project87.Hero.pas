@@ -8,9 +8,9 @@ uses
   Strope.Math,
   Project87.Fluid,
   Project87.BaseUnit,
+  Project87.Types.Weapon,
   Project87.Types.GameObject,
-  Project87.Types.StarMap,
-  Project87.Types.Weapon;
+  Project87.Types.StarMap;
 
 const
   IN_SYSTEM_JUMP_SPEED = 500;
@@ -21,9 +21,13 @@ type
   THero = class
     private
       class var FInstance: THero;
-
+    private
+      FLife: Single;
+      FEnergy: Single;
       FLevel: Word;//:)
       FFluid: TResources;
+      FRocketCount: Word;
+      FMaxRocketCount: Word;
 
       function GetFluid(AIndex: Integer): Word;
       constructor Create;
@@ -31,11 +35,17 @@ type
 
       class function GetInstance: THero;
       procedure AddFluid(AType: TFluidType);
+
       property Fluid[AIndex: Integer]: Word read GetFluid;
+      property Rockets: Word read FRocketCount write FRocketCount;
+      property Life: Single read FLife;
+      property Energy: Single read FEnergy;
   end;
 
   //Hero starship and all it physical parameters
   THeroShip = class (TBaseUnit)
+    private
+      class var FInstance: THeroShip;
     private
       FNeedAngle: Single;
       FAngularSpeed: Single;
@@ -44,6 +54,7 @@ type
       FNeedSpeed: Single;
       FSpeed: Single;
       FCannon: TCannon;
+      FLauncher: TLauncher;
       FScanner: TScanner;
 
       FOldPosition: TVectorF;
@@ -53,12 +64,14 @@ type
       procedure CheckKeys;
       procedure CheckMouse;
     public
-      constructor CreateUnit(const APosition: TVector2F; AAngle: Single; ASide: TUnitSide); override;
+      constructor CreateUnit(const APosition: TVector2F; AAngle: Single; ASide: TLifeFraction); override;
+      destructor Destroy;
 
+      class function GetInstance: THeroShip;
       procedure OnDraw; override;
       procedure OnUpdate(const  ADelta: Double); override;
-      procedure OnCollide(OtherObject: TPhysicalObject); override;
-
+      procedure OnCollide(AObject: TPhysicalObject); override;
+      procedure Hit(ADamage: Single);
       procedure FlyInSystem(APosition: TVector2F; AAngle: Single);
   end;
 
@@ -73,12 +86,16 @@ uses
   Project87.Asteroid,
   Project87.BaseEnemy,
   Project87.Resources,
+  Project87.Rocket,
   Project87.Types.StarFon;
 
 {$REGION '  THero  '}
 constructor THero.Create;
 begin
-
+  FLife := 100;
+  FEnergy := 1;
+  FMaxRocketCount := 5;
+  FRocketCount := 30;
 end;
 
 class function THero.GetInstance: THero;
@@ -102,10 +119,11 @@ end;
 {$ENDREGION}
 
 {$REGION '  THero Ship  '}
-constructor THeroShip.CreateUnit(const APosition: TVector2F; AAngle: Single; ASide: TUnitSide);
+constructor THeroShip.CreateUnit(const APosition: TVector2F; AAngle: Single; ASide: TLifeFraction);
 begin
   inherited;
-  FCannon := TCannon.Create(OPlayer, 0.1, 20);
+  FCannon := TCannon.Create(oPlayer, 0.1, 20);
+  FLauncher := TLauncher.Create(oPlayer, 0.7, 80, 200);
   FScanner := TScanner.Create;
   FAngularSpeed := 20;
   FRadius := 35;
@@ -113,6 +131,19 @@ begin
   FUseCollistion := True;
   FMass := 1;
   FOldPosition := FPosition;
+  FInstance := Self;
+end;
+
+destructor THeroShip.Destroy;
+begin
+  FreeAndNil(FCannon);
+  FreeAndNil(FLauncher);
+  FreeAndNil(FScanner);
+end;
+
+class function THeroShip.GetInstance: THeroShip;
+begin
+  Result := FInstance;
 end;
 
 procedure THeroShip.OnDraw;
@@ -136,10 +167,12 @@ begin
   Control(ADelta);
   FCannon.OnUpdate(ADelta);
   FScanner.OnUpdate(ADelta);
+  FLauncher.OnUpdate(ADelta);
 
   AShift := FOldPosition - Position;
   FOldPosition := Position;
   AShift := AShift * 0.06;
+  TheEngine.Camera.Position := FPosition;
   TStarFon.Instance.Shift(AShift);
 end;
 
@@ -159,16 +192,24 @@ begin
     FNeedCameraPosition * (ADelta * 20);
 end;
 
-procedure THeroShip.OnCollide(OtherObject: TPhysicalObject);
+procedure THeroShip.OnCollide(AObject: TPhysicalObject);
 begin
-  if (OtherObject is TAsteroid) then
+  if (AObject is TAsteroid) then
   begin
     FShowShieldTime := 0.7;
   end;
-  if (OtherObject is TBaseEnemy) then
+  if (AObject is TBaseEnemy) then
   begin
     FShowShieldTime := 0.7;
   end;
+end;
+
+procedure THeroShip.Hit(ADamage: Single);
+begin
+  FShowShieldTime := 0.7;
+  FLife := FLife - ADamage;
+  if (FLife < 0) then
+    Kill;
 end;
 
 procedure THeroShip.FlyInSystem(APosition: TVector2F; AAngle: Single);
@@ -193,6 +234,8 @@ begin
     FCannon.Fire(FPosition, FTowerAngle);
   if TheMouseState.IsButtonPressed[mbMiddle] then
     FScanner.Fire(FPosition, FTowerAngle);
+  if TheMouseState.IsButtonPressed[mbRight] then
+    FLauncher.Fire(FPosition, TheEngine.Camera.GetWorldPos(TheControlState.Mouse.Position), FAngle);
 end;
 
 procedure THeroShip.CheckKeys;
