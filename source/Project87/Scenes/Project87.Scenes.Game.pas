@@ -30,7 +30,7 @@ type
       FHero: THero;
 
       FObjectManager: TObjectManager;
-      FResource: TResources;
+      FResource: TGameResources;
       FStartAnimation: Single;
       FShowMap: Single;
       FSystemResult: TStarSystemResult;
@@ -77,7 +77,7 @@ begin
   inherited Create(AName);
 
   FObjectManager := TObjectManager.GetInstance;
-  FResource := TResources.Create;
+  FResource := TGameResources.Create;
   FMainCamera := TheEngine.CreateCamera;
   FGUICamera := TheEngine.CreateCamera;
 
@@ -116,20 +116,11 @@ end;
 
 procedure TGameScene.OnInitialize(AParameter: TObject);
 var
-  I: Word;
-  AEnemies: array [0..LIFEFRACTION_COUNT - 1] of Single;
-  AResources: array [0..FLUID_TYPE_COUNT - 1] of Word;
   UnitSide: TUnitSide ;
 begin
   TheEngine.Camera := FMainCamera;
   FStartAnimation := 1;
   FShowMap := 1;
-
-  for I := 0 to LIFEFRACTION_COUNT - 1 do
-    AEnemies[I] := 0.15;
-  for I := 0 to FLUID_TYPE_COUNT - 1 do
-    AResources[I] := 25;
-  FSystemResult := TStarSystemResult.Create(AEnemies, AResources);
 
   TObjectManager.GetInstance.ClearObjects();
 
@@ -187,10 +178,21 @@ begin
 end;
 
 function TGameScene.OnKeyUp(AKey: Word): Boolean;
+var
+  I: Word;
+  AEnemies: array [0..LIFEFRACTION_COUNT - 1] of Single;
+  AResources: Project87.Types.StarMap.TResources;
 begin
   Result := False;
   if (AKey = KB_BACKSPACE) or (AKey = KB_ESC) then
   begin
+
+  for I := 0 to LIFEFRACTION_COUNT - 1 do
+    AEnemies[I] := 0.15;
+  for I := 0 to FLUID_TYPE_COUNT - 1 do
+    AResources[I] := 25;
+  AResources := TSystemGenerator.GetRemainingResources;
+  FSystemResult := TStarSystemResult.Create(AEnemies, AResources);
     TheSceneManager.MakeCurrent('StarMap');
     TheSceneManager.OnInitialize(FSystemResult);
     FSystemResult := nil;

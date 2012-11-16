@@ -8,7 +8,7 @@ uses
   QEngine.Font;
 
 type
-  TResources = class
+  TGameResources = class
     public
       HeroTexture: TQuadTexture;
       AsteroidTexture: TQuadTexture;
@@ -20,12 +20,12 @@ type
   end;
 
 var
-  TheResources: TResources = nil;
+  TheResources: TGameResources = nil;
 
 implementation
 
 {$REGION '  TResources  '}
-constructor TResources.Create;
+constructor TGameResources.Create;
 begin
   TheResources := Self;
 
@@ -42,7 +42,7 @@ begin
   Font.LoadFromFile('..\data\fnt\droid_sans_bold_28.png', '..\data\fnt\droid_sans_bold_28.qef');
 end;
 
-destructor TResources.Destroy;
+destructor TGameResources.Destroy;
 begin
   HeroTexture.Free;
   AsteroidTexture.Free;

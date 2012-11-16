@@ -12,12 +12,14 @@ type
   private
     FGenerator: Cardinal;
     constructor Create;
-    function GenerateAsteroids(AStarSystem: TStarSystem): Single;
+    function  GenerateAsteroids(AStarSystem: TStarSystem): Single;
+    procedure GenerateEnemies(AStarSystem: TStarSystem);
   public
     function PRandom: Integer; overload;
     function PRandom(AMax: Integer): Integer; overload;
     function PRandom(AMin, AMax: Integer): Integer; overload;
     function SRandom: Single;
+    class function  GetRemainingResources: TResources;
     class procedure GenerateSystem(AHero: THeroShip; AParameter: TStarSystem);
   end;
 
@@ -27,6 +29,7 @@ uses
   SysUtils,
   Generics.Collections,
   Strope.Math,
+  QApplication.Application,
   Project87.Types.GameObject,
   Project87.Asteroid,
   Project87.Fluid;
@@ -68,9 +71,9 @@ end;
 function TSystemGenerator.GenerateAsteroids(AStarSystem: TStarSystem): Single;
 var
   I, J, L, Count: Integer;
+  Asteroid: TList<TAsteroid>;
   SystemRadius: Single;
   SizeFactor: Single;
-  Asteroid: TList<TAsteroid>;
   Resources: TResources;
 begin
   SizeFactor := 1;
@@ -143,7 +146,7 @@ begin
       begin
         if Resources[J] >= Asteroid[i].MaxFluids then
         begin
-          Asteroid[i].Fluids := PRandom(Asteroid[i].MaxFluids);
+          Asteroid[i].Fluids := PRandom(Asteroid[i].MaxFluids div 2) * (PRandom(2) + 1);
           Resources[J] := Resources[J] - Asteroid[i].Fluids;
         end
         else
@@ -154,9 +157,30 @@ begin
         if Resources[J] = 0 then
           Break;
       end;
-  TObjectManager.GetInstance.CountObjects(TAsteroid);
   Asteroid.Free;
   Result := SystemRadius;
+end;
+
+procedure TSystemGenerator.GenerateEnemies(AStarSystem: TStarSystem);
+begin
+
+end;
+
+class function TSystemGenerator.GetRemainingResources: TResources;
+var
+  I: Byte;
+  Asteroid: TList<TPhysicalObject>;
+  Current: TPhysicalObject;
+  Resources: TResources;
+begin
+  for I := 0 to FLUID_TYPE_COUNT - 1 do
+    Resources[I] := 0;
+  Asteroid := TObjectManager.GetInstance.GetObjects(TAsteroid);
+  I := 0;
+  for Current in Asteroid do
+    Resources[Integer(TAsteroid(Current).FluidType)] := Resources[Integer(TAsteroid(Current).FluidType)] + TAsteroid(Current).Fluids;
+  Asteroid.Free;
+  Result := Resources;
 end;
 
 class procedure TSystemGenerator.GenerateSystem(AHero: THeroShip; AParameter: TStarSystem);
@@ -172,6 +196,7 @@ begin
     HeroStartDistance := GenerateAsteroids(AParameter);
     Angle := PRandom(360);
     AHero.FlyInSystem(GetRotatedVector(Angle, -HeroStartDistance * 1.1), Angle);
+    GenerateEnemies(AParameter);
   end;
 {  for I := 0 to 100 do
     TAsteroid.CreateAsteroid(

@@ -93,14 +93,14 @@ begin
   if FMarkerPosition.LengthSqr < RADAR_DISTANCE * RADAR_DISTANCE then
   begin
     NeedDrawMarker := False;
-    if Abs(FMarkerPosition.X) - ScreenSize.X * 0.48 > 0 then
+    if Abs(FMarkerPosition.X) - ScreenSize.X * 0.5 > 0 then
     begin
-      FMarkerPosition := FMarkerPosition * (ScreenSize.X * 0.48 / Abs(FMarkerPosition.X));
+      FMarkerPosition := FMarkerPosition * (ScreenSize.X * 0.5 / Abs(FMarkerPosition.X));
       NeedDrawMarker := True;
     end;
-    if Abs(FMarkerPosition.Y) - ScreenSize.Y * 0.47 > 0 then
+    if Abs(FMarkerPosition.Y) - ScreenSize.Y * 0.5 > 0 then
     begin
-      FMarkerPosition := FMarkerPosition * (ScreenSize.Y * 0.47 / Abs(FMarkerPosition.Y));
+      FMarkerPosition := FMarkerPosition * (ScreenSize.Y * 0.5 / Abs(FMarkerPosition.Y));
       NeedDrawMarker := True;
     end;
     if NeedDrawMarker then

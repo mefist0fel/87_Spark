@@ -47,10 +47,11 @@ uses
   Project87.Types.StarMap in 'Project87\Types\Project87.Types.StarMap.pas',
   Project87.Types.SimpleGUI in 'Project87\Types\Project87.Types.SimpleGUI.pas',
   Project87.Types.SystemGenerator in 'Project87\Types\Project87.Types.SystemGenerator.pas',
-  Project87.Types.StarFon in 'Project87\Types\Project87.Types.StarFon.pas';
+  Project87.Types.StarFon in 'Project87\Types\Project87.Types.StarFon.pas',
+  Project87.Types.HeroInterface in 'Project87\Types\Project87.Types.HeroInterface.pas';
 
 begin
-  //ReportMemoryLeaksOnShutdown := True;
+  ReportMemoryLeaksOnShutdown := True;
   try
     try
       InitializeApplication;

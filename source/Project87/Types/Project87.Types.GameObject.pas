@@ -11,6 +11,8 @@ const
   MAX_PHYSICAL_VELOCITY = 1500;
   MAX_FAST_OBJECTS = 200;
   BORDER_OF_VIEW: TVector2F = (X: 800; Y: 600);
+  VIEW_RANGE = 900;
+  UPDATE_RANGE = 1200;
 
 type
   TObjectManager = class;
@@ -23,6 +25,8 @@ type
       procedure Move(const ADelta: Double);
     protected
       FIsDead: Boolean;
+      FNeedDraw: Boolean;
+      FNeedUpdate: Boolean;
       FAngle: Single;
       FPreviosPosition: TVector2F;
       FPosition: TVector2F;
@@ -44,6 +48,8 @@ type
       FFriction: Single;
       FCorrection: TVector2F;
       FParent: TObjectManager;
+      FNeedDraw: Boolean;
+      FNeedUpdate: Boolean;
 
       procedure Move(const ADelta: Double);
     protected
@@ -89,7 +95,7 @@ type
 
       class function GetInstance: TObjectManager;
 
-      procedure CountObjects(AType: TClass);
+      function GetObjects(AType: TClass): TList<TPhysicalObject>;
       procedure SolveCollisions(ACount: Word);
       procedure OnDraw;
       procedure OnUpdate(const ADelta: Double);
@@ -108,6 +114,8 @@ begin
   FParent := TObjectManager.GetInstance;
   FParent.AddObject(Self);
   FIsDead := False;
+  FNeedDraw := False;
+  FNeedUpdate := True;
 end;
 
 destructor TGameObject.Destroy;
@@ -148,6 +156,8 @@ begin
   FMass := 1;
   FFriction := 2.5;
   FRadius := 20;
+  FNeedDraw := False;
+  FNeedUpdate := True;
 end;
 
 destructor TPhysicalObject.Destroy;
@@ -255,11 +265,11 @@ var
   GameObject: TGameObject;
 begin
   for PhysicalObject in FPhysicalObjects do
-    if not PhysicalObject.FIsDead then
+    if not PhysicalObject.FIsDead and PhysicalObject.FNeedDraw then
       PhysicalObject.OnDraw;
 
   for GameObject in FGameObjects do
-    if not GameObject.FIsDead then
+    if not GameObject.FIsDead and GameObject.FNeedDraw then
       GameObject.OnDraw;
 end;
 
@@ -267,28 +277,42 @@ procedure TObjectManager.OnUpdate(const ADelta: Double);
 var
   PhysicalObject: TPhysicalObject;
   GameObject: TGameObject;
+  ViewRange: Single;
 begin
+
   for PhysicalObject in FPhysicalObjects do
-    if not PhysicalObject.FIsDead then
+    if not PhysicalObject.FIsDead and PhysicalObject.FNeedUpdate then
       PhysicalObject.OnUpdate(ADelta);
 
   CheckCollisions();
 
   for PhysicalObject in FPhysicalObjects do
-    if not PhysicalObject.FIsDead then
+    if not PhysicalObject.FIsDead and PhysicalObject.FNeedUpdate then
       PhysicalObject.Move(ADelta);
 
   for GameObject in FGameObjects do
-    if not GameObject.FIsDead then
+    if not GameObject.FIsDead and GameObject.FNeedUpdate then
       GameObject.OnUpdate(ADelta);
 
   CheckFastCollisions();
 
   for GameObject in FGameObjects do
-    if not GameObject.FIsDead then
+    if not GameObject.FIsDead and GameObject.FNeedUpdate then
       GameObject.Move(ADelta);
 
   CheckDeadObjects;
+
+  ViewRange := (VIEW_RANGE / TheEngine.Camera.Scale.X) * (VIEW_RANGE / TheEngine.Camera.Scale.X);
+  for PhysicalObject in FPhysicalObjects do
+  begin
+     PhysicalObject.FNeedDraw := (PhysicalObject.FPosition - TheEngine.Camera.Position).LengthSqr < ViewRange;
+     PhysicalObject.FNeedUpdate := (PhysicalObject.FPosition - TheEngine.Camera.Position).LengthSqr < UPDATE_RANGE * UPDATE_RANGE;
+  end;
+  for GameObject in FGameObjects do
+  begin
+     GameObject.FNeedDraw := (GameObject.FPosition - TheEngine.Camera.Position).LengthSqr < ViewRange;
+     GameObject.FNeedUpdate := (GameObject.FPosition - TheEngine.Camera.Position).LengthSqr < UPDATE_RANGE * UPDATE_RANGE;
+  end;
 end;
 
 procedure TObjectManager.SolveCollisions(ACount: Word);
@@ -308,18 +332,18 @@ begin
   end;
 end;
 
-procedure TObjectManager.CountObjects(AType: TClass);
+function TObjectManager.GetObjects(AType: TClass): TList<TPhysicalObject>;
 var
-  I: Word;
+  List: TList<TPhysicalObject>;
   PhysicalObject: TPhysicalObject;
 begin
-  I := 0;
+  List := TList<TPhysicalObject>.Create();
   for PhysicalObject in FPhysicalObjects do
     if PhysicalObject is AType then
     begin
-      Inc(I);
+      List.Add(PhysicalObject);
     end;
-  TheApplication.Window.Caption := IntToStr(I);
+  Result := List;
 end;
 
 procedure TObjectManager.CheckCollisions;
@@ -329,11 +353,13 @@ var
   ProjectionLength: Single;
 begin
   for GameObject in FPhysicalObjects do
+    if GameObject.FNeedUpdate then
     for OtherObject in FPhysicalObjects do
-      if ((not GameObject.FIsDead) and (not OtherObject.FIsDead)) then
+      if OtherObject.FNeedUpdate then
       if (GameObject <> OtherObject) then
-        if (Distance(GameObject.FPosition, OtherObject.FPosition) <
-          GameObject.FRadius + OtherObject.FRadius)
+      if ((not GameObject.FIsDead) and (not OtherObject.FIsDead)) then
+        if ((GameObject.FPosition - OtherObject.FPosition).LengthSqr <
+          (GameObject.FRadius + OtherObject.FRadius) * (GameObject.FRadius + OtherObject.FRadius))
         then
         begin
           GameObject.OnCollide(OtherObject);

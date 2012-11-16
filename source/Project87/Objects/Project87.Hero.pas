@@ -21,6 +21,7 @@ type
   THero = class
     private
       class var FInstance: THero;
+    private
 
       FLevel: Word;//:)
       FFluid: TResources;
@@ -36,6 +37,8 @@ type
 
   //Hero starship and all it physical parameters
   THeroShip = class (TBaseUnit)
+    private
+      class var FInstance: THeroShip;
     private
       FNeedAngle: Single;
       FAngularSpeed: Single;
@@ -55,6 +58,7 @@ type
     public
       constructor CreateUnit(const APosition: TVector2F; AAngle: Single; ASide: TUnitSide); override;
 
+      class function GetInstance: THeroShip;
       procedure OnDraw; override;
       procedure OnUpdate(const  ADelta: Double); override;
       procedure OnCollide(OtherObject: TPhysicalObject); override;
@@ -113,6 +117,12 @@ begin
   FUseCollistion := True;
   FMass := 1;
   FOldPosition := FPosition;
+  FInstance := Self;
+end;
+
+class function THeroShip.GetInstance: THeroShip;
+begin
+  Result := FInstance;
 end;
 
 procedure THeroShip.OnDraw;
@@ -140,6 +150,7 @@ begin
   AShift := FOldPosition - Position;
   FOldPosition := Position;
   AShift := AShift * 0.06;
+  TheEngine.Camera.Position := FPosition;
   TStarFon.Instance.Shift(AShift);
 end;
 
