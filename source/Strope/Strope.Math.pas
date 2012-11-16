@@ -448,8 +448,8 @@ end;
 
 class operator TVector2F.Negative(const AVector: TVector2F): TVector2F;
 begin
-  Result.X := -Result.X;
-  Result.Y := -Result.Y;
+  Result.X := -AVector.X;
+  Result.Y := -AVector.Y;
   Exit(Result);
 end;
 

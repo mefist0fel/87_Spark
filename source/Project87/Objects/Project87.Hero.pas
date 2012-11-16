@@ -17,10 +17,11 @@ const
   RADAR_DISTANCE = 1500;
 
 type
-//Hero parameters
+  //Hero parameters
   THero = class
-    private class var FInstance: THero;
     private
+      class var FInstance: THero;
+
       FLevel: Word;//:)
       FFluid: TResources;
 
@@ -32,7 +33,8 @@ type
       procedure AddFluid(AType: TFluidType);
       property Fluid[AIndex: Integer]: Word read GetFluid;
   end;
-//Hero starship and all it physical parameters
+
+  //Hero starship and all it physical parameters
   THeroShip = class (TBaseUnit)
     private
       FNeedAngle: Single;

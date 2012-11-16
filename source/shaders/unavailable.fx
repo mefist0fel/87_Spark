@@ -7,10 +7,11 @@ struct vertexOutput {
 sampler2D DiffuseMap: register(s0);
 float Radius: register(c1);
 float2 Ratio: register(c2);
+float2 Center: register(c3);
 
 float4 std_PS(vertexOutput Input) : COLOR {
   float4 color = tex2D(DiffuseMap, Input.TexCoord);
-  float2 vec = (Input.TexCoord - 0.5f);
+  float2 vec = (Input.TexCoord - Center);
   vec.x *= Ratio.x;
   vec.y *= Ratio.y;
   float len = length(vec);

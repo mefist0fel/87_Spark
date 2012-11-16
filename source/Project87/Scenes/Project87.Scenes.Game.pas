@@ -3,6 +3,7 @@ unit Project87.Scenes.Game;
 interface
 
 uses
+  QuadEngine,
   QCore.Input,
   QEngine.Camera,
   QEngine.Texture,
@@ -20,6 +21,12 @@ type
       FMainCamera: IQuadCamera;
       FGUICamera: IQuadCamera;
 
+      FUnavailableBuffer: IQuadTexture;
+      FUnavailableShader: IQuadShader;
+      FUnCenter: array [0..1] of Single;
+      FUnRadius, FNeedUnRadius: Single;
+      FUnRatio: array [0..1] of Single;
+
       FHero: THero;
 
       FObjectManager: TObjectManager;
@@ -29,8 +36,12 @@ type
       FSystemResult: TStarSystemResult;
       FHeroShip: THeroShip;
       FFont: TQuadFont;
+
+      procedure SetupShader;
       procedure UpdateStartAnimation(const ADelta: Double);
       procedure ShowLocalMap;
+      procedure PrepareConstrainData;
+      procedure DrawConstrain;
     public
       constructor Create(const AName: string);
       destructor Destroy; override;
@@ -45,8 +56,8 @@ type
 implementation
 
 uses
+  Math,
   SysUtils,
-  QuadEngine,
   QEngine.Core,
   QGame.Game,
   QGame.Resources,
@@ -73,6 +84,10 @@ begin
   FHero := THero.GetInstance;
 
   FFont := (TheResourceManager.GetResource('Font', 'Quad_24') as TFontExResource).Font;
+
+  FUnavailableBuffer :=
+    (TheResourceManager.GetResource('Image', 'UnavailableBuffer') as TTextureResource).Texture;
+  SetupShader;
 end;
 
 destructor TGameScene.Destroy;
@@ -81,6 +96,22 @@ begin
   FreeAndNil(FResource);
 
   inherited;
+end;
+
+procedure TGameScene.SetupShader;
+begin
+  TheDevice.CreateShader(FUnavailableShader);
+  FUnavailableShader.LoadPixelShader('..\data\shd\unavailable.bin');
+  FUnavailableShader.BindVariableToPS(1, @FUnRadius, 1);
+  FUnavailableShader.BindVariableToPS(2, @FUnRatio, 1);
+  FUnavailableShader.BindVariableToPS(3, @FUnCenter, 1);
+
+  FNeedUnRadius := 1;
+  FUnRadius := FNeedUnRadius;
+  FUnCenter[0] := 0.5;
+  FUnCenter[1] := 0.5;
+  FUnRatio[0] := TheEngine.CurrentResolution.X / TheEngine.CurrentResolution.Y;
+  FUnRatio[1] := 1;
 end;
 
 procedure TGameScene.OnInitialize(AParameter: TObject);
@@ -97,7 +128,7 @@ begin
   for I := 0 to LIFEFRACTION_COUNT - 1 do
     AEnemies[I] := 0.15;
   for I := 0 to FLUID_TYPE_COUNT - 1 do
-    AResources[I] := 2;
+    AResources[I] := 25;
   FSystemResult := TStarSystemResult.Create(AEnemies, AResources);
 
   TObjectManager.GetInstance.ClearObjects();
@@ -105,6 +136,16 @@ begin
   FHeroShip := THeroShip.CreateUnit(ZeroVectorF, Random(360), usHero);
   if (AParameter is TStarSystem) then
     TSystemGenerator.GenerateSystem(FHeroShip, TStarSystem(AParameter));
+
+  if (AParameter is TStarSystem) then
+  begin
+    case (AParameter as TStarSystem).Size of
+      ssSmall: FNeedUnRadius := 1.1 * 3300 * 0.6 / FMainCamera.Resolution.Y;
+      ssMedium: FNeedUnRadius := 1.1 * 3300 * 1 / FMainCamera.Resolution.Y;
+      ssBig: FNeedUnRadius := 1.1 * 3300 * 1.3 / FMainCamera.Resolution.Y;
+    end;
+    FUnRadius := FNeedUnRadius;
+  end;
 end;
 
 procedure TGameScene.OnUpdate(const ADelta: Double);
@@ -125,10 +166,9 @@ begin
 
   TheRender.SetBlendMode(qbmSrcAlpha);
   TStarFon.Instance.Draw;
+  DrawConstrain;
 
   TheEngine.Camera := FMainCamera;
-  TheRender.SetBlendMode(qbmSrcAlpha);
-
   FObjectManager.OnDraw;
 
   TheEngine.Camera := FGUICamera;
@@ -193,6 +233,26 @@ begin
         FShowMap := 1;
       FMainCamera.Scale := Vec2F(FShowMap, FShowMap);
     end;
+end;
+
+procedure TGameScene.PrepareConstrainData;
+var
+  ACenter: TVectorF;
+begin
+  ACenter := FMainCamera.GetScreenPos(ZeroVectorF);
+  ACenter := ACenter.ComponentwiseDivide(FMainCamera.Resolution);
+  FUnCenter[0] := ACenter.X;
+  FUnCenter[1] := ACenter.Y;
+  FUnRadius := FNeedUnRadius * FMainCamera.Scale.X;
+end;
+
+procedure TGameScene.DrawConstrain;
+begin
+  PrepareConstrainData;
+  FUnavailableShader.SetShaderState(True);
+    TheEngine.Camera := nil;
+    FUnavailableBuffer.Draw(0, 0, $18FF6060);
+  FUnavailableShader.SetShaderState(False);
 end;
 {$ENDREGION}
 

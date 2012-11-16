@@ -88,7 +88,7 @@ begin
     Exit;
 
   AOwner.Sprite.Draw(
-    FPosition, Vec2F(2, 2),
+    FPosition, Vec2F(2.5, 2.5),
     0, D3DCOLOR_COLORVALUE(FBrightness, FBrightness, FBrightness, 1));
 end;
 {$ENDREGION}
