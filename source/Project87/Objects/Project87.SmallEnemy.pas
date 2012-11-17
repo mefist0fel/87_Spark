@@ -41,7 +41,7 @@ procedure TSmallEnemy.OnDraw;
 var
   ShieldAlpha: Byte;
 begin
-  TheResources.HeroTexture.Draw(FPosition, Vec2F(10, 20), FAngle, FColor);
+  TheResources.SmallEnemyTexture.Draw(FPosition, Vec2F(20, 20), FAngle, FColor);
   ShieldAlpha := Trunc(FShowShieldTime * $52);
   if FLife < MAX_LIFE then
     TheRender.Rectangle(

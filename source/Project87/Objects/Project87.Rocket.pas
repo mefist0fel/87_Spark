@@ -68,7 +68,7 @@ var
   BlowSize: Single;
 begin
   if not (FExplosion) then
-    TheResources.AsteroidTexture.Draw(FPosition, Vec2F(5, 30), FAngle, $FFFFFFFF)
+    TheResources.RocketTexture.Draw(FPosition, Vec2F(64, 8), FAngle - 90, $FFFFFFFF, 1)
   else
   begin
     BlowSize := (1 - Abs(FExplosionAnimation / EXPLODE_TIME * 2 - 1)) * FDamageRadius * 0.5;

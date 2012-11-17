@@ -53,7 +53,7 @@ begin
   if FIsDead then
     Exit;
 
-  TheResources.HeroTexture.Draw(FPosition, Vec2F(30, 50), FAngle, FColor);
+  TheResources.MeduimEnemyTexture.Draw(FPosition, Vec2F(56, 56), FAngle, FColor);
   TheResources.HeroTexture.Draw(FPosition, Vec2F(10, 20), FTowerAngle, FColor);
   ShieldAlpha := Trunc(FShowShieldTime * $52);
   if FLife < MAX_LIFE then

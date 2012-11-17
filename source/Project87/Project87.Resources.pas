@@ -11,6 +11,10 @@ type
   TGameResources = class
     public
       HeroTexture: TQuadTexture;
+      SmallEnemyTexture: TQuadTexture;
+      MeduimEnemyTexture: TQuadTexture;
+      BigEnemyTexture: TQuadTexture;
+      RocketTexture: TQuadTexture;
       AsteroidTexture: TQuadTexture;
       FluidTexture: TQuadTexture;
       Font: TQuadFont;
@@ -30,13 +34,25 @@ begin
   TheResources := Self;
 
   HeroTexture := TheEngine.CreateTexture;
-  HeroTexture.LoadFromFile('..\data\gfx\quad.png', 0);
+  HeroTexture.LoadFromFile('..\data\gfx\game_elements\ship.png', 0);
 
   AsteroidTexture := TheEngine.CreateTexture;
   AsteroidTexture.LoadFromFile('..\data\gfx\asteroid.png', 0);
 
   FluidTexture := TheEngine.CreateTexture;
   FluidTexture.LoadFromFile('..\data\gfx\fluid.png', 0);
+
+  SmallEnemyTexture := TheEngine.CreateTexture;
+  SmallEnemyTexture.LoadFromFile('..\data\gfx\game_elements\enemy_small.png', 0);
+
+  MeduimEnemyTexture := TheEngine.CreateTexture;
+  MeduimEnemyTexture.LoadFromFile('..\data\gfx\game_elements\enemy_medium.png', 0);
+
+  BigEnemyTexture := TheEngine.CreateTexture;
+  BigEnemyTexture.LoadFromFile('..\data\gfx\game_elements\enemy_big.png', 0);
+
+  RocketTexture := TheEngine.CreateTexture;
+  RocketTexture.LoadFromFile('..\data\gfx\game_elements\rockets.png', 0, 512, 64);
 
   Font := TheEngine.CreateFont;
   Font.LoadFromFile('..\data\fnt\droid_sans_bold_28.png', '..\data\fnt\droid_sans_bold_28.qef');

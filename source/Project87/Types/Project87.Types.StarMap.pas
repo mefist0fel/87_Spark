@@ -1086,7 +1086,7 @@ begin
   ADelta := FCamera.Position;
   PrepareCamera;
   ADelta := ADelta - FCamera.Position;
-  TStarFon.Instance.Shift(ADelta);
+  TStarFon.Instance.Shift(ADelta * 1.8);
   TStarFon.Instance.Draw;
 
   TheEngine.Camera := FCamera;

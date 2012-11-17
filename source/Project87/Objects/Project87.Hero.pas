@@ -150,7 +150,7 @@ procedure THeroShip.OnDraw;
 var
   ShieldAlpha: Byte;
 begin
-  TheResources.HeroTexture.Draw(FPosition, Vec2F(30, 50), FAngle, $FFFFFFFF);
+  TheResources.HeroTexture.Draw(FPosition, Vec2F(56, 56), FAngle, $FFFFFFFF);
   TheResources.HeroTexture.Draw(FPosition, Vec2F(10, 20), FTowerAngle, $FFFFFFFF);
   ShieldAlpha := Trunc(FShowShieldTime * $52);
   TheResources.AsteroidTexture.Draw(FPosition, Vec2F(70, 70), FTowerAngle, ShieldAlpha * $1000000 + $FFFFFF);
@@ -171,7 +171,7 @@ begin
 
   AShift := FOldPosition - Position;
   FOldPosition := Position;
-  AShift := AShift * 0.06;
+  AShift := AShift * 0.3;
   TheEngine.Camera.Position := FPosition;
   TStarFon.Instance.Shift(AShift);
 end;
