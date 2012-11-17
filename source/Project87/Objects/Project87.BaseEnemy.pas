@@ -6,6 +6,7 @@ uses
   QGame.Scene,
   Strope.Math,
   Project87.BaseUnit,
+  Project87.Types.StarMap,
   Project87.Types.GameObject;
 
 const
@@ -15,9 +16,10 @@ type
   TBaseEnemy = class (TBaseUnit)
     protected
       FColor: Cardinal;
+      FLifeFraction: TLifeFraction;
     public
       constructor CreateUnit(const APosition: TVector2F; AAngle: Single;
-        ASide: TUnitSide); override;
+        ASide: TLifeFraction); override;
 
       procedure OnDraw; override;
 //      procedure OnUpdate(const ADelta: Double); override;
@@ -35,7 +37,7 @@ uses
 
 {$REGION '  TBaseEnemy  '}
 constructor TBaseEnemy.CreateUnit(const APosition: TVector2F; AAngle: Single;
-  ASide: TUnitSide);
+  ASide: TLifeFraction);
 begin
   inherited;
   FRadius := 35;

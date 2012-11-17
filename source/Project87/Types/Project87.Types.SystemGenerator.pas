@@ -30,6 +30,9 @@ uses
   Generics.Collections,
   Strope.Math,
   QApplication.Application,
+  Project87.BigEnemy,
+  Project87.BaseEnemy,
+  Project87.SmallEnemy,
   Project87.Types.GameObject,
   Project87.Asteroid,
   Project87.Fluid;
@@ -185,7 +188,9 @@ end;
 
 class procedure TSystemGenerator.GenerateSystem(AHero: THeroShip; AParameter: TStarSystem);
 var
+  I: Byte;
   HeroStartDistance, Angle: Single;
+  FFraction: TLifeFraction;
 begin
   if (FInstance = nil) then
     FInstance := Create();
@@ -197,16 +202,16 @@ begin
     Angle := PRandom(360);
     AHero.FlyInSystem(GetRotatedVector(Angle, -HeroStartDistance * 1.1), Angle);
     GenerateEnemies(AParameter);
+    for FFraction in AParameter.Fractions do
+    begin
+      for I := 0 to 40 do
+        TBaseEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), FFraction);
+      for I := 0 to 20 do
+        TBigEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), FFraction);
+    end;
   end;
-{  for I := 0 to 100 do
-    TAsteroid.CreateAsteroid(
-      Vec2F(Random(5000) - 2500, Random(5000) - 2500),
-      Random(360), 20 + Random(100),
-      TFluidType(Random(4)));
-  UnitSide := TUnitSide(Random(3) + 2);
-  for I := 0 to 40 do
-    TBaseEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), UnitSide);
-  for I := 0 to 10 do
+
+{  for I := 0 to 10 do
     TBigEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), UnitSide);
   for I := 0 to 20 do
     TSmallEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), UnitSide);  }

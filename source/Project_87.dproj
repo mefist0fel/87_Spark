@@ -100,6 +100,7 @@
 			<DCCReference Include="Project87\Types\Project87.Types.SystemGenerator.pas"/>
 			<DCCReference Include="Project87\Types\Project87.Types.StarFon.pas"/>
 			<DCCReference Include="Project87\Types\Project87.Types.HeroInterface.pas"/>
+			<DCCReference Include="Project87\Objects\Project87.Rocket.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

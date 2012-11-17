@@ -70,6 +70,7 @@ type
 
       property Manager: TObjectManager read FParent;
       property Position: TVector2F read FPosition;
+      property IsDead: Boolean read FIsDead;
   end;
 
   TObjectManager = class

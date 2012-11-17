@@ -7,11 +7,11 @@ uses
   QCore.Input,
   QEngine.Camera,
   QEngine.Texture,
-  QEngine.Font,
   QGame.Scene,
   Strope.Math,
   Project87.Types.GameObject,
   Project87.Types.Starmap,
+  Project87.Types.HeroInterface,
   Project87.Resources,
   Project87.Hero;
 
@@ -19,7 +19,7 @@ type
   TGameScene = class sealed (TScene)
     strict private
       FMainCamera: IQuadCamera;
-      FGUICamera: IQuadCamera;
+      FInterface: THeroInterface;
 
       FUnavailableBuffer: IQuadTexture;
       FUnavailableShader: IQuadShader;
@@ -35,7 +35,6 @@ type
       FShowMap: Single;
       FSystemResult: TStarSystemResult;
       FHeroShip: THeroShip;
-      FFont: TQuadFont;
 
       procedure SetupShader;
       procedure UpdateStartAnimation(const ADelta: Double);
@@ -79,11 +78,9 @@ begin
   FObjectManager := TObjectManager.GetInstance;
   FResource := TGameResources.Create;
   FMainCamera := TheEngine.CreateCamera;
-  FGUICamera := TheEngine.CreateCamera;
 
   FHero := THero.GetInstance;
-
-  FFont := (TheResourceManager.GetResource('Font', 'Quad_24') as TFontExResource).Font;
+  FInterface := THeroInterface.Create(FHero);
 
   FUnavailableBuffer :=
     (TheResourceManager.GetResource('Image', 'UnavailableBuffer') as TTextureResource).Texture;
@@ -116,7 +113,7 @@ end;
 
 procedure TGameScene.OnInitialize(AParameter: TObject);
 var
-  UnitSide: TUnitSide ;
+  UnitSide: TLifeFraction;
 begin
   TheEngine.Camera := FMainCamera;
   FStartAnimation := 1;
@@ -124,7 +121,7 @@ begin
 
   TObjectManager.GetInstance.ClearObjects();
 
-  FHeroShip := THeroShip.CreateUnit(ZeroVectorF, Random(360), usHero);
+  FHeroShip := THeroShip.CreateUnit(ZeroVectorF, Random(360), lfGreen);
   if (AParameter is TStarSystem) then
     TSystemGenerator.GenerateSystem(FHeroShip, TStarSystem(AParameter));
 
@@ -162,18 +159,8 @@ begin
   TheEngine.Camera := FMainCamera;
   FObjectManager.OnDraw;
 
-  TheEngine.Camera := FGUICamera;
-  FFont.TextOut(FloatToStr(FHeroShip.Life), FGUICamera.GetWorldPos(Vec2F(10, 10)));
-  FFont.TextOut(IntToStr(FHero.Fluid[0]), FGUICamera.GetWorldPos(Vec2F(10, 38)),
-    1, $FFFFFF00);
-  FFont.TextOut(IntToStr(FHero.Fluid[1]), FGUICamera.GetWorldPos(Vec2F(10, 63)),
-    1, $FF0000FF);
-  FFont.TextOut(IntToStr(FHero.Fluid[3]), FGUICamera.GetWorldPos(Vec2F(10, 88)),
-    1, $FFFF0000);
-  FFont.TextOut(IntToStr(FHero.Fluid[2]), FGUICamera.GetWorldPos(Vec2F(10, 113)),
-    1, $FF00FF00);
-
   //Передавай камеру как-нибудь по другому в апдейт.
+  FInterface.OnDraw;
   TheEngine.Camera := FMainCamera;
 end;
 
@@ -187,12 +174,10 @@ begin
   if (AKey = KB_BACKSPACE) or (AKey = KB_ESC) then
   begin
 
-  for I := 0 to LIFEFRACTION_COUNT - 1 do
-    AEnemies[I] := 0.15;
-  for I := 0 to FLUID_TYPE_COUNT - 1 do
-    AResources[I] := 25;
-  AResources := TSystemGenerator.GetRemainingResources;
-  FSystemResult := TStarSystemResult.Create(AEnemies, AResources);
+    for I := 0 to LIFEFRACTION_COUNT - 1 do
+      AEnemies[I] := 0.15;
+    AResources := TSystemGenerator.GetRemainingResources;
+    FSystemResult := TStarSystemResult.Create(AEnemies, AResources);
     TheSceneManager.MakeCurrent('StarMap');
     TheSceneManager.OnInitialize(FSystemResult);
     FSystemResult := nil;

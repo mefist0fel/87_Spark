@@ -5,11 +5,11 @@ interface
 uses
   Strope.Math,
   Project87.Bullet,
+  Project87.Rocket,
+  Project87.BaseUnit,
   Project87.ScannerWave;
 
 type
-  TOwner = (oPlayer = 0, oEnemy = 1);
-
   TCannon = class
     private
       // bullets parameters
@@ -25,6 +25,22 @@ type
       procedure Fire(APosition: TVector2F; AAngle: Single);
   end;
 
+  TLauncher = class
+    private
+      // rocket parameters
+      FDamage: Single;
+      FDamageRadius: Single;
+      FReloadTime: Single;
+      FReloadTimer: Single;
+      FOwner: TOwner;
+      FSide: SmallInt;
+    public
+      constructor Create(AOwner: TOwner; AReloadTime, ADamage, ADamageRadius: Single);
+
+      procedure OnUpdate(const ADelta: Double);
+      procedure Fire(APosition, AAim: TVector2F; AAngle: Single);
+  end;
+
   TScanner = class
     private
       FReloadTime: Single;
@@ -37,6 +53,9 @@ type
   end;
 
 implementation
+
+uses
+  Project87.Hero;
 
 {$REGION '  TCannon  '}
 constructor TCannon.Create(AOwner: TOwner; AReloadTime, ADamage: Single);
@@ -63,6 +82,40 @@ begin
   begin
     FReloadTimer := FReloadTime;
     TBullet.CreateBullet(APosition, GetRotatedVector(AAngle, 1600), AAngle, FDamage, FLife);
+  end;
+end;
+{$ENDREGION}
+
+{$REGION '  TLauncher  '}
+constructor TLauncher.Create(AOwner: TOwner; AReloadTime, ADamage, ADamageRadius: Single);
+begin
+  FDamageRadius := ADamageRadius;
+  FDamage := ADamage;
+  FReloadTime := AReloadTime;
+  FOwner := AOwner;
+  FSide := 1;
+end;
+
+procedure TLauncher.OnUpdate(const ADelta: Double);
+begin
+  if (FReloadTimer > 0) then
+  begin
+    FReloadTimer := FReloadTimer - ADelta;
+    if (FReloadTimer < 0) then
+      FReloadTimer := 0;
+  end;
+end;
+
+procedure TLauncher.Fire(APosition, AAim: TVector2F; AAngle: Single);
+begin
+  if (FReloadTimer = 0) and (THero.GetInstance.Rockets > 0) then
+  begin
+    FReloadTimer := FReloadTime;
+    TRocket.CreateRocket(
+      APosition,
+      GetRotatedVector(AAngle + 90 * FSide, 90), AAim, AAngle + Random(20) - 10, FDamage, FDamageRadius, oPlayer);
+    THero.GetInstance.Rockets := THero.GetInstance.Rockets - 1;
+    FSide := FSide * -1;
   end;
 end;
 {$ENDREGION}

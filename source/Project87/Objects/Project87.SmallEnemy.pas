@@ -7,6 +7,7 @@ uses
   Strope.Math,
   Project87.BaseUnit,
   Project87.BaseEnemy,
+  Project87.Types.StarMap,
   Project87.Types.GameObject;
 
 const
@@ -16,7 +17,7 @@ type
   TSmallEnemy = class (TBaseEnemy)
     private
     public
-      constructor CreateUnit(const APosition: TVector2F; AAngle: Single; ASide: TUnitSide); override;
+      constructor CreateUnit(const APosition: TVector2F; AAngle: Single; ASide: TLifeFraction); override;
 
       procedure OnDraw; override;
   end;
@@ -28,7 +29,7 @@ uses
   Project87.Resources;
 
 {$REGION '  TBaseEnemy  '}
-constructor TSmallEnemy.CreateUnit(const APosition: TVector2F; AAngle: Single; ASide: TUnitSide);
+constructor TSmallEnemy.CreateUnit(const APosition: TVector2F; AAngle: Single; ASide: TLifeFraction);
 begin
   inherited;
   FRadius := 15;

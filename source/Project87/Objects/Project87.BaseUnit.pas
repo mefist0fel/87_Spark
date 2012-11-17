@@ -5,28 +5,23 @@ interface
 uses
   QGame.Scene,
   Strope.Math,
+  Project87.Types.StarMap,
   Project87.Types.GameObject;
 
 type
-  TUnitSide = ( //ship races
-    usNeutral = 0,
-    usHero    = 1,
-    usRed     = 2,
-    usGreen   = 3,
-    usBlue    = 4
-  );
+  TOwner = (oPlayer = 0, oEnemy = 1);
 
   TBaseUnit = class (TPhysicalObject)
     protected
-      FSide: TUnitSide;
+      FSide: TLifeFraction;
       FTowerAngle: Single;
       FShowShieldTime: Single;
       FLife: Single;
 
-      function GetSideColor(ASide: TUnitSide): Cardinal;
+      function GetSideColor(ASide: TLifeFraction): Cardinal;
     public
       constructor CreateUnit(const APosition: TVector2F; AAngle: Single;
-        ASide: TUnitSide); virtual;
+        ASide: TLifeFraction); virtual;
 
       procedure OnUpdate(const ADelta: Double); override;
       procedure OnCollide(OtherObject: TPhysicalObject); override;
@@ -47,7 +42,7 @@ uses
 
 {$REGION '  TBaseUnit  '}
 constructor TBaseUnit.CreateUnit(const APosition: TVector2F; AAngle: Single;
-  ASide: TUnitSide);
+  ASide: TLifeFraction);
 begin
   inherited Create;
 
@@ -59,15 +54,13 @@ begin
   FLife := 100;
 end;
 
-function TBaseUnit.GetSideColor(ASide: TUnitSide): Cardinal;
+function TBaseUnit.GetSideColor(ASide: TLifeFraction): Cardinal;
 begin
   Result := $FFFFFFFF;
   case ASide of
-    usNeutral: ;
-    usHero: Result := $FFFFFFFF;
-    usRed: Result := $FFFF2222;
-    usGreen: Result := $FF22FF22;
-    usBlue: Result := $FF2222FF;
+    lfRed: Result := $FFFF2222;
+    lfGreen: Result := $FF22FF22;
+    lfBlue: Result := $FF2222FF;
   end;
 end;
 
