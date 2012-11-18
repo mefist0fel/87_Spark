@@ -50,10 +50,10 @@ procedure TBaseEnemy.OnDraw;
 var
   ShieldAlpha: Byte;
 begin
-  if FIsDead then
-    Exit;
-
-  TheResources.MeduimEnemyTexture.Draw(FPosition, Vec2F(56, 56), FAngle, FColor);
+  TheResources.FieldTexture.Draw(
+    FPosition, Vec2F(70, 70), FTowerAngle,
+    ShieldAlpha * $1000000 + FColor - $FF000000);
+  TheResources.MeduimEnemyTexture.Draw(FPosition, Vec2F(66, 66), FAngle, FColor);
   TheResources.HeroTexture.Draw(FPosition, Vec2F(10, 20), FTowerAngle, FColor);
   ShieldAlpha := Trunc(FShowShieldTime * $52);
   if FLife < MAX_LIFE then
@@ -61,16 +61,10 @@ begin
       FPosition.X - 35, FPosition.Y - 43,
       FPosition.X - 35 + FLife / MAX_LIFE * 70, FPosition.Y - 40,
       $FF00FF00);
-  TheResources.AsteroidTexture.Draw(
-    FPosition, Vec2F(70, 70), FTowerAngle,
-    ShieldAlpha * $1000000 + FColor - $FF000000);
 end;
 
 procedure TBaseEnemy.OnCollide(OtherObject: TPhysicalObject);
 begin
-  if FIsDead then
-    Exit;
-
   if (OtherObject is TAsteroid) or
     (OtherObject is THeroShip) or
     (OtherObject is TBaseEnemy)

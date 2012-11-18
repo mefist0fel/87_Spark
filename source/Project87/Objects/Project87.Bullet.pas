@@ -48,7 +48,7 @@ begin
   if FIsDead then
     Exit;
 
-  TheResources.AsteroidTexture.Draw(FPosition, Vec2F(4, 24), FAngle, $FFFFFFFF);
+  TheResources.BulletTexture.Draw(FPosition, Vec2F(5, 25), FAngle, $FFFFFFFF);
 end;
 
 procedure TBullet.OnUpdate(const  ADelta: Double);

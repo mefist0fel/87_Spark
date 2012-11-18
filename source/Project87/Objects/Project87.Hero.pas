@@ -211,9 +211,9 @@ var
   ShieldAlpha: Byte;
 begin
   TheResources.HeroTexture.Draw(FPosition, Vec2F(56, 56), FAngle, $FFFFFFFF);
-  TheResources.HeroTexture.Draw(FPosition, Vec2F(10, 20), FTowerAngle, $FFFFFFFF);
+  TheResources.MachineGunTexture.Draw(FPosition, Vec2F(19, 51), FTowerAngle, $FFFFFFFF);
   ShieldAlpha := Trunc(FShowShieldTime * $52);
-  TheResources.AsteroidTexture.Draw(FPosition, Vec2F(70, 70), FTowerAngle, ShieldAlpha * $1000000 + $FFFFFF);
+  TheResources.FieldTexture.Draw(FPosition, Vec2F(70, 70), FTowerAngle, ShieldAlpha * $1000000 + $FFFFFF);
 end;
 
 procedure THeroShip.OnUpdate(const ADelta: Double);
