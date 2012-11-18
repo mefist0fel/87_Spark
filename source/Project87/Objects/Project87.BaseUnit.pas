@@ -8,15 +8,23 @@ uses
   Project87.Types.StarMap,
   Project87.Types.GameObject;
 
+const
+  UNIT_VIEW_RANGE = 1200;
+
 type
   TOwner = (oPlayer = 0, oEnemy = 1);
 
   TBaseUnit = class (TPhysicalObject)
+    private
+      FCounter: Word;
     protected
       FSide: TLifeFraction;
       FTowerAngle: Single;
       FShowShieldTime: Single;
       FLife: Single;
+      FViewRange: Single;
+      FSeeHero: Boolean;
+
 
       function GetSideColor(ASide: TLifeFraction): Cardinal;
     public
@@ -52,6 +60,7 @@ begin
   FRadius := 35;
   FMass := 1;
   FLife := 100;
+  FViewRange := UNIT_VIEW_RANGE;
 end;
 
 function TBaseUnit.GetSideColor(ASide: TLifeFraction): Cardinal;
@@ -66,9 +75,6 @@ end;
 
 procedure TBaseUnit.OnCollide(OtherObject: TPhysicalObject);
 begin
-  if FIsDead then
-    Exit;
-
   if (OtherObject is TAsteroid) or
     (OtherObject is THeroShip) or
     (OtherObject is TBaseEnemy)
@@ -78,8 +84,14 @@ end;
 
 procedure TBaseUnit.OnUpdate(const ADelta: Double);
 begin
-  if FIsDead then
-    Exit;
+
+  Inc(FCounter);
+  if FCounter > 10 then
+  begin
+    FCounter := 0;
+    if (FPosition - THeroShip.GetInstance.Position).LengthSqr < FLUID_GET_RANGE then
+      FSeeHero := true;
+  end;
 
   if (FShowShieldTime > 0) then
   begin
