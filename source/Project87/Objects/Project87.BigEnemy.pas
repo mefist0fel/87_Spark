@@ -44,11 +44,11 @@ procedure TBigEnemy.OnDraw;
 var
   ShieldAlpha: Byte;
 begin
+  ShieldAlpha := Trunc(FShowShieldTime * $52);
   TheResources.FieldTexture.Draw(FPosition, Vec2F(170, 170),
     FTowerAngle, ShieldAlpha * $1000000 + FColor - $FF000000);
   TheResources.BigEnemyTexture.Draw(FPosition, Vec2F(150, 150), FAngle, FColor);
-  TheResources.HeroTexture.Draw(FPosition, Vec2F(20, 30), FTowerAngle, FColor);
-  ShieldAlpha := Trunc(FShowShieldTime * $52);
+  TheResources.MachineGunTexture.Draw(FPosition, Vec2F(20, 30), FTowerAngle, FColor);
   if FLife < MAX_LIFE then
     TheRender.Rectangle(
       FPosition.X - 50, FPosition.Y - 53,

@@ -113,7 +113,7 @@ begin
     FReloadTimer := FReloadTime;
     TRocket.CreateRocket(
       APosition,
-      GetRotatedVector(AAngle + 90 * FSide, 90), AAim, AAngle + Random(20) - 10, FDamage, FDamageRadius, oPlayer);
+      GetRotatedVector(AAngle + 90 * FSide, 120), AAim, AAngle + Random(20) - 10, FDamage, FDamageRadius, oPlayer);
     THero.GetInstance.Rockets := THero.GetInstance.Rockets - 1;
     FSide := FSide * -1;
   end;

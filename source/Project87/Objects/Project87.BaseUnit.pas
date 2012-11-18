@@ -9,7 +9,7 @@ uses
   Project87.Types.GameObject;
 
 const
-  UNIT_VIEW_RANGE = 1200;
+  UNIT_VIEW_RANGE = 1200 * 1200;
 
 type
   TOwner = (oPlayer = 0, oEnemy = 1);
@@ -23,8 +23,8 @@ type
       FShowShieldTime: Single;
       FLife: Single;
       FViewRange: Single;
+      FDistanceToHero: Single;
       FSeeHero: Boolean;
-
 
       function GetSideColor(ASide: TLifeFraction): Cardinal;
     public
@@ -89,10 +89,10 @@ begin
   if FCounter > 10 then
   begin
     FCounter := 0;
-    if (FPosition - THeroShip.GetInstance.Position).LengthSqr < FLUID_GET_RANGE then
+    FDistanceToHero := (FPosition - THeroShip.GetInstance.Position).LengthSqr;
+    if FDistanceToHero < UNIT_VIEW_RANGE then
       FSeeHero := true;
   end;
-
   if (FShowShieldTime > 0) then
   begin
     FShowShieldTime := FShowShieldTime - ADelta;
