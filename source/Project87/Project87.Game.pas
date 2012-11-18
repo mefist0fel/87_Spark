@@ -145,7 +145,7 @@ begin
   SceneManager.MakeCurrent('StarMap');
   //SceneManager.MakeCurrent('Spark');
 
-  ASceneParameter := TStarMapSceneParameters.Create(False);
+  ASceneParameter := TStarMapSceneParameters.Create(True);
   SceneManager.OnInitialize(ASceneParameter);
 end;
 {$ENDREGION}

@@ -45,6 +45,7 @@ const
 constructor TMainMenuScene.Create(const AName: string);
 begin
   inherited Create(AName);
+
   FCamera := TheEngine.CreateCamera;
   FFont := (TheResourceManager.GetResource('Font', 'Quad_72') as TFontExResource).Font;
   FStar := (TheResourceManager.GetResource('Image', 'BigMenuStar') as TTextureExResource).Texture;
