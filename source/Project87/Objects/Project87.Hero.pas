@@ -30,6 +30,7 @@ type
     private
       class var FInstance: THero;
     private
+      FIsDead: Boolean;
       FExp, FNeedExp: Integer;
       FExpFactor: Single;
       FLife, FMaxLife: Single;
@@ -53,6 +54,7 @@ type
       class function GetInstance: THero;
 
       procedure NewPlayer;
+      procedure RebornPlayer;
       procedure KillPlayer;
       procedure LoadFromFile(const AFile: string);
       procedure SaveToFile(const AFile: string);
@@ -62,6 +64,7 @@ type
       procedure UpdateTransPower(ADelta: Double);
       procedure UseTransPower(ADuration: Double);
 
+      property IsDead: Boolean read FIsDead;
       property ExpFactor: Single read FExpFactor;
       property Experience: Integer read FExp;
       property NeedExperience: Integer read FNeedExp;
@@ -154,8 +157,14 @@ begin
   FIsUsePower := False;
 end;
 
+procedure THero.RebornPlayer;
+begin
+  FIsDead := False;
+end;
+
 procedure THero.KillPlayer;
 begin
+  FIsDead := True;
   FTransPower := 0.5;
   FExp := 0;
   FNeedExp := BASE_NEED_EXP;
@@ -236,7 +245,7 @@ end;
 
 function THero.GetTransConsumption;
 begin
-  Result := BASE_ENERGY_CONSUMPTION / (FTransPowerConsumptionFactor * FExpFactor);
+  Result := BASE_ENERGY_CONSUMPTION / (FTransPowerConsumptionFactor);
 end;
 
 procedure THero.AddFluid(AType: TFluidType);
@@ -376,6 +385,7 @@ begin
     TFluid.EmmitFluids(THero.GetInstance.FFluid[2], FPosition, fBlue);
     TFluid.EmmitFluids(THero.GetInstance.FFluid[3], FPosition, fRed);
     //Kill;
+    THero.GetInstance.KillPlayer;
     FPosition := Vec2F(Random(10000) - 5000, Random(10000) - 5000);
   end;
 end;

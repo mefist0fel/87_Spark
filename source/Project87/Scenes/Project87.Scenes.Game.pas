@@ -41,6 +41,7 @@ type
       procedure ShowLocalMap;
       procedure PrepareConstrainData;
       procedure DrawConstrain;
+      procedure BackToMap;
     public
       constructor Create(const AName: string);
       destructor Destroy; override;
@@ -173,16 +174,9 @@ var
 begin
   Result := False;
   if (AKey = KB_BACKSPACE) or (AKey = KB_ESC) then
-  begin
-
-    for I := 0 to LIFEFRACTION_COUNT - 1 do
-      AEnemies[I] := 0.15;
-    AResources := TSystemGenerator.GetRemainingResources;
-    FSystemResult := TStarSystemResult.Create(AEnemies, AResources);
-    TheSceneManager.MakeCurrent('StarMap');
-    TheSceneManager.OnInitialize(FSystemResult);
-    FSystemResult := nil;
-  end;
+    BackToMap;
+  if THero.GetInstance.IsDead  and (AKey = KB_SPACE) then
+    BackToMap;
 end;
 
 procedure TGameScene.UpdateStartAnimation(const ADelta: Double);
@@ -241,6 +235,22 @@ begin
     TheEngine.Camera := nil;
     FUnavailableBuffer.Draw(0, 0, $18FF6060);
   FUnavailableShader.SetShaderState(False);
+end;
+
+procedure TGameScene.BackToMap;
+var
+  I: Word;
+  AEnemies: array [0..LIFEFRACTION_COUNT - 1] of Single;
+  AResources: Project87.Types.StarMap.TResources;
+begin
+  THero.GetInstance.RebornPlayer;
+  for I := 0 to LIFEFRACTION_COUNT - 1 do
+    AEnemies[I] := 0.15;
+  AResources := TSystemGenerator.GetRemainingResources;
+  FSystemResult := TStarSystemResult.Create(AEnemies, AResources);
+  TheSceneManager.MakeCurrent('StarMap');
+  TheSceneManager.OnInitialize(FSystemResult);
+  FSystemResult := nil;
 end;
 {$ENDREGION}
 
