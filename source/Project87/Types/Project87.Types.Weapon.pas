@@ -133,13 +133,14 @@ end;
 
 procedure TLauncher.Fire(APosition, AAim: TVector2F; AAngle: Single);
 begin
-  if (FReloadTimer = 0) and (THero.GetInstance.Rockets > 0) then
+  if (FReloadTimer = 0) and (((THero.GetInstance.Rockets > 0) and (FOwner = oPlayer)) or (FOwner = oEnemy)) then
   begin
     FReloadTimer := FReloadTime;
     TRocket.CreateRocket(
       APosition,
-      GetRotatedVector(AAngle + 90 * FSide, 120), AAim, AAngle + Random(20) - 10, FDamage, FDamageRadius, oPlayer);
-    THero.GetInstance.Rockets := THero.GetInstance.Rockets - 1;
+      GetRotatedVector(AAngle + 90 * FSide, 120), AAim, AAngle + Random(20) - 10, FDamage, FDamageRadius, FOwner);
+    if (FOwner = oPlayer) then
+      THero.GetInstance.Rockets := THero.GetInstance.Rockets - 1;
     FSide := FSide * -1;
   end;
 end;

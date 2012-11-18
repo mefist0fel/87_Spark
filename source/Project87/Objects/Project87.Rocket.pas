@@ -167,7 +167,7 @@ begin
     for i := 0 to 3 + Random(10) do
       TAsteroid(OtherObject).Hit(GetAngle(OtherObject.Position, FPosition) + Random(30) - 15, 1);
   end;
-  if (OtherObject is TAsteroid) and (FOwner = oEnemy) then
+  if (OtherObject is THeroShip) and (FOwner = oEnemy) then
   begin
     Explode();
   end;

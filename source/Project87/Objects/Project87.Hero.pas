@@ -279,7 +279,7 @@ constructor THeroShip.CreateUnit(const APosition: TVector2F; AAngle: Single; ASi
 begin
   inherited;
   FCannon := TCannon.Create(oPlayer, 0.1, 20);
-  FLauncher := TLauncher.Create(oPlayer, 0.7, 80, 200);
+  FLauncher := TLauncher.Create(oPlayer, 0.7, 80, 300);
   FScanner := TScanner.Create;
   FAngularSpeed := 20;
   FRadius := 35;

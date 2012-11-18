@@ -7,6 +7,7 @@ uses
   Strope.Math,
   Project87.BaseUnit,
   Project87.BaseEnemy,
+  Project87.Types.Weapon,
   Project87.Types.GameObject,
   Project87.Types.StarMap;
 
@@ -19,6 +20,7 @@ const
 type
   TBigEnemy = class (TBaseEnemy)
     protected
+      FLauncher: TLauncher;
       procedure AIAct(const ADelta: Double); override;
     public
       constructor CreateUnit(const APosition: TVector2F; AAngle: Single;
@@ -34,7 +36,6 @@ implementation
 uses
   QEngine.Core,
   Project87.Hero,
-  Project87.Types.Weapon,
   Project87.Fluid,
   Project87.Resources;
 
@@ -44,6 +45,7 @@ constructor TBigEnemy.CreateUnit(const APosition: TVector2F; AAngle: Single;
 begin
   inherited;
 
+  FLauncher := TLauncher.Create(oEnemy, 3, 70, 200);
   FRadius := 85;
   FMass := 3;
   FLife := MAX_LIFE;
@@ -98,13 +100,18 @@ begin
     end;
   end;
   if FDistanceToHero < DISTANCE_TO_FIRE then
+  begin
     FCannon.Fire(FPosition, FTowerAngle);
+    FLauncher.Fire(FPosition, THeroShip.GetInstance.Position, FTowerAngle);
+  end;
 end;
 
 procedure TBigEnemy.OnUpdate(const ADelta: Double);
 begin
   inherited;
+  FLauncher.OnUpdate(ADelta);
   FAngle := FAngle + 1;
+  FTowerAngle := RotateToAngle(FTowerAngle, GetAngle(FPosition, THeroShip.GetInstance.Position), 10);
 end;
 
 procedure TBigEnemy.Kill;
