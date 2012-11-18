@@ -112,7 +112,6 @@ end;
 procedure TBaseUnit.Kill;
 begin
   FIsDead := True;
-  TFluid.EmmitFluids(Random(10) + 2, FPosition, TFluidType(Random(4)));
 end;
 {$ENDREGION}
 

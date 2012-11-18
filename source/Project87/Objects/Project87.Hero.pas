@@ -14,9 +14,11 @@ uses
 
 const
   IN_SYSTEM_JUMP_SPEED = 500;
+  DEFAULT_LIFE = 200;
   RADAR_DISTANCE = 1500;
   BASE_ENERGY_RECOVERY_IN_SECOND = 0.004;
   BASE_ENERGY_CONSUMPTION = 0.15;
+  LIFE_ADDITION = 4;
 
 type
   //Hero parameters
@@ -111,7 +113,7 @@ uses
 {$REGION '  THero  '}
 constructor THero.Create;
 begin
-  FLife := 100;
+  FLife := DEFAULT_LIFE;
   FEnergy := 1;
   FMaxRocketCount := 5;
   FRocketCount := 30;
@@ -246,6 +248,10 @@ begin
   FOldPosition := Position;
   AShift := AShift * 0.3;
   TheEngine.Camera.Position := FPosition;
+  if THero.FInstance.FLife < DEFAULT_LIFE then
+  begin
+    THero.FInstance.FLife := THero.FInstance.FLife + ADelta * LIFE_ADDITION;
+  end;
   TStarFon.Instance.Shift(AShift);
 end;
 
@@ -280,9 +286,16 @@ end;
 procedure THeroShip.Hit(ADamage: Single);
 begin
   FShowShieldTime := 0.7;
-  FLife := FLife - ADamage;
-{  if (FLife < 0) then
-    Kill;    }
+  THero.FInstance.FLife := THero.FInstance.FLife - ADamage;
+  if (THero.FInstance.FLife <= 0) then
+  begin
+    TFluid.EmmitFluids(THero.GetInstance.FFluid[0], FPosition, fYellow);
+    TFluid.EmmitFluids(THero.GetInstance.FFluid[1], FPosition, fGreen);
+    TFluid.EmmitFluids(THero.GetInstance.FFluid[2], FPosition, fBlue);
+    TFluid.EmmitFluids(THero.GetInstance.FFluid[3], FPosition, fRed);
+    //Kill;
+    FPosition := Vec2F(Random(10000) - 5000, Random(10000) - 5000);
+  end;
 end;
 
 procedure THeroShip.FlyInSystem(APosition: TVector2F; AAngle: Single);

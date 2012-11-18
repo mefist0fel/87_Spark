@@ -12,9 +12,9 @@ uses
 
 const
   MAX_LIFE = 100;
-  FLY_TO_HERO_DISTANCE = 300 * 300;
-  DISTANCE_TO_FIRE = 550 * 550;
-  MAX_BASE_UNIT_SPEED = 900;
+  FLY_TO_HERO_DISTANCE = 250 * 250;
+  DISTANCE_TO_FIRE = 450 * 450;
+  MAX_BASE_UNIT_SPEED = 850;
   DEFAULT_ACTION_TIME = 2;
 
 type
@@ -24,7 +24,8 @@ type
     MakeLeftManuver = 2,
     MakeRightManuver = 3,
     FlyForward = 4,
-    StopAndFireToHero = 5
+    FlyBack = 5,
+    StopAndFireToHero = 6
   );
 
   TBaseEnemy = class (TBaseUnit)
@@ -36,7 +37,7 @@ type
       FActionTime: Single;
       FCannon: TCannon;
       procedure SetAction(ANewAction: TAIAction; AActionTime: Single = DEFAULT_ACTION_TIME);
-      procedure AIAct(const ADelta: Double);
+      procedure AIAct(const ADelta: Double); virtual;
       procedure SetRandomDirection;
     public
       constructor CreateUnit(const APosition: TVector2F; AAngle: Single;
@@ -45,6 +46,7 @@ type
       procedure OnDraw; override;
       procedure OnUpdate(const ADelta: Double); override;
       procedure OnCollide(OtherObject: TPhysicalObject); override;
+      procedure Kill; override;
   end;
 
 implementation
@@ -55,6 +57,7 @@ uses
   Project87.Resources,
   Project87.Asteroid,
   Project87.Hero,
+  Project87.Fluid,
   QEngine.Texture;
 
 {$REGION '  TBaseEnemy  '}
@@ -67,7 +70,7 @@ begin
   FLife := MAX_LIFE;
   FColor := GetSideColor(ASide);
   FCurrentAction := None;
-  FCannon := TCannon.Create(oEnemy, 1, 10);
+  FCannon := TCannon.CreateMachineGun(oEnemy, 1, 0.1, 1, 5);
 end;
 
 procedure TBaseEnemy.OnDraw;
@@ -85,7 +88,7 @@ begin
       FPosition.X - 35, FPosition.Y - 43,
       FPosition.X - 35 + FLife / MAX_LIFE * 70, FPosition.Y - 40,
       $FF00FF00);
-  TheResources.Font.TextOut(IntToStr(Integer(FCurrentAction)), FPosition, 1);
+//  TheResources.Font.TextOut(IntToStr(Integer(FCurrentAction)), FPosition, 1);
 end;
 
 procedure TBaseEnemy.OnCollide(OtherObject: TPhysicalObject);
@@ -119,6 +122,7 @@ end;
 
 procedure TBaseEnemy.AIAct(const ADelta: Double);
 begin
+  FDistanceToHero := (FPosition - THeroShip.GetInstance.Position).LengthSqr;
   FActionTime := FActionTime - ADelta;
   case FCurrentAction of
     None:
@@ -172,6 +176,12 @@ begin
   begin
     AIAct(ADelta);
   end;
+end;
+
+procedure TBaseEnemy.Kill;
+begin
+  FIsDead := True;
+  TFluid.EmmitFluids(5, FPosition, TFluidType(Random(4)));
 end;
 {$ENDREGION}
 

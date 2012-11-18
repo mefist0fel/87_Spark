@@ -12,21 +12,30 @@ uses
 
 const
   MAX_LIFE = 300;
+  MAX_FIRE_DISTANCE = 450 * 450;
+  MIN_FIRE_DISTANCE = 300 * 300;
+  MAX_BIG_UNIT_SPEED = 400;
 
 type
   TBigEnemy = class (TBaseEnemy)
-    private
+    protected
+      procedure AIAct(const ADelta: Double); override;
     public
       constructor CreateUnit(const APosition: TVector2F; AAngle: Single;
         ASide: TLifeFraction); override;
 
       procedure OnDraw; override;
+      procedure OnUpdate(const ADelta: Double); override;
+      procedure Kill; override;
   end;
 
 implementation
 
 uses
   QEngine.Core,
+  Project87.Hero,
+  Project87.Types.Weapon,
+  Project87.Fluid,
   Project87.Resources;
 
 {$REGION '  TBaseEnemy  '}
@@ -54,6 +63,54 @@ begin
       FPosition.X - 50, FPosition.Y - 53,
       FPosition.X - 50 + FLife / MAX_LIFE * 100, FPosition.Y - 50,
       $FF00FF00);
+end;
+
+procedure TBigEnemy.AIAct(const ADelta: Double);
+begin
+  FDistanceToHero := (FPosition - THeroShip.GetInstance.Position).LengthSqr;
+  FActionTime := FActionTime - ADelta;
+  case FCurrentAction of
+    None:
+    begin
+      FCurrentAction := FlyToHeroAndFire;
+    end;
+    FlyToHeroAndFire:
+    begin
+      //FAngle := RotateToAngle(FAngle, GetAngle(FPosition, THeroShip.GetInstance.Position), 3);
+      FVelocity := FVelocity *  (1 - ADelta) + GetRotatedVector(GetAngle(FPosition, THeroShip.GetInstance.Position), MAX_BIG_UNIT_SPEED) * (ADelta);
+
+      if FDistanceToHero < MAX_FIRE_DISTANCE then
+        SetAction(StopAndFireToHero, Random(10) / 10 + 1);
+    end;
+    FlyBack:
+    begin
+      FVelocity := FVelocity *  (1 - ADelta) + GetRotatedVector(GetAngle(THeroShip.GetInstance.Position, FPosition), MAX_BIG_UNIT_SPEED) * (ADelta);
+      if FDistanceToHero > MIN_FIRE_DISTANCE then
+        SetAction(StopAndFireToHero, Random(10) / 10 + 1);
+    end;
+    StopAndFireToHero:
+    begin
+      FVelocity := FVelocity *  (1 - ADelta);
+      if FDistanceToHero < MIN_FIRE_DISTANCE then
+        SetAction(FlyBack, Random(10) / 10 + 1);
+      if FDistanceToHero > MAX_FIRE_DISTANCE then
+        SetAction(FlyToHeroAndFire, Random(10) / 10 + 1);
+    end;
+  end;
+  if FDistanceToHero < DISTANCE_TO_FIRE then
+    FCannon.Fire(FPosition, FTowerAngle);
+end;
+
+procedure TBigEnemy.OnUpdate(const ADelta: Double);
+begin
+  inherited;
+  FAngle := FAngle + 1;
+end;
+
+procedure TBigEnemy.Kill;
+begin
+  FIsDead := True;
+  TFluid.EmmitFluids(8, FPosition, TFluidType(Random(4)));
 end;
 {$ENDREGION}
 
