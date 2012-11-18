@@ -9,6 +9,7 @@ uses
 type
   TSystemGenerator = class
   private class var FInstance: TSystemGenerator;
+  private class var FEnemies: TEnemies;
   private
     FGenerator: Cardinal;
     constructor Create;
@@ -19,6 +20,7 @@ type
     function PRandom(AMax: Integer): Integer; overload;
     function PRandom(AMin, AMax: Integer): Integer; overload;
     function SRandom: Single;
+    class function GetLastEnemies: TEnemies;
     class function  GetRemainingResources: TResources;
     class procedure GenerateSystem(AHero: THeroShip; AParameter: TStarSystem);
   end;
@@ -172,6 +174,8 @@ var
   SwarmPosition: TVectorF;
   SwarmType: Byte;
 begin
+  for I := 0 to LIFEFRACTION_COUNT - 1 do
+    FEnemies[I] := 0;
   for FFraction in AStarSystem.Fractions do
   begin
     case AStarSystem.Size of
@@ -191,11 +195,13 @@ begin
         0:
         for J := 1 to trunc(Count * 10) do
         begin
+          FEnemies[Integer(FFraction)] := FEnemies[Integer(FFraction)] + 1;
           TSmallEnemy.CreateUnit(SwarmPosition + Vec2F(Random(300) - 150, Random(300) - 150), Random(360), FFraction);
         end;
         1:
         for J := 1 to trunc(Count * 10) do
         begin
+          FEnemies[Integer(FFraction)] := FEnemies[Integer(FFraction)] + 1;
           if J < 2 then
             TBigEnemy.CreateUnit(SwarmPosition + Vec2F(Random(300) - 150, Random(300) - 150), Random(360), FFraction)
           else
@@ -204,6 +210,7 @@ begin
         2:
         for J := 1 to trunc(Count * 10) do
         begin
+          FEnemies[Integer(FFraction)] := FEnemies[Integer(FFraction)] + 1;
           if J < 3 then
             TBigEnemy.CreateUnit(SwarmPosition + Vec2F(Random(300) - 150, Random(300) - 150), Random(360), FFraction)
           else
@@ -215,6 +222,26 @@ begin
       end;
     end;
   end;
+end;
+
+class function TSystemGenerator.GetLastEnemies: TEnemies;
+var
+  I: Byte;
+  Enemy: TList<TPhysicalObject>;
+  Current: TPhysicalObject;
+  Enemies: TEnemies;
+begin
+  for I := 0 to LIFEFRACTION_COUNT - 1 do
+    Enemies[I] := 0;
+  Enemy := TObjectManager.GetInstance.GetObjects(TBaseEnemy);
+  I := 0;
+  for Current in Enemy do
+    Enemies[Integer(TBaseEnemy(Current).LifeFraction)] := Enemies[Integer(TBaseEnemy(Current).LifeFraction)] + 1;
+  for I := 0 to LIFEFRACTION_COUNT - 1 do
+    if (FEnemies[I] > 0) then
+     Enemies[I] := Enemies[I] / FEnemies[I];
+  Enemy.Free;
+  Result := Enemies;
 end;
 
 class function TSystemGenerator.GetRemainingResources: TResources;

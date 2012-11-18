@@ -240,12 +240,11 @@ end;
 procedure TGameScene.BackToMap;
 var
   I: Word;
-  AEnemies: array [0..LIFEFRACTION_COUNT - 1] of Single;
+  AEnemies: Project87.Types.StarMap.TEnemies;
   AResources: Project87.Types.StarMap.TResources;
 begin
   THero.GetInstance.RebornPlayer;
-  for I := 0 to LIFEFRACTION_COUNT - 1 do
-    AEnemies[I] := 0.15;
+  AEnemies := TSystemGenerator.GetLastEnemies;
   AResources := TSystemGenerator.GetRemainingResources;
   FSystemResult := TStarSystemResult.Create(AEnemies, AResources);
   TheSceneManager.MakeCurrent('StarMap');

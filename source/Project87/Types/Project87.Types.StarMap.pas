@@ -443,8 +443,8 @@ begin
 
       case I of
         0: FEnemyColor[FEnemyCount] := $FF4020;
-        1: FEnemyColor[FEnemyCount] := $20FF30;
-        2: FEnemyColor[FEnemyCount] := $2040FF;
+        1: FEnemyColor[FEnemyCount] := $2040FF;
+        2: FEnemyColor[FEnemyCount] := $20FF30;
       end;
       Inc(FEnemyCount);
     end;

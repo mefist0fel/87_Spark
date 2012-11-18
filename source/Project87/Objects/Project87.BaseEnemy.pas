@@ -47,6 +47,7 @@ type
       procedure OnUpdate(const ADelta: Double); override;
       procedure OnCollide(OtherObject: TPhysicalObject); override;
       procedure Kill; override;
+      property LifeFraction: TLifeFraction read FLifeFraction;
   end;
 
 implementation
