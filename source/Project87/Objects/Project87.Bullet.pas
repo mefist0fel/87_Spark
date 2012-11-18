@@ -4,6 +4,7 @@ interface
 
 uses
   Strope.Math,
+  Project87.BaseUnit,
   Project87.Types.GameObject;
 
 type
@@ -11,9 +12,10 @@ type
     private
       FDamage: Single;
       FLife: Single;
+      FOwner: TOwner;
     public
       constructor CreateBullet(const APosition, AVelocity: TVector2F;
-        AAngle, ADamage, ALife: Single);
+        AAngle, ADamage, ALife: Single; AOwner: TOwner);
 
       procedure OnDraw; override;
       procedure OnUpdate(const  ADelta: Double); override;
@@ -31,7 +33,7 @@ uses
 
 {$REGION '  TBullet  '}
 constructor TBullet.CreateBullet(const APosition, AVelocity: TVector2F;
-  AAngle, ADamage, ALife: Single);
+  AAngle, ADamage, ALife: Single; AOwner: TOwner);
 begin
   inherited Create;
 
@@ -41,6 +43,7 @@ begin
   FVelocity := AVelocity;
   FAngle := AAngle;
   FLife := ALife;
+  FOwner := AOwner;
 end;
 
 procedure TBullet.OnDraw;
@@ -68,7 +71,12 @@ begin
   if FIsDead then
     Exit;
 
-  if (OtherObject is TBaseEnemy) then
+  if (OtherObject is TBaseEnemy) and (FOwner = oPlayer)  then
+  begin
+    TBaseEnemy(OtherObject).Hit(FDamage);
+    FIsDead := True;
+  end;
+  if (OtherObject is THeroShip) and (FOwner = oEnemy)  then
   begin
     TBaseEnemy(OtherObject).Hit(FDamage);
     FIsDead := True;

@@ -8,11 +8,11 @@ uses
   Strope.Math;
 
 const
-  MAX_PHYSICAL_VELOCITY = 1500;
+  MAX_PHYSICAL_VELOCITY = 1600;
   MAX_FAST_OBJECTS = 200;
   BORDER_OF_VIEW: TVector2F = (X: 800; Y: 600);
   VIEW_RANGE = 900;
-  UPDATE_RANGE = 1200;
+  UPDATE_RANGE = 1400;
 
 type
   TObjectManager = class;

@@ -136,7 +136,7 @@ begin
       for I := 0 to trunc(4.8 * SizeFactor) do
       Asteroid.Add(TAsteroid.CreateAsteroid(
         GetRotatedVector(PRandom(3600) / 10, PRandom(1000) / 1000 * SystemRadius * 0.35),
-        PRandom(360), 100 + PRandom(170) * SizeFactor,
+        PRandom(360), 80 + PRandom(150) * SizeFactor,
         TFluidType(I mod (FLUID_TYPE_COUNT))));
     end;
   end;
@@ -204,9 +204,9 @@ begin
     GenerateEnemies(AParameter);
     for FFraction in AParameter.Fractions do
     begin
-      for I := 0 to 40 do
+      for I := 0 to 30 do
         TBaseEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), FFraction);
-      for I := 0 to 20 do
+      for I := 0 to 8 do
         TBigEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), FFraction);
       for I := 0 to 20 do
         TSmallEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), FFraction);
