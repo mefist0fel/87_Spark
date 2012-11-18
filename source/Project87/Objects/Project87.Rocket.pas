@@ -72,7 +72,7 @@ begin
   else
   begin
     BlowSize := (1 - Abs(FExplosionAnimation / EXPLODE_TIME * 2 - 1)) * FDamageRadius * 0.5;
-    TheResources.AsteroidTexture.Draw(FPosition, Vec2F(BlowSize, BlowSize), FAngle, $FFFFFFFF)
+    TheResources.FieldTexture.Draw(FPosition, Vec2F(BlowSize, BlowSize), FAngle, $FFFFFFFF)
   end;
 end;
 

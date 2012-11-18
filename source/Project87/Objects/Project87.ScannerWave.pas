@@ -45,7 +45,7 @@ var
   Size: Single;
 begin
   Size := 2.2 - FLife / FMaxLife * 2;
-  TheResources.AsteroidTexture.Draw(FPosition, TVector2F.Create(40 * Size, 15 * Size), FAngle, $FFFFFFFF);
+  TheResources.WaveTexture.Draw(FPosition, TVector2F.Create(40 * Size, 10 * Size), FAngle, $FFFFFFFF);
 end;
 
 procedure TScannerWave.OnUpdate(const  ADelta: Double);

@@ -44,6 +44,8 @@ procedure TBigEnemy.OnDraw;
 var
   ShieldAlpha: Byte;
 begin
+  TheResources.FieldTexture.Draw(FPosition, Vec2F(170, 170),
+    FTowerAngle, ShieldAlpha * $1000000 + FColor - $FF000000);
   TheResources.BigEnemyTexture.Draw(FPosition, Vec2F(150, 150), FAngle, FColor);
   TheResources.HeroTexture.Draw(FPosition, Vec2F(20, 30), FTowerAngle, FColor);
   ShieldAlpha := Trunc(FShowShieldTime * $52);
@@ -52,8 +54,6 @@ begin
       FPosition.X - 50, FPosition.Y - 53,
       FPosition.X - 50 + FLife / MAX_LIFE * 100, FPosition.Y - 50,
       $FF00FF00);
-  TheResources.AsteroidTexture.Draw(FPosition, Vec2F(170, 170),
-    FTowerAngle, ShieldAlpha * $1000000 + FColor - $FF000000);
 end;
 {$ENDREGION}
 

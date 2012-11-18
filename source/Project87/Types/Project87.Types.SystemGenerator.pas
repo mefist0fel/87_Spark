@@ -122,6 +122,12 @@ begin
     end;
     scPlanet: //like a planetar system
     begin
+      for I := 0 to count div 4 do
+      Asteroid.Add(TAsteroid.CreateAsteroid(
+        GetRotatedVector(PRandom(3600) / 10, PRandom(1000) / 1000 * SystemRadius * 0.8),
+        PRandom(360), 20 + PRandom(80),
+        TFluidType(I mod (FLUID_TYPE_COUNT))));
+      TObjectManager.GetInstance.SolveCollisions(10);
       for I := 0 to count div 2 do
       Asteroid.Add(TAsteroid.CreateAsteroid(
         GetRotatedVector(PRandom(3600) / 10, SystemRadius - SRandom * SystemRadius * 0.05),
@@ -132,12 +138,6 @@ begin
         GetRotatedVector(PRandom(3600) / 10, PRandom(1000) / 1000 * SystemRadius * 0.35),
         PRandom(360), 100 + PRandom(170) * SizeFactor,
         TFluidType(I mod (FLUID_TYPE_COUNT))));
-      for I := 0 to count div 4 do
-      Asteroid.Add(TAsteroid.CreateAsteroid(
-        GetRotatedVector(PRandom(3600) / 10, PRandom(1000) / 1000 * SystemRadius * 0.8),
-        PRandom(360), 20 + PRandom(80),
-        TFluidType(I mod (FLUID_TYPE_COUNT))));
-      TObjectManager.GetInstance.SolveCollisions(10);
     end;
   end;
   //Resource division
@@ -208,6 +208,8 @@ begin
         TBaseEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), FFraction);
       for I := 0 to 20 do
         TBigEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), FFraction);
+      for I := 0 to 20 do
+        TSmallEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), FFraction);
     end;
   end;
 
