@@ -13,7 +13,7 @@ type
     FGenerator: Cardinal;
     constructor Create;
     function  GenerateAsteroids(AStarSystem: TStarSystem): Single;
-    procedure GenerateEnemies(AStarSystem: TStarSystem);
+    procedure GenerateEnemies(AStarSystem: TStarSystem; SystemSize: Single);
   public
     function PRandom: Integer; overload;
     function PRandom(AMax: Integer): Integer; overload;
@@ -164,9 +164,57 @@ begin
   Result := SystemRadius;
 end;
 
-procedure TSystemGenerator.GenerateEnemies(AStarSystem: TStarSystem);
+procedure TSystemGenerator.GenerateEnemies(AStarSystem: TStarSystem; SystemSize: Single);
+var
+  FFraction: TLifeFraction;
+  SwarmCount, I, J: Word;
+  Count: Single;
+  SwarmPosition: TVectorF;
+  SwarmType: Byte;
 begin
-
+  for FFraction in AStarSystem.Fractions do
+  begin
+    case AStarSystem.Size of
+      ssSmall:
+        SwarmCount := 1;
+      ssMedium:
+        SwarmCount := 2;
+      ssBig:
+        SwarmCount := 4;
+    end;
+    Count:= AStarSystem.Enemies[Integer(FFraction)];
+    for I := 0 to SwarmCount do
+    begin
+      SwarmType := PRandom(3);
+      SwarmPosition := GetRotatedVector(PRandom(360), PRandom(Trunc(SystemSize * 0.9)));
+      case SwarmType of
+        0:
+        for J := 1 to trunc(Count * 10) do
+        begin
+          TSmallEnemy.CreateUnit(SwarmPosition + Vec2F(Random(300) - 150, Random(300) - 150), Random(360), FFraction);
+        end;
+        1:
+        for J := 1 to trunc(Count * 10) do
+        begin
+          if J < 2 then
+            TBigEnemy.CreateUnit(SwarmPosition + Vec2F(Random(300) - 150, Random(300) - 150), Random(360), FFraction)
+          else
+            TBaseEnemy.CreateUnit(SwarmPosition + Vec2F(Random(300) - 150, Random(300) - 150), Random(360), FFraction);
+        end;
+        2:
+        for J := 1 to trunc(Count * 10) do
+        begin
+          if J < 3 then
+            TBigEnemy.CreateUnit(SwarmPosition + Vec2F(Random(300) - 150, Random(300) - 150), Random(360), FFraction)
+          else
+            if J < 6 then
+              TBaseEnemy.CreateUnit(SwarmPosition + Vec2F(Random(300) - 150, Random(300) - 150), Random(360), FFraction)
+            else
+              TSmallEnemy.CreateUnit(SwarmPosition + Vec2F(Random(300) - 150, Random(300) - 150), Random(360), FFraction);
+        end;
+      end;
+    end;
+  end;
 end;
 
 class function TSystemGenerator.GetRemainingResources: TResources;
@@ -189,8 +237,7 @@ end;
 class procedure TSystemGenerator.GenerateSystem(AHero: THeroShip; AParameter: TStarSystem);
 var
   I: Byte;
-  HeroStartDistance, Angle: Single;
-  FFraction: TLifeFraction;
+  SystemSize, Angle: Single;
 begin
   if (FInstance = nil) then
     FInstance := Create();
@@ -198,11 +245,11 @@ begin
   with FInstance do
   begin
     FGenerator := AParameter.Seed;
-    HeroStartDistance := GenerateAsteroids(AParameter);
+    SystemSize := GenerateAsteroids(AParameter);
     Angle := PRandom(360);
-    AHero.FlyInSystem(GetRotatedVector(Angle, -HeroStartDistance * 1.1), Angle);
-    GenerateEnemies(AParameter);
-    for FFraction in AParameter.Fractions do
+    AHero.FlyInSystem(GetRotatedVector(Angle, -SystemSize * 1.1), Angle);
+    GenerateEnemies(AParameter, SystemSize);
+   { for FFraction in AParameter.Fractions do
     begin
       for I := 0 to 8 do
         TBigEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), FFraction);
@@ -210,13 +257,8 @@ begin
         TBaseEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), FFraction);
       for I := 0 to 20 do
         TSmallEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), FFraction);
-    end;
+    end;                                                                       }
   end;
-
-{  for I := 0 to 10 do
-    TBigEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), UnitSide);
-  for I := 0 to 20 do
-    TSmallEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), UnitSide);  }
 end;
 {$ENDREGION}
 

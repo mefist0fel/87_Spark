@@ -95,7 +95,7 @@ procedure TSmallEnemy.Kill;
 begin
   THero.GetInstance.AddExp(1);
   FIsDead := True;
-  TFluid.EmmitFluids(3, FPosition, TFluidType(Random(4)));
+  TFluid.EmmitFluids(1, FPosition, TFluidType(Random(4)));
 end;
 {$ENDREGION}
 
