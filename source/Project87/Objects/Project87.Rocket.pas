@@ -9,6 +9,7 @@ uses
 
 const
   ROCKET_SPEED = 80;
+  ROCKET_LIFE_TIME = 4;
   ROCKET_PRECIZION = 35 * 35;
   START_DELAY = 0.35;
   FRICTION = 2.5;
@@ -20,6 +21,8 @@ type
       FDamageRadius: Single;
       FDamage: Single;
       FOwner: TOwner;
+      FLifetime: Single;
+      FDirection: TVectorF;
       FAim: TVectorF;
       FStartDelay: Single;
       FExplosionAnimation: Single;
@@ -52,7 +55,9 @@ constructor TRocket.CreateRocket(const APosition, AVelocity, AAim: TVector2F;
         AAngle, ADamage, ADamageRadius: Single; AOwner: TOwner);
 begin
   inherited Create;
+
   FAim := AAim;
+  FLifetime := ROCKET_LIFE_TIME;
   FDamage := ADamage;
   FDamageRadius := ADamageRadius;
   FPreviosPosition := APosition;
@@ -80,17 +85,24 @@ procedure TRocket.OnUpdate(const  ADelta: Double);
 begin
   if (FStartDelay < 0) then
   begin
-    FAngle := RotateToAngle(FAngle, GetAngle(FPosition, FAim), 18);
-    FVelocity := FVelocity + GetRotatedVector(FAngle, ROCKET_SPEED);
-    if (FPosition - FAim).LengthSqr < ROCKET_PRECIZION then
+    FLifetime := FLifetime - ADelta;
+    if FLifetime < 0 then
       Explode;
+
+    FVelocity := FVelocity + FDirection * ROCKET_SPEED;
   end
   else
   begin
     FAngle := RotateToAngle(FAngle, GetAngle(FPosition, FAim), 8);
     FStartDelay := FStartDelay - ADelta;
     FVelocity := FVelocity * (1 - ADelta * FRICTION);
+    if FStartDelay < 0 then
+    begin
+      FDirection := (FAim - FPosition).Normalize;
+      FAngle := GetAngle(FPosition, FAim);
+    end;
   end;
+
   if FExplosion then
   begin
     if FExplosionAnimation > 0 then
