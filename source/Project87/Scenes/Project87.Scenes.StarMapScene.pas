@@ -6,7 +6,8 @@ uses
   QCore.Input,
   QGame.Scene,
   Strope.Math,
-  Project87.Types.StarMap;
+  Project87.Types.StarMap,
+  Project87.Types.HeroInterface;
 
 type
   TStarMapSceneParameters = class sealed
@@ -21,6 +22,7 @@ type
   TStarMapScene = class sealed (TScene)
     strict private
       FMap: TStarMap;
+      FInterface: THeroInterface;
     public
       constructor Create(const AName: string);
       destructor Destroy; override;
@@ -59,6 +61,7 @@ constructor TStarMapScene.Create(const AName: string);
 begin
   inherited Create(AName);
 
+  FInterface := THeroInterface.Create(THero.GetInstance);
   FMap := TStarMap.Create;
 end;
 
@@ -109,6 +112,7 @@ begin
     TheEngine.CurrentResolution.X, TheEngine.CurrentResolution.Y, $FF000000);
 
   FMap.OnDraw(0);
+  FInterface.OnDraw;
 end;
 
 procedure TStarMapScene.OnUpdate(const ADelta: Double);

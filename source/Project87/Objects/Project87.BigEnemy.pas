@@ -116,6 +116,7 @@ end;
 
 procedure TBigEnemy.Kill;
 begin
+  THero.GetInstance.AddExp(9);
   FIsDead := True;
   TFluid.EmmitFluids(6, FPosition, TFluidType(Random(4)));
 end;

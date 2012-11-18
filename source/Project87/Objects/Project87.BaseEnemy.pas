@@ -180,6 +180,7 @@ end;
 
 procedure TBaseEnemy.Kill;
 begin
+  THero.GetInstance.AddExp(3);
   FIsDead := True;
   TFluid.EmmitFluids(3, FPosition, TFluidType(Random(4)));
 end;
