@@ -173,6 +173,8 @@ var
   AResources: Project87.Types.StarMap.TResources;
 begin
   Result := False;
+  if AKey = KB_E then
+    THero.GetInstance.RecoveryHealth;
   if (AKey = KB_BACKSPACE) or (AKey = KB_ESC) then
     BackToMap;
   if THero.GetInstance.IsDead  and (AKey = KB_SPACE) then

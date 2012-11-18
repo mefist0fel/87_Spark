@@ -77,12 +77,12 @@ begin
       1, $FFFFFF00);
     FFont.TextOut(IntToStr(FHero.Fluid[1]), FGUICamera.GetWorldPos(Vec2F(16, 63)),
       1, $FF0000FF);
-    FFont.TextOut(IntToStr(FHero.Fluid[3]), FGUICamera.GetWorldPos(Vec2F(16, 88)),
-      1, $FFFF0000);
     FFont.TextOut(IntToStr(FHero.Fluid[2]), FGUICamera.GetWorldPos(Vec2F(16, 113)),
       1, $FF00FF00);
-    FFont.TextOut(IntToStr(FHero.Rockets), FGUICamera.GetWorldPos(Vec2F(16, 138)),
-      1, $FFFFFFFF);
+    FFont.TextOut(IntToStr(FHero.Fluid[3]), FGUICamera.GetWorldPos(Vec2F(16, 88)),
+      1, $FFFF0000);
+    //FFont.TextOut(IntToStr(FHero.Rockets), FGUICamera.GetWorldPos(Vec2F(16, 138)),
+    //  1, $FFFFFFFF);
   end;
 end;
 {$ENDREGION}

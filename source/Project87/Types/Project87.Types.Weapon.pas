@@ -140,7 +140,7 @@ begin
       APosition,
       GetRotatedVector(AAngle + 90 * FSide, 120), AAim, AAngle + Random(20) - 10, FDamage, FDamageRadius, FOwner);
     if (FOwner = oPlayer) then
-      THero.GetInstance.Rockets := THero.GetInstance.Rockets - 1;
+      THero.GetInstance.UseRocket;
     FSide := FSide * -1;
   end;
 end;

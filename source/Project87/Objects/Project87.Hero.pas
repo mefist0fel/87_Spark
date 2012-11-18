@@ -23,6 +23,8 @@ const
   NEEDEXP_FACTOR = 2;
   LIFE_ADDITION = 4;
   BASE_MAX_ROCKET = 12;
+  HEALTH_COST = 50;
+  ROCKET_COST = 15;
 
 type
   //Hero parameters
@@ -50,6 +52,7 @@ type
       function GetFluid(AIndex: Integer): Word;
       function GetTransRecovery(): Single;
       function GetTransConsumption(): Single;
+      function GetRocketCount(): Word;
     public
       class function GetInstance: THero;
 
@@ -61,16 +64,18 @@ type
 
       procedure AddFluid(AType: TFluidType);
       procedure AddExp(ACount: Integer);
+      procedure RecoveryHealth;
       procedure UpdateLife(ADelta: Double);
       procedure UpdateTransPower(ADelta: Double);
       procedure UseTransPower(ADuration: Double);
+      procedure UseRocket;
 
       property IsDead: Boolean read FIsDead;
       property ExpFactor: Single read FExpFactor;
       property Experience: Integer read FExp;
       property NeedExperience: Integer read FNeedExp;
       property Fluid[AIndex: Integer]: Word read GetFluid;
-      property Rockets: Word read FRocketCount write FRocketCount;
+      property Rockets: Word read GetRocketCount;
       property Life: Single read FLife;
       property MaxLife: Single read FMaxLife;
       property Energy: Single read FEnergy;
@@ -265,6 +270,28 @@ end;
 procedure THero.AddFluid(AType: TFluidType);
 begin
   Inc(FFluid[(Word(AType))]);
+end;
+
+function THero.GetRocketCount;
+begin
+  Result := 0;
+  if FFluid[1] >= ROCKET_COST then
+    Result := 1;
+end;
+
+procedure THero.UseRocket;
+begin
+  if FFluid[1] >= ROCKET_COST then
+    FFluid[1] := FFluid[1] - ROCKET_COST;
+end;
+
+procedure THero.RecoveryHealth;
+begin
+  if (FFluid[3] >= HEALTH_COST) and (FLife < FMaxLife * 0.5) then
+  begin
+    FFluid[3] := FFluid[3] - HEALTH_COST;
+    FLife := FMaxLife;
+  end;
 end;
 
 procedure THero.UpdateLife(ADelta: Double);
