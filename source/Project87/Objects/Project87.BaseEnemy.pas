@@ -36,6 +36,7 @@ type
       FCurrentAction: TAIAction;
       FActionTime: Single;
       FCannon: TCannon;
+      FMaxLife: Single;
       procedure SetAction(ANewAction: TAIAction; AActionTime: Single = DEFAULT_ACTION_TIME);
       procedure AIAct(const ADelta: Double); virtual;
       procedure SetRandomDirection;
@@ -68,10 +69,12 @@ begin
   inherited;
   FRadius := 33;
   FMass := 1;
-  FLife := MAX_LIFE;
+  FLife := MAX_LIFE * THero.GetInstance.ExpFactor;
+  FMaxLife := MAX_LIFE * THero.GetInstance.ExpFactor;
   FColor := GetSideColor(ASide);
   FCurrentAction := None;
-  FCannon := TCannon.CreateMachineGun(oEnemy, 1, 0.1, 1, 5);
+  FCannon := TCannon.CreateMachineGun(oEnemy, 1, 0.1, 1.2 * THero.GetInstance.ExpFactor, 5);
+  FLifeFraction := ASide;
 end;
 
 procedure TBaseEnemy.OnDraw;
@@ -84,12 +87,11 @@ begin
     ShieldAlpha * $1000000 + FColor - $FF000000);
   TheResources.MeduimEnemyTexture.Draw(FPosition, Vec2F(66, 66), FAngle, FColor);
   TheResources.MachineGunTexture.Draw(FPosition, Vec2F(19, 51), FTowerAngle, FColor);
-  if FLife < MAX_LIFE then
+  if FLife < FMaxLife then
     TheRender.Rectangle(
       FPosition.X - 35, FPosition.Y - 43,
-      FPosition.X - 35 + FLife / MAX_LIFE * 70, FPosition.Y - 40,
+      FPosition.X - 35 + FLife / FMaxLife * 70, FPosition.Y - 40,
       $FF00FF00);
-//  TheResources.Font.TextOut(IntToStr(Integer(FCurrentAction)), FPosition, 1);
 end;
 
 procedure TBaseEnemy.OnCollide(OtherObject: TPhysicalObject);

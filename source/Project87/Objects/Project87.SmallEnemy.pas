@@ -44,9 +44,10 @@ begin
   inherited;
   FRadius := 22;
   FMass := 1;
-  FLife := MAX_LIFE;
+  FLife := MAX_LIFE * THero.GetInstance.ExpFactor;
+  FMaxLife := MAX_LIFE * THero.GetInstance.ExpFactor;
   FreeAndNil(FCannon);
-  FCannon := TCannon.CreateMachineGun(oEnemy, 1, 0.1, 1, 8);
+  FCannon := TCannon.CreateMachineGun(oEnemy, 1, 0.1, 1 * THero.GetInstance.ExpFactor, 8);
 end;
 
 procedure TSmallEnemy.OnDraw;
@@ -57,9 +58,9 @@ begin
   TheResources.FieldTexture.Draw(FPosition, Vec2F(44, 44), FTowerAngle,
     ShieldAlpha * $1000000 + FColor - $FF000000);
   TheResources.SmallEnemyTexture.Draw(FPosition, Vec2F(40, 40), FAngle, FColor);
-  if FLife < MAX_LIFE then
+  if FLife < FMaxLife then
     TheRender.Rectangle(FPosition.X - 10, FPosition.Y - 53,
-      FPosition.X - 50 + FLife / MAX_LIFE * 100, FPosition.Y - 50, $FF00FF00);
+      FPosition.X - 50 + FLife / FMaxLife * 100, FPosition.Y - 50, $FF00FF00);
 end;
 
 procedure TSmallEnemy.AIAct(const ADelta: Double);

@@ -28,12 +28,13 @@ type
       FMaxFluids: Word;
       FType: TFluidType;
       FShowFluids: Single;
+      FAsteroidTexture: Byte;
 
       procedure GenerateScannedResources;
       procedure ShowFluidsInAsteroid;
     public
       constructor CreateAsteroid(const APosition: TVector2F;
-        AAngle, ARadius: Single; AType: TFluidType);
+        AAngle, ARadius: Single; AType: TFluidType; ATexture: Byte = 0);
 
       procedure OnDraw; override;
       procedure OnUpdate(const ADelta: Double); override;
@@ -55,7 +56,7 @@ uses
 
 {$REGION '  TAsteroid  '}
 constructor TAsteroid.CreateAsteroid(const APosition: TVector2F;
-  AAngle, ARadius: Single; AType: TFluidType);
+  AAngle, ARadius: Single; AType: TFluidType; ATexture: Byte = 0);
 begin
   inherited Create;
 
@@ -67,6 +68,7 @@ begin
   FUseCollistion := True;
   FType := AType;
   FMass := 10;
+  FAsteroidTexture := ATexture;
   FMaxFluids := Trunc(ARadius / FLUID_POSITION_SCALE);
 end;
 
@@ -84,7 +86,7 @@ var
   ScreenSize: TVectorF;
   NeedDrawMarker: Boolean;
 begin
-  TheResources.AsteroidTexture.Draw(FPosition, Vec2F(FRadius, FRadius) * 2, FAngle, $FFFFFFFF);
+  TheResources.AsteroidTexture[FAsteroidTexture].Draw(FPosition, Vec2F(FRadius, FRadius) * 2, FAngle, $FFFFFFFF);
 
   //TODO - map markers
 {  FMarkerPosition := TheEngine.Camera.GetScreenPos(FPosition, false);

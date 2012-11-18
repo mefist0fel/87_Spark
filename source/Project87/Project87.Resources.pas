@@ -15,7 +15,7 @@ type
       MeduimEnemyTexture: TQuadTexture;
       BigEnemyTexture: TQuadTexture;
       RocketTexture: TQuadTexture;
-      AsteroidTexture: TQuadTexture;
+      AsteroidTexture: array [0..3] of TQuadTexture;
       FieldTexture: TQuadTexture;
       WaveTexture: TQuadTexture;
       BulletTexture: TQuadTexture;
@@ -40,8 +40,14 @@ begin
   HeroTexture := TheEngine.CreateTexture;
   HeroTexture.LoadFromFile('..\data\gfx\game_elements\ship.png', 0);
 
-  AsteroidTexture := TheEngine.CreateTexture;
-  AsteroidTexture.LoadFromFile('..\data\gfx\asteroid.png', 0);
+  AsteroidTexture[0] := TheEngine.CreateTexture;
+  AsteroidTexture[0].LoadFromFile('..\data\gfx\game_elements\asteroid_1.png', 0);
+  AsteroidTexture[1] := TheEngine.CreateTexture;
+  AsteroidTexture[1].LoadFromFile('..\data\gfx\game_elements\asteroid_2.png', 0);
+  AsteroidTexture[2] := TheEngine.CreateTexture;
+  AsteroidTexture[2].LoadFromFile('..\data\gfx\game_elements\asteroid_3.png', 0);
+  AsteroidTexture[3] := TheEngine.CreateTexture;
+  AsteroidTexture[3].LoadFromFile('..\data\gfx\game_elements\stantion.png', 0);
 
   FieldTexture := TheEngine.CreateTexture;
   FieldTexture.LoadFromFile('..\data\gfx\field.png', 0);
@@ -77,7 +83,10 @@ end;
 destructor TGameResources.Destroy;
 begin
   HeroTexture.Free;
-  AsteroidTexture.Free;
+  AsteroidTexture[0].Free;
+  AsteroidTexture[1].Free;
+  AsteroidTexture[2].Free;
+  AsteroidTexture[3].Free;
   FluidTexture.Free;
   Font.Free;
   FieldTexture.Free;
