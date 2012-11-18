@@ -87,7 +87,7 @@ begin
   TheResources.AsteroidTexture.Draw(FPosition, Vec2F(FRadius, FRadius) * 2, FAngle, $FFFFFFFF);
 
   //TODO - map markers
-  FMarkerPosition := TheEngine.Camera.GetScreenPos(FPosition, false);
+{  FMarkerPosition := TheEngine.Camera.GetScreenPos(FPosition, false);
   ScreenSize := TheEngine.Camera.Resolution;
   FMarkerPosition := (FPosition - TheEngine.Camera.Position);
   if FMarkerPosition.LengthSqr < RADAR_DISTANCE * RADAR_DISTANCE then
@@ -108,7 +108,7 @@ begin
           FMarkerPosition := FMarkerPosition + TheEngine.Camera.Position;
           TheResources.AsteroidTexture.Draw(FMarkerPosition, Vec2F(10, 10), 0, $FFFFFFFF);
         end;
-    end;
+    end;          }
   ShowFluidsInAsteroid;
 end;
 

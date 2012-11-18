@@ -12,21 +12,29 @@ uses
 
 const
   MAX_LIFE = 60;
+  MAX_SMALL_SPEED = 1200;
+  FLY_BACK_DISTANCE = 700 * 700;
 
 type
   TSmallEnemy = class(TBaseEnemy)
-  private
+  protected
+    procedure AIAct(const ADelta: Double); override;
   public
     constructor CreateUnit(const APosition: TVector2F; AAngle: Single;
       ASide: TLifeFraction); override;
 
     procedure OnDraw; override;
+    procedure Kill; override;
   end;
 
 implementation
 
 uses
+  SysUtils,
   QEngine.Core,
+  Project87.Hero,
+  Project87.Types.Weapon,
+  Project87.Fluid,
   Project87.Resources;
 
 {$REGION '  TBaseEnemy  '}
@@ -37,6 +45,8 @@ begin
   FRadius := 22;
   FMass := 1;
   FLife := MAX_LIFE;
+  FreeAndNil(FCannon);
+  FCannon := TCannon.CreateMachineGun(oEnemy, 1, 0.1, 1, 8);
 end;
 
 procedure TSmallEnemy.OnDraw;
@@ -50,6 +60,41 @@ begin
   if FLife < MAX_LIFE then
     TheRender.Rectangle(FPosition.X - 10, FPosition.Y - 53,
       FPosition.X - 50 + FLife / MAX_LIFE * 100, FPosition.Y - 50, $FF00FF00);
+end;
+
+procedure TSmallEnemy.AIAct(const ADelta: Double);
+begin
+  FDistanceToHero := (FPosition - THeroShip.GetInstance.Position).LengthSqr;
+  FActionTime := FActionTime - ADelta;
+  case FCurrentAction of
+    None:
+    begin
+      FCurrentAction := FlyToHeroAndFire;
+    end;
+    FlyToHeroAndFire:
+    begin
+      FAngle := RotateToAngle(FAngle, GetAngle(FPosition, THeroShip.GetInstance.Position), 3);
+      FVelocity := FVelocity *  (1 - ADelta) + GetRotatedVector(FAngle, MAX_SMALL_SPEED) * (ADelta);
+
+      if FDistanceToHero < DISTANCE_TO_FIRE then
+        FCannon.Fire(FPosition, FAngle);
+      if FDistanceToHero < FLY_TO_HERO_DISTANCE then
+        SetAction(FlyForward, Random(10) / 10 + 1);
+    end;
+    FlyForward:
+    begin
+      FAngle := RotateToAngle(FAngle, GetAngle(THeroShip.GetInstance.Position, FPosition), 3);
+      FVelocity := FVelocity *  (1 - ADelta) + GetRotatedVector(FAngle, MAX_SMALL_SPEED) * (ADelta);
+      if FDistanceToHero > FLY_BACK_DISTANCE then
+        SetAction(FlyToHeroAndFire, Random(10) / 10 + 1);
+    end;
+  end;
+end;
+
+procedure TSmallEnemy.Kill;
+begin
+  FIsDead := True;
+  TFluid.EmmitFluids(3, FPosition, TFluidType(Random(4)));
 end;
 {$ENDREGION}
 

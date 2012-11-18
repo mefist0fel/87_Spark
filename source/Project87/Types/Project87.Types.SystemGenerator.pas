@@ -204,10 +204,10 @@ begin
     GenerateEnemies(AParameter);
     for FFraction in AParameter.Fractions do
     begin
-      for I := 0 to 30 do
-        TBaseEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), FFraction);
       for I := 0 to 8 do
         TBigEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), FFraction);
+      for I := 0 to 30 do
+        TBaseEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), FFraction);
       for I := 0 to 20 do
         TSmallEnemy.CreateUnit(Vec2F(Random(5000) - 2500, Random(5000) - 2500), Random(360), FFraction);
     end;

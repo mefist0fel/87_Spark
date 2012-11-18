@@ -16,10 +16,15 @@ type
       FDamage: Single;
       FReloadTime: Single;
       FReloadTimer: Single;
+      FBulletTime: Single;
+      FSeries: Word;
+      FMaxSeries: Word;
+
       FLife: Single;
       FOwner: TOwner;
     public
       constructor Create(AOwner: TOwner; AReloadTime, ADamage: Single);
+      constructor CreateMachineGun(AOwner: TOwner; AReloadTime, ABulletTime, ADamage: Single; ASeries: Word);
 
       procedure OnUpdate(const ADelta: Double);
       procedure Fire(APosition: TVector2F; AAngle: Single);
@@ -62,8 +67,22 @@ constructor TCannon.Create(AOwner: TOwner; AReloadTime, ADamage: Single);
 begin
   FDamage := ADamage;
   FReloadTime := AReloadTime;
+  FBulletTime := AReloadTime;
+  FMaxSeries := 1;
+  FSeries := 1;
   FLife := 1;
   FOwner := AOwner;
+end;
+
+constructor TCannon.CreateMachineGun(AOwner: TOwner; AReloadTime, ABulletTime, ADamage: Single; ASeries: Word);
+begin
+  FDamage := ADamage;
+  FReloadTime := AReloadTime;
+  FBulletTime := ABulletTime;
+  FLife := 1;
+  FOwner := AOwner;
+  FMaxSeries := ASeries;
+  FSeries := ASeries;
 end;
 
 procedure TCannon.OnUpdate(const ADelta: Double);
@@ -80,7 +99,13 @@ procedure TCannon.Fire(APosition: TVector2F; AAngle: Single);
 begin
   if (FReloadTimer = 0) then
   begin
-    FReloadTimer := FReloadTime;
+    FReloadTimer := FBulletTime;
+    Dec(FSeries);
+    if (FSeries = 0) then
+    begin
+      FSeries := FMaxSeries;
+      FReloadTimer := FReloadTime;
+    end;
     TBullet.CreateBullet(APosition, GetRotatedVector(AAngle, 1600), AAngle, FDamage, FLife, FOwner);
   end;
 end;
@@ -108,13 +133,14 @@ end;
 
 procedure TLauncher.Fire(APosition, AAim: TVector2F; AAngle: Single);
 begin
-  if (FReloadTimer = 0) and (THero.GetInstance.Rockets > 0) then
+  if (FReloadTimer = 0) and (((THero.GetInstance.Rockets > 0) and (FOwner = oPlayer)) or (FOwner = oEnemy)) then
   begin
     FReloadTimer := FReloadTime;
     TRocket.CreateRocket(
       APosition,
-      GetRotatedVector(AAngle + 90 * FSide, 120), AAim, AAngle + Random(20) - 10, FDamage, FDamageRadius, oPlayer);
-    THero.GetInstance.Rockets := THero.GetInstance.Rockets - 1;
+      GetRotatedVector(AAngle + 90 * FSide, 120), AAim, AAngle + Random(20) - 10, FDamage, FDamageRadius, FOwner);
+    if (FOwner = oPlayer) then
+      THero.GetInstance.Rockets := THero.GetInstance.Rockets - 1;
     FSide := FSide * -1;
   end;
 end;
