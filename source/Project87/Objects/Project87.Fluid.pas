@@ -113,7 +113,7 @@ begin
   for I := 0 to Count do
   begin
     Fluid := TFluid.CreateFluid(APosition, AType);
-    Fluid.FVelocity := Vec2F(Random(200) - 100, Random(200) - 100);
+    Fluid.FVelocity := GetRotatedVector(Random(360), Random(240));
   end;
 end;
 {$ENDREGION}

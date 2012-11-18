@@ -72,6 +72,7 @@ begin
   FColor := GetSideColor(ASide);
   FCurrentAction := None;
   FCannon := TCannon.CreateMachineGun(oEnemy, 1, 0.1, 1, 5);
+  FLifeFraction := ASide;
 end;
 
 procedure TBaseEnemy.OnDraw;
