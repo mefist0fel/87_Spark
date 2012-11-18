@@ -15,6 +15,8 @@ uses
 const
   IN_SYSTEM_JUMP_SPEED = 500;
   RADAR_DISTANCE = 1500;
+  BASE_ENERGY_RECOVERY_IN_SECOND = 0.004;
+  BASE_ENERGY_CONSUMPTION = 0.15;
 
 type
   //Hero parameters
@@ -29,17 +31,31 @@ type
       FRocketCount: Word;
       FMaxRocketCount: Word;
 
-      function GetFluid(AIndex: Integer): Word;
-      constructor Create;
-    public
+      FIsUsePower: Boolean;
+      FUseDuration, FTime: Single;
+      FTransPower, FStartPower, FNeedPower: Single;
+      FTransPowerRecoveryFactor: Single;
+      FTransPowerConsumptionFactor: Single;
 
+      constructor Create;
+
+      function GetFluid(AIndex: Integer): Word;
+      function GetTransRecovery(): Single;
+      function GetTransConsumption(): Single;
+    public
       class function GetInstance: THero;
+
       procedure AddFluid(AType: TFluidType);
+      procedure UpdateTransPower(ADelta: Double);
+      procedure UseTransPower(ADuration: Double);
 
       property Fluid[AIndex: Integer]: Word read GetFluid;
       property Rockets: Word read FRocketCount write FRocketCount;
       property Life: Single read FLife;
       property Energy: Single read FEnergy;
+      property TransPower: Single read FTransPower;
+      property TransPowerRecovery: Single read GetTransRecovery;
+      property TransPowerConsumption: Single read GetTransConsumption;
   end;
 
   //Hero starship and all it physical parameters
@@ -96,6 +112,11 @@ begin
   FEnergy := 1;
   FMaxRocketCount := 5;
   FRocketCount := 30;
+
+  FTransPower := 1;
+  FTransPowerRecoveryFactor := 1;
+  FTransPowerConsumptionFactor := 1;
+  FIsUsePower := False;
 end;
 
 class function THero.GetInstance: THero;
@@ -112,9 +133,48 @@ begin
   Result := FFluid[AIndex];
 end;
 
+function THero.GetTransRecovery;
+begin
+  Result := BASE_ENERGY_RECOVERY_IN_SECOND * FTransPowerRecoveryFactor;
+end;
+
+function THero.GetTransConsumption;
+begin
+  Result := BASE_ENERGY_CONSUMPTION / FTransPowerConsumptionFactor;
+end;
+
 procedure THero.AddFluid(AType: TFluidType);
 begin
   Inc(FFluid[(Word(AType))]);
+end;
+
+procedure THero.UpdateTransPower(ADelta: Double);
+begin
+  if FIsUsePower then
+  begin
+    FTime := FTime + ADelta;
+    FTransPower := InterpolateValue(FStartPower, FNeedPower, FTime / FUseDuration, itHermit01);
+    FTransPower := Clamp(FTransPower, 1, 0);
+    if FTime > FUseDuration then
+    begin
+      FTransPower := FNeedPower;
+      FIsUsePower := False;
+    end;
+  end
+  else
+  begin
+    FTransPower := FTransPower + TransPowerRecovery * ADelta;
+    FTransPower := Clamp(FTransPower, 1, 0);
+  end;
+end;
+
+procedure THero.UseTransPower;
+begin
+  FStartPower := FTransPower;
+  FNeedPower := FTransPower - TransPowerConsumption + TransPowerRecovery * ADuration;
+  FTime := 0;
+  FUseDuration := ADuration;
+  FIsUsePower := True;
 end;
 {$ENDREGION}
 
