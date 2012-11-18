@@ -45,6 +45,9 @@ type
     public
       class function GetInstance: THero;
 
+      procedure LoadFromFile(const AFile: string);
+      procedure SaveToFile(const AFile: string);
+
       procedure AddFluid(AType: TFluidType);
       procedure UpdateTransPower(ADelta: Double);
       procedure UseTransPower(ADuration: Double);
@@ -124,6 +127,16 @@ begin
   if FInstance = nil then
     FInstance := THero.Create;
   Result := FInstance;
+end;
+
+procedure THero.LoadFromFile(const AFile: string);
+begin
+
+end;
+
+procedure THero.SaveToFile(const AFile: string);
+begin
+
 end;
 
 function THero.GetFluid(AIndex: Integer): Word;
