@@ -97,6 +97,7 @@ type
 implementation
 
 uses
+  Classes,
   QuadEngine,
   SysUtils,
   QEngine.Core,
@@ -130,12 +131,17 @@ begin
 end;
 
 procedure THero.LoadFromFile(const AFile: string);
+var
+  AStream: TFileStream;
 begin
 
 end;
 
 procedure THero.SaveToFile(const AFile: string);
+var
+  AStream: TFileStream;
 begin
+
 
 end;
 
