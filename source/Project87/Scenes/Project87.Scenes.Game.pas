@@ -139,7 +139,7 @@ end;
 
 procedure TGameScene.OnUpdate(const ADelta: Double);
 begin
-  THero.GetInstance.UpdateTransPower(ADelta);
+  THero.GetInstance.UpdateTransPower(3 * ADelta);
   UpdateStartAnimation(ADelta);
   ShowLocalMap();
   FObjectManager.OnUpdate(ADelta);

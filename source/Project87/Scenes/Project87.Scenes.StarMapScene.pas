@@ -119,6 +119,7 @@ procedure TStarMapScene.OnUpdate(const ADelta: Double);
 begin
   FMap.OnUpdate(ADelta);
   THero.GetInstance.UpdateLife(ADelta);
+  THero.GetInstance.UpdateTransPower(ADelta);
 end;
 
 procedure TStarMapScene.OnDestroy;

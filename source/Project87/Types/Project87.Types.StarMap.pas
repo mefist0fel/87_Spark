@@ -1101,8 +1101,6 @@ procedure TStarMap.OnUpdate(const ADelta: Double);
 var
   ASystem: TStarSystem;
 begin
-  THero.GetInstance.UpdateTransPower(ADelta);
-
   if FIsTransition then
   begin
     FTime := FTime + ADelta;

@@ -14,7 +14,6 @@ uses
 
 const
   IN_SYSTEM_JUMP_SPEED = 500;
-  DEFAULT_LIFE = 100;
   RADAR_DISTANCE = 1500;
   BASE_ENERGY_RECOVERY_IN_SECOND = 0.002;
   BASE_ENERGY_CONSUMPTION = 0.2;
@@ -23,6 +22,7 @@ const
   LEVELUP_VALUE = 1.1;
   NEEDEXP_FACTOR = 2;
   LIFE_ADDITION = 4;
+  BASE_MAX_ROCKET = 12;
 
 type
   //Hero parameters
@@ -145,12 +145,17 @@ procedure THero.NewPlayer;
 begin
   FExp := 0;
   FLevel := 1;
-  FNeedExp := 100;
-  FLife := DEFAULT_LIFE;
-  FMaxLife := DEFAULT_LIFE;
-  FEnergy := 1;
-  FMaxRocketCount := 5;
-  FRocketCount := 30;
+  FTransPower := 0.5;
+  FExp := 0;
+  FNeedExp := BASE_NEED_EXP;
+  FLife := BASE_LIFE;
+  FMaxLife := BASE_LIFE;
+  FFluid[0] := 0;
+  FFluid[1] := 0;
+  FFluid[2] := 0;
+  FFluid[3] := 0;
+  FRocketCount := BASE_MAX_ROCKET;
+  FMaxRocketCount := BASE_MAX_ROCKET;
 
   FTransPower := 1;
   FTransPowerRecoveryFactor := 1;
@@ -171,6 +176,12 @@ begin
   FNeedExp := BASE_NEED_EXP;
   FLife := BASE_LIFE;
   FMaxLife := BASE_LIFE;
+  FFluid[0] := 0;
+  FFluid[1] := 0;
+  FFluid[2] := 0;
+  FFluid[3] := 0;
+  FRocketCount := BASE_MAX_ROCKET;
+  FMaxRocketCount := BASE_MAX_ROCKET;
 end;
 
 procedure THero.AddExp(ACount: Integer);
@@ -180,7 +191,7 @@ begin
   begin
     Inc(FLevel);
     FExpFactor := Power(LEVELUP_VALUE, FLevel);
-    FMaxLife := BASE_NEED_EXP * FExpFactor;
+    FMaxLife := BASE_LIFE * FExpFactor;
     FExp := 0;
     FNeedExp := Trunc(FNeedExp * NEEDEXP_FACTOR);
   end;
@@ -198,6 +209,7 @@ begin
     AStream.Read(FEnergy, SizeOf(FEnergy));
     AStream.Read(FLevel, SizeOf(FLevel));
     FExpFactor := Power(LEVELUP_VALUE, FLevel);
+    FMaxLife := BASE_LIFE * FExpFactor;
 
     for I := 0 to FLUID_TYPE_COUNT - 1 do
       AStream.Read(FFluid[I], SizeOf(FFluid[I]));
