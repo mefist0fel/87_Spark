@@ -15,8 +15,12 @@ uses
 const
   IN_SYSTEM_JUMP_SPEED = 500;
   RADAR_DISTANCE = 1500;
-  BASE_ENERGY_RECOVERY_IN_SECOND = 0.004;
-  BASE_ENERGY_CONSUMPTION = 0.15;
+  BASE_ENERGY_RECOVERY_IN_SECOND = 0.002;
+  BASE_ENERGY_CONSUMPTION = 0.2;
+  BASE_NEED_EXP = 500;
+  BASE_LIFE = 100;
+  LEVELUP_VALUE = 1.1;
+  NEEDEXP_FACTOR = 2;
 
 type
   //Hero parameters
@@ -30,8 +34,7 @@ type
       FEnergy: Single;
       FLevel: Word;//:)
       FFluid: TResources;
-      FRocketCount: Word;
-      FMaxRocketCount: Word;
+      FRocketCount, FMaxRocketCount: Word;
 
       FIsUsePower: Boolean;
       FUseDuration, FTime: Single;
@@ -153,9 +156,9 @@ procedure THero.KillPlayer;
 begin
   FTransPower := 0.5;
   FExp := 0;
-  FNeedExp := 100;
-  FLife := 100;
-  FMaxLife := 100;
+  FNeedExp := BASE_NEED_EXP;
+  FLife := BASE_LIFE;
+  FMaxLife := BASE_LIFE;
 end;
 
 procedure THero.AddExp(ACount: Integer);
@@ -164,9 +167,9 @@ begin
   if FExp > FNeedExp then
   begin
     Inc(FLevel);
-    FExpFactor := Power(1.15, FLevel);
-    FMaxLife := 100 * FExpFactor;
-    FNeedExp := Trunc(FNeedExp + FNeedExp * 1.5);
+    FExpFactor := Power(LEVELUP_VALUE, FLevel);
+    FMaxLife := BASE_NEED_EXP * FExpFactor;
+    FNeedExp := Trunc(FNeedExp + FNeedExp * NEEDEXP_FACTOR);
   end;
 end;
 
@@ -181,7 +184,7 @@ begin
     AStream.Read(FLife, SizeOf(FLife));
     AStream.Read(FEnergy, SizeOf(FEnergy));
     AStream.Read(FLevel, SizeOf(FLevel));
-    FExpFactor := Power(1.15, FLevel);
+    FExpFactor := Power(LEVELUP_VALUE, FLevel);
 
     for I := 0 to FLUID_TYPE_COUNT - 1 do
       AStream.Read(FFluid[I], SizeOf(FFluid[I]));
@@ -226,12 +229,12 @@ end;
 
 function THero.GetTransRecovery;
 begin
-  Result := BASE_ENERGY_RECOVERY_IN_SECOND * FTransPowerRecoveryFactor;
+  Result := BASE_ENERGY_RECOVERY_IN_SECOND * FTransPowerRecoveryFactor * FExpFactor;
 end;
 
 function THero.GetTransConsumption;
 begin
-  Result := BASE_ENERGY_CONSUMPTION / FTransPowerConsumptionFactor;
+  Result := BASE_ENERGY_CONSUMPTION / (FTransPowerConsumptionFactor * FExpFactor);
 end;
 
 procedure THero.AddFluid(AType: TFluidType);
