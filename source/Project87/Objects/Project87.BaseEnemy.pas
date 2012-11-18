@@ -7,20 +7,24 @@ uses
   Strope.Math,
   Project87.BaseUnit,
   Project87.Types.StarMap,
+  Project87.Types.Weapon,
   Project87.Types.GameObject;
 
 const
   MAX_LIFE = 100;
-  FLY_TO_HERO_DISTANCE = 700 * 700;
+  FLY_TO_HERO_DISTANCE = 300 * 300;
+  DISTANCE_TO_FIRE = 550 * 550;
   MAX_BASE_UNIT_SPEED = 900;
+  DEFAULT_ACTION_TIME = 2;
 
 type
   TAIAction = (
     None = 0,
     FlyToHeroAndFire = 1,
-    MakeManuver = 2,
-    FlyFromHero = 3,
-    StopAndFireToHero = 4
+    MakeLeftManuver = 2,
+    MakeRightManuver = 3,
+    FlyForward = 4,
+    StopAndFireToHero = 5
   );
 
   TBaseEnemy = class (TBaseUnit)
@@ -30,8 +34,10 @@ type
       FDistanceToHero: Single;
       FCurrentAction: TAIAction;
       FActionTime: Single;
-      procedure SetAction(ANewAction: TAIAction);
+      FCannon: TCannon;
+      procedure SetAction(ANewAction: TAIAction; AActionTime: Single = DEFAULT_ACTION_TIME);
       procedure AIAct(const ADelta: Double);
+      procedure SetRandomDirection;
     public
       constructor CreateUnit(const APosition: TVector2F; AAngle: Single;
         ASide: TLifeFraction); override;
@@ -44,6 +50,7 @@ type
 implementation
 
 uses
+  SysUtils,
   QEngine.Core,
   Project87.Resources,
   Project87.Asteroid,
@@ -60,6 +67,7 @@ begin
   FLife := MAX_LIFE;
   FColor := GetSideColor(ASide);
   FCurrentAction := None;
+  FCannon := TCannon.Create(oEnemy, 1, 10);
 end;
 
 procedure TBaseEnemy.OnDraw;
@@ -77,6 +85,7 @@ begin
       FPosition.X - 35, FPosition.Y - 43,
       FPosition.X - 35 + FLife / MAX_LIFE * 70, FPosition.Y - 40,
       $FF00FF00);
+  TheResources.Font.TextOut(IntToStr(Integer(FCurrentAction)), FPosition, 1);
 end;
 
 procedure TBaseEnemy.OnCollide(OtherObject: TPhysicalObject);
@@ -90,12 +99,21 @@ begin
   end;
 end;
 
-procedure TBaseEnemy.SetAction(ANewAction: TAIAction);
+procedure TBaseEnemy.SetAction(ANewAction: TAIAction; AActionTime: Single = DEFAULT_ACTION_TIME);
 begin
   if FActionTime < 0 then
   begin
     FCurrentAction := ANewAction;
-    FActionTime := 2;
+    FActionTime := AActionTime;
+  end;
+end;
+
+procedure TBaseEnemy.SetRandomDirection;
+begin
+  case Random(4) of
+    0:SetAction(FlyForward, Random(10) / 10);
+    1:SetAction(MakeRightManuver, Random(10) / 10);
+    2:SetAction(MakeLeftManuver, Random(10) / 10);
   end;
 end;
 
@@ -109,25 +127,47 @@ begin
     end;
     FlyToHeroAndFire:
     begin
-      FAngle := RotateToAngle(FAngle, GetAngle(FPosition, THeroShip.GetInstance.Position), 10);
+      FAngle := RotateToAngle(FAngle, GetAngle(FPosition, THeroShip.GetInstance.Position), 3);
       FVelocity := FVelocity *  (1 - ADelta) + GetRotatedVector(FAngle, MAX_BASE_UNIT_SPEED) * (ADelta);
       if FDistanceToHero < FLY_TO_HERO_DISTANCE then
-        SetAction(MakeManuver);
+        if Random(2) = 0 then
+          SetAction(MakeLeftManuver, Random(10) / 10 + 1)
+        else
+          SetAction(MakeRightManuver, Random(10) / 10 + 1);
     end;
-    MakeManuver:
+    MakeLeftManuver:
     begin
-    //  FVelocity := FVelocity *  (1 - ADelta);
+      FAngle := RoundAngle(FAngle + 3);
+      FVelocity := FVelocity *  (1 - ADelta) + GetRotatedVector(FAngle, MAX_BASE_UNIT_SPEED) * (ADelta);
       if FDistanceToHero > FLY_TO_HERO_DISTANCE then
-        SetAction(FlyToHeroAndFire);
+        FCurrentAction := FlyToHeroAndFire;
+      SetRandomDirection;
     end;
-    FlyFromHero: ;
+    MakeRightManuver:
+    begin
+      FAngle := RoundAngle(FAngle - 3);
+      FVelocity := FVelocity *  (1 - ADelta) + GetRotatedVector(FAngle, MAX_BASE_UNIT_SPEED) * (ADelta);
+      if FDistanceToHero > FLY_TO_HERO_DISTANCE then
+        FCurrentAction := FlyToHeroAndFire;
+      SetRandomDirection;
+    end;
+    FlyForward:
+    begin
+      FVelocity := FVelocity *  (1 - ADelta) + GetRotatedVector(FAngle, MAX_BASE_UNIT_SPEED) * (ADelta);
+      if FDistanceToHero > FLY_TO_HERO_DISTANCE then
+        FCurrentAction := FlyToHeroAndFire;
+      SetRandomDirection;
+    end;
     StopAndFireToHero: ;
   end;
+  if FDistanceToHero < DISTANCE_TO_FIRE then
+    FCannon.Fire(FPosition, GetAngle(FPosition, THeroShip.GetInstance.Position));
 end;
 
 procedure TBaseEnemy.OnUpdate(const ADelta: Double);
 begin
   inherited;
+  FCannon.OnUpdate(ADelta);
   if FSeeHero then
   begin
     AIAct(ADelta);

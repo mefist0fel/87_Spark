@@ -87,7 +87,7 @@ type
       procedure OnDraw; override;
       procedure OnUpdate(const  ADelta: Double); override;
       procedure OnCollide(AObject: TPhysicalObject); override;
-      procedure Hit(ADamage: Single);
+      procedure Hit(ADamage: Single); override;
       procedure FlyInSystem(APosition: TVector2F; AAngle: Single);
   end;
 
@@ -268,8 +268,8 @@ procedure THeroShip.Hit(ADamage: Single);
 begin
   FShowShieldTime := 0.7;
   FLife := FLife - ADamage;
-  if (FLife < 0) then
-    Kill;
+{  if (FLife < 0) then
+    Kill;    }
 end;
 
 procedure THeroShip.FlyInSystem(APosition: TVector2F; AAngle: Single);
