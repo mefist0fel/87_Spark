@@ -141,8 +141,8 @@ begin
   SceneManager.AddScene(TMainMenuScene.Create('MainMenu'));
   SceneManager.AddScene(TStarMapScene.Create('StarMap'));
   SceneManager.AddScene(TGameScene.Create('Spark'));
-  //SceneManager.MakeCurrent('Intro');
-  SceneManager.MakeCurrent('StarMap');
+  SceneManager.MakeCurrent('Intro');
+  //SceneManager.MakeCurrent('StarMap');
   //SceneManager.MakeCurrent('Spark');
 
   ASceneParameter := TStarMapSceneParameters.Create(False);
