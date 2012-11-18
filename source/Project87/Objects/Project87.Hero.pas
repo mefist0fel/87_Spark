@@ -18,7 +18,7 @@ const
   RADAR_DISTANCE = 1500;
   BASE_ENERGY_RECOVERY_IN_SECOND = 0.002;
   BASE_ENERGY_CONSUMPTION = 0.2;
-  BASE_NEED_EXP = 500;
+  BASE_NEED_EXP = 150;
   BASE_LIFE = 100;
   LEVELUP_VALUE = 1.1;
   NEEDEXP_FACTOR = 2;
@@ -61,6 +61,7 @@ type
 
       procedure AddFluid(AType: TFluidType);
       procedure AddExp(ACount: Integer);
+      procedure UpdateLife(ADelta: Double);
       procedure UpdateTransPower(ADelta: Double);
       procedure UseTransPower(ADuration: Double);
 
@@ -180,7 +181,8 @@ begin
     Inc(FLevel);
     FExpFactor := Power(LEVELUP_VALUE, FLevel);
     FMaxLife := BASE_NEED_EXP * FExpFactor;
-    FNeedExp := Trunc(FNeedExp + FNeedExp * NEEDEXP_FACTOR);
+    FExp := 0;
+    FNeedExp := Trunc(FNeedExp * NEEDEXP_FACTOR);
   end;
 end;
 
@@ -251,6 +253,15 @@ end;
 procedure THero.AddFluid(AType: TFluidType);
 begin
   Inc(FFluid[(Word(AType))]);
+end;
+
+procedure THero.UpdateLife(ADelta: Double);
+begin
+  if FLife < MaxLife then
+  begin
+    FLife := FLife + ADelta * LIFE_ADDITION * ExpFactor;
+    FLife := Clamp(FLife, MaxLife, 0);
+  end;
 end;
 
 procedure THero.UpdateTransPower(ADelta: Double);
@@ -339,10 +350,7 @@ begin
   FOldPosition := Position;
   AShift := AShift * 0.3;
   TheEngine.Camera.Position := FPosition;
-  if THero.FInstance.FLife < DEFAULT_LIFE then
-  begin
-    THero.FInstance.FLife := THero.FInstance.FLife + ADelta * LIFE_ADDITION;
-  end;
+  THero.GetInstance.UpdateLife(ADelta);
   TStarFon.Instance.Shift(AShift);
 end;
 
