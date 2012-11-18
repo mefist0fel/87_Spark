@@ -16,8 +16,12 @@ const
   IN_SYSTEM_JUMP_SPEED = 500;
   DEFAULT_LIFE = 200;
   RADAR_DISTANCE = 1500;
-  BASE_ENERGY_RECOVERY_IN_SECOND = 0.004;
-  BASE_ENERGY_CONSUMPTION = 0.15;
+  BASE_ENERGY_RECOVERY_IN_SECOND = 0.002;
+  BASE_ENERGY_CONSUMPTION = 0.2;
+  BASE_NEED_EXP = 500;
+  BASE_LIFE = 100;
+  LEVELUP_VALUE = 1.1;
+  NEEDEXP_FACTOR = 2;
   LIFE_ADDITION = 4;
 
 type
@@ -26,12 +30,13 @@ type
     private
       class var FInstance: THero;
     private
-      FLife: Single;
+      FExp, FNeedExp: Integer;
+      FExpFactor: Single;
+      FLife, FMaxLife: Single;
       FEnergy: Single;
       FLevel: Word;//:)
       FFluid: TResources;
-      FRocketCount: Word;
-      FMaxRocketCount: Word;
+      FRocketCount, FMaxRocketCount: Word;
 
       FIsUsePower: Boolean;
       FUseDuration, FTime: Single;
@@ -47,16 +52,23 @@ type
     public
       class function GetInstance: THero;
 
+      procedure NewPlayer;
+      procedure KillPlayer;
       procedure LoadFromFile(const AFile: string);
       procedure SaveToFile(const AFile: string);
 
       procedure AddFluid(AType: TFluidType);
+      procedure AddExp(ACount: Integer);
       procedure UpdateTransPower(ADelta: Double);
       procedure UseTransPower(ADuration: Double);
 
+      property ExpFactor: Single read FExpFactor;
+      property Experience: Integer read FExp;
+      property NeedExperience: Integer read FNeedExp;
       property Fluid[AIndex: Integer]: Word read GetFluid;
       property Rockets: Word read FRocketCount write FRocketCount;
       property Life: Single read FLife;
+      property MaxLife: Single read FMaxLife;
       property Energy: Single read FEnergy;
       property TransPower: Single read FTransPower;
       property TransPowerRecovery: Single read GetTransRecovery;
@@ -99,6 +111,8 @@ type
 implementation
 
 uses
+  Math,
+  Classes,
   QuadEngine,
   SysUtils,
   QEngine.Core,
@@ -113,7 +127,23 @@ uses
 {$REGION '  THero  '}
 constructor THero.Create;
 begin
+  NewPlayer;
+end;
+
+class function THero.GetInstance: THero;
+begin
+  if FInstance = nil then
+    FInstance := THero.Create;
+  Result := FInstance;
+end;
+
+procedure THero.NewPlayer;
+begin
+  FExp := 0;
+  FLevel := 1;
+  FNeedExp := 100;
   FLife := DEFAULT_LIFE;
+  FMaxLife := DEFAULT_LIFE;
   FEnergy := 1;
   FMaxRocketCount := 5;
   FRocketCount := 30;
@@ -124,21 +154,72 @@ begin
   FIsUsePower := False;
 end;
 
-class function THero.GetInstance: THero;
+procedure THero.KillPlayer;
 begin
-  if FInstance = nil then
-    FInstance := THero.Create;
-  Result := FInstance;
+  FTransPower := 0.5;
+  FExp := 0;
+  FNeedExp := BASE_NEED_EXP;
+  FLife := BASE_LIFE;
+  FMaxLife := BASE_LIFE;
+end;
+
+procedure THero.AddExp(ACount: Integer);
+begin
+  FExp := FExp + ACount;
+  if FExp > FNeedExp then
+  begin
+    Inc(FLevel);
+    FExpFactor := Power(LEVELUP_VALUE, FLevel);
+    FMaxLife := BASE_NEED_EXP * FExpFactor;
+    FNeedExp := Trunc(FNeedExp + FNeedExp * NEEDEXP_FACTOR);
+  end;
 end;
 
 procedure THero.LoadFromFile(const AFile: string);
+var
+  AStream: TFileStream;
+  I: Integer;
 begin
+  AStream := TFileStream.Create(AFile, fmOpenRead);
+    AStream.Read(FExp, SizeOf(FExp));
+    AStream.Read(FNeedExp, SizeOf(FNeedExp));
+    AStream.Read(FLife, SizeOf(FLife));
+    AStream.Read(FEnergy, SizeOf(FEnergy));
+    AStream.Read(FLevel, SizeOf(FLevel));
+    FExpFactor := Power(LEVELUP_VALUE, FLevel);
 
+    for I := 0 to FLUID_TYPE_COUNT - 1 do
+      AStream.Read(FFluid[I], SizeOf(FFluid[I]));
+
+    AStream.Read(FRocketCount, SizeOf(FRocketCount));
+    AStream.Read(FMaxRocketCount, SizeOf(FRocketCount));
+    AStream.Read(FTransPower, SizeOf(FTransPower));
+    AStream.Read(FTransPowerRecoveryFactor, SizeOf(FTransPowerRecoveryFactor));
+    AStream.Read(FTransPowerConsumptionFactor, SizeOf(FTransPowerConsumptionFactor));
+  AStream.Free;
 end;
 
 procedure THero.SaveToFile(const AFile: string);
+var
+  AStream: TFileStream;
+  I: Integer;
 begin
+  AStream := TFileStream.Create(AFile, fmOpenWrite);
+    AStream.Write(FExp, SizeOf(FExp));
+    AStream.Write(FNeedExp, SizeOf(FNeedExp));
+    AStream.Write(FLife, SizeOf(FLife));
+    AStream.Write(FEnergy, SizeOf(FEnergy));
+    AStream.Write(FLevel, SizeOf(FLevel));
 
+    for I := 0 to FLUID_TYPE_COUNT - 1 do
+      AStream.Write(FFluid[I], SizeOf(FFluid[I]));
+
+    AStream.Write(FRocketCount, SizeOf(FRocketCount));
+    AStream.Write(FMaxRocketCount, SizeOf(FRocketCount));
+    AStream.Write(FTransPower, SizeOf(FTransPower));
+    AStream.Write(FTransPowerRecoveryFactor, SizeOf(FTransPowerRecoveryFactor));
+    AStream.Write(FTransPowerConsumptionFactor, SizeOf(FTransPowerConsumptionFactor));
+  AStream.Free;
 end;
 
 function THero.GetFluid(AIndex: Integer): Word;
@@ -150,12 +231,12 @@ end;
 
 function THero.GetTransRecovery;
 begin
-  Result := BASE_ENERGY_RECOVERY_IN_SECOND * FTransPowerRecoveryFactor;
+  Result := BASE_ENERGY_RECOVERY_IN_SECOND * FTransPowerRecoveryFactor * FExpFactor;
 end;
 
 function THero.GetTransConsumption;
 begin
-  Result := BASE_ENERGY_CONSUMPTION / FTransPowerConsumptionFactor;
+  Result := BASE_ENERGY_CONSUMPTION / (FTransPowerConsumptionFactor * FExpFactor);
 end;
 
 procedure THero.AddFluid(AType: TFluidType);

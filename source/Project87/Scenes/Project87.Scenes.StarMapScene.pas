@@ -41,7 +41,8 @@ implementation
 uses
   QuadEngine,
   QEngine.Core,
-  QApplication.Application;
+  QApplication.Application,
+  Project87.Hero;
 
 {$REGION '  TStarMapSceneParameters  '}
 constructor TStarMapSceneParameters.Create(AIsNewGame: Boolean);
@@ -82,9 +83,15 @@ begin
   begin
     FMap.Clear;
     if (AParameter as TStarMapSceneParameters).IsNewGame then
+    begin
+      THero.GetInstance.NewPlayer;
       FMap.OnInitialize
+    end
     else
+    begin
+      THero.GetInstance.LoadFromFile('..\data\map\player.user');
       FMap.LoadFromFile(STARMAP_FILE);
+    end;
     FMap.BackToMap;
     Exit;
   end;
@@ -112,6 +119,7 @@ end;
 procedure TStarMapScene.OnDestroy;
 begin
   FMap.SaveToFile(STARMAP_FILE);
+  THero.GetInstance.SaveToFile('..\data\map\player.user');
 end;
 
 function TStarMapScene.OnMouseMove(const AMousePosition: TVectorF): Boolean;
