@@ -18,7 +18,6 @@ uses
 
 const
   LIFEFRACTION_COUNT = 3;
-  BASE_ENERGY_RECOVERY_IN_SECOND = 0.005;
 
 type
   TSystemSize = (ssSmall = 0, ssMedium = 1, ssBig = 2);
@@ -137,8 +136,6 @@ type
       FUnRadius, FNeedUnRadius: Single;
       FUnRatio: array [0..1] of Single;
 
-      FEnergyCapacity, FStartCapacity, FNeedCapacity: Single;
-
       FIsTransition: Boolean;
       FIsBack: Boolean;
       FIsEnter: Boolean;
@@ -193,7 +190,7 @@ type
       destructor Destroy; override;
 
       procedure Clear;
-      procedure BackToMap(AEnergyCapacity: Single; AResult: TStarSystemResult = nil);
+      procedure BackToMap(AResult: TStarSystemResult = nil);
       procedure LoadFromFile(const AFile: string);
       procedure SaveToFile(const AFile: string);
 
@@ -217,6 +214,7 @@ uses
   direct3d9,
   QGame.Game,
   QGame.Resources,
+  Project87.Hero,
   Project87.Resources;
 
 const
@@ -904,8 +902,7 @@ end;
 procedure TStarMap.BeginTransition;
 begin
   FIsTransition := True;
-  FStartCapacity := FEnergyCapacity;
-  FNeedCapacity := Clamp(FEnergyCapacity - 0.15, 1, 0);
+  THero.GetInstance.UseTransPower(TRANSITION_TIME);
   FTime := 0;
 end;
 
@@ -962,7 +959,6 @@ begin
   FInfoSystem := nil;
   FIsBack := True;
   FTime := 0;
-  FEnergyCapacity := AEnergyCapacity;
 end;
 
 procedure TStarMap.EnterToSystem;
@@ -1036,14 +1032,17 @@ begin
     AColor := $FFFFB080;
     ASize := 1.3;
   end;
-  if not CheckDistance(FCamera.Position, ASystem.Position, MAX_DISTANCE * FEnergyCapacity) then
+  if not CheckDistance(
+    FCamera.Position, ASystem.Position,
+    MAX_DISTANCE * THero.GetInstance.TransPower)
+  then
     AColor := $FF707070;
   FStar.Draw(ASystem.Position, SystemSize * ASize, 0, AColor);
 end;
 
 procedure TStarMap.DrawConstrain;
 begin
-  FUnRadius := FNeedUnRadius * FCamera.Scale.X * FEnergyCapacity;
+  FUnRadius := FNeedUnRadius * FCamera.Scale.X * THero.GetInstance.TransPower;
   FUnavailableShader.SetShaderState(True);
     TheEngine.Camera := nil;
     FUnavailableBuffer.Draw(0, 0, $18FF6060);
@@ -1102,18 +1101,14 @@ procedure TStarMap.OnUpdate(const ADelta: Double);
 var
   ASystem: TStarSystem;
 begin
-  FEnergyCapacity := FEnergyCapacity + BASE_ENERGY_RECOVERY_IN_SECOND * ADelta;
-  FEnergyCapacity := Clamp(FEnergyCapacity, 1, 0);
+  THero.GetInstance.UpdateTransPower(ADelta);
 
   if FIsTransition then
   begin
     FTime := FTime + ADelta;
-    FEnergyCapacity := InterpolateValue(
-      FStartCapacity, FNeedCapacity, FTime / TRANSITION_TIME, itHermit01);
     if FTime > TRANSITION_TIME then
     begin
       FIsTransition := False;
-      FEnergyCapacity := FNeedCapacity;
       TransitionToSelected;
     end;
   end;
@@ -1162,7 +1157,9 @@ begin
 
     if IsOnScreen(ASystem) then
       if ASystem.IsContains(AWPosition) and
-        CheckDistance(ASystem.Position, FCurrentSystem.Position, MAX_DISTANCE * FEnergyCapacity) and
+        CheckDistance(
+          ASystem.Position, FCurrentSystem.Position,
+          MAX_DISTANCE * THero.GetInstance.TransPower) and
         (ASystem <> FInfoSystem)
       then
       begin
