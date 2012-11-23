@@ -63,7 +63,8 @@ uses
   QuadEngine,
   direct3d9,
   QEngine.Core,
-  QGame.Game;
+  QGame.Game,
+  Project87.Scenes.StarMapScene;
 
 {$REGION '  TIntroScene  '}
 const
@@ -170,6 +171,8 @@ begin
 end;
 
 procedure TIntroScene.OnUpdate(const ADelta: Double);
+var
+  ASceneParameter: TStarMapSceneParameters;
 begin
   FBalancerTime := FBalancerTime + ADelta;
   if FBalancerTime > BALANCER_FRAME_DELTA then
@@ -223,7 +226,8 @@ begin
         if FIsToMenu then
         begin
           TheGame.SceneManager.MakeCurrent(NEXT_SCENE);
-          TheGame.SceneManager.OnInitialize;
+          ASceneParameter := TStarMapSceneParameters.Create(False);
+          TheSceneManager.OnInitialize(ASceneParameter);
           Exit;
         end;
 
@@ -234,8 +238,8 @@ begin
           if FLogo = 2 then
           begin
             TheGame.SceneManager.MakeCurrent(NEXT_SCENE);
-            TheGame.SceneManager.OnInitialize;
-            TheGame.SceneManager.DeleteScene(Name);
+            ASceneParameter := TStarMapSceneParameters.Create(False);
+            TheSceneManager.OnInitialize(ASceneParameter);
             Exit;
           end;
         end;
